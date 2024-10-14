@@ -5,27 +5,28 @@ library(data.table)
 library(lubridate)
 library(ggplot2)
 
-
+#read in data
 snow <- readRDS("Output/Data/snowgrids.rds")
-willowpred <- readRDS("../Hare_food_availability/Output/Data/Willow_avail_prediction.rds")
-
+pred <- readRDS("../Hare_food_availability/Output/Data/snowdepth_predictions.rds")
 
 #round snow depth to nearest cm
 snow[, Snow := round(SD)]
 
-test <- snow[1:1]
-snowdepth <- test$Snow
-dat <- willowpred[Snow == snowdepth]
-test[, willow := sum(dat$pred)]
+#cut just willow
+predwillow <- pred[species == "willow", .(Snow, 
+                                          wbiomass = biomassavail, 
+                                          wprop = propavail, 
+                                          wCPcomp = CPavail_comp)]
+
+#cut just spruce
+predspruce <- pred[species == "spruce", .(Snow, 
+                                          sbiomass = biomassavail, 
+                                          sprop = propavail, 
+                                          sCPcomp = CPavail_comp)]
+
+#merge food predictions with snow data
+food <- merge(snow, predwillow, by = "Snow")
+food <- merge(food, predspruce, by = "Snow")
 
 
-
-get_willow <- function(xvar){
-  snowdepth <- as.numeric(xvar)
-  dat <- willowpred[Snow %in% snowdepth]
-  #return(sum(dat$pred)) THIS IS WRONG
-  return(dat)
-}
-
-get_willow(xvar = test$Snow)
-
+saveRDS(food, "Output/Data/snow_and_food.rds")
