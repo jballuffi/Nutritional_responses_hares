@@ -7,13 +7,13 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 # read in data ------------------------------------------------------------
 
-cp <- fread("Input/fecal_protein_round1and2.csv")
+cp <- fread("Input/fecal_CP_2016_2019.csv")
 cp <- cp[order(vial)]
 
-dm <- fread("Input/fecal_drymatter.csv")
+dm <- fread("Input/fecal_DM_2016_2019.csv")
 dm <- dm[order(Vial)]
 
-samps <- fread("Output/samplelist.csv")
+samps <- fread("Output/Data/samplelist.csv")
 
 #some vials turned out to be duplicated. Grab all the vial numbers for now
 dupvials <- samps[duplicated(Vial) == TRUE, unique(Vial)]
