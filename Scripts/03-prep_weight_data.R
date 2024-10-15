@@ -13,8 +13,6 @@ trap[, y := year(idate)]
 trap[, m := month(idate)]
 setorder(trap, idate)
 
-foods[, Eartag := as.factor(Eartag)]
-
 #list months that count as winter
 wintermonths <- c("1", "2", "3", "4", "9", "10","11", "12")
 
@@ -66,6 +64,9 @@ adults <- adults[, .(ID, grid, idate, y, m, Sex, RHFweek, Weightweek)]
 
 #replace NaN with NA
 adults[RHFweek == "NaN", RHFweek := NA]
+
+#cut to 2015 onward
+adults <- adults[y > 2014]
 
 #subset to only include winter months
 winters <- adults[m %in% wintermonths]
