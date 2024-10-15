@@ -4,11 +4,7 @@
 
 
 #source the R folder to load any packages and functions
-#lapply(dir('R', '*.R', full.names = TRUE), source)
-
-library(data.table)
-library(lubridate)
-library(ggplot2)
+lapply(dir('R', '*.R', full.names = TRUE), source)
 
 # collect data ------------------------------------------------------------
 
@@ -98,6 +94,8 @@ snowfull[month(Date) < 4, winter := paste0(year(Date) - 1, "-", year(Date))]
 
 #grab only winter
 snowfull <- snowfull[!is.na(winter)]
+snowfull <- snowfull[!winter == "NA-NA"]
+
 
 #if source is NA say "fill"
 snowfull[is.na(source), source := "fill"]
