@@ -3,7 +3,7 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 #read in trapping records data
 trap <- fread("Input/trapping_all_records.csv")
-foods <- readRDS("Output/Data/food_adds.rds")
+
 
 # column prep ----------------------------------------------------------
 
@@ -61,6 +61,12 @@ trap$Weightweek <- rowMeans(trap[, .(Weight, Weight_2, Weight_3, Weight_4)], na.
 #remove juvs and work with just adults
 adults <- trap[!grep("Juv", Maturity)]  #change this to just grab adults instead?
 
+#cut to just relevant columns
+adults <- adults[, .(ID, grid, idate, y, m, Sex, RHFweek, Weightweek)]
+
+#replace NaN with NA
+adults[RHFweek == "NaN", RHFweek := NA]
+
 #subset to only include winter months
 winters <- adults[m %in% wintermonths]
 
@@ -74,13 +80,6 @@ winters[m > 8, winter := y]
 winters[, winter := paste0(winter, "-", winter+1)]
 winters[, winter := as.character(winter)]
 
-
-
-# add food adds -----------------------------------------------------------
-
-#merge in food add information to winter individuals
-winters <- merge(winters, foods, by.x = c("ID", "winter"), by.y = c("Eartag", "winter"), all.x = TRUE)
-winters[is.na(Food), Food := 0]
 
 
 # save just winter data and all cleaned trapping data ---------------------
