@@ -71,8 +71,8 @@ foodcols <- c("1" = "red3", "0" = "grey40")
 
  # save things -------------------------------------------------------------
 
-saveRDS(dat, "Output/data/CP_results_cleaned.rds")
+saveRDS(dat, "Output/Data/CP_results_cleaned.rds")
 
-ggsave("Output/figures/fecal_protein_preliminary_withmonth.jpeg", plot, width = 8, height = 4, units = "in")
+ggsave("Output/Figures/fecal_protein_preliminary_withmonth.jpeg", plot, width = 8, height = 4, units = "in")
 
 

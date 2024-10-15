@@ -6,7 +6,7 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 #read in data
 trap <- fread("Input/Query_for_fecals.csv")
 foodadds <- readRDS("Output/data/food_adds.rds")
-axy <- fread("../Hare_food_availability/Input/allHareDailyValues2015_2021.csv")
+axy <- fread("Input/allHareDailyValues2015_2021.csv")
 hr <- readRDS("../HR_PopCycle_SnowshoeHares/data/all_gps.rds")
 
 
