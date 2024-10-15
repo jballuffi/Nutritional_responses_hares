@@ -3,7 +3,7 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 #read in trapping records data
 trap <- fread("Input/trapping_all_records.csv")
-foods <- readRDS("Output/data/food_adds.rds")
+foods <- readRDS("Output/Data/food_adds.rds")
 
 # column prep ----------------------------------------------------------
 
@@ -85,5 +85,5 @@ winters[is.na(Food), Food := 0]
 
 # save just winter data and all cleaned trapping data ---------------------
 
-saveRDS(winters, "Output/data/winter_weights.rds")
-saveRDS(adults, "Output/data/fullyear_weights.rds")
+saveRDS(winters, "Output/Data/winter_weights.rds")
+saveRDS(adults, "Output/Data/fullyear_weights.rds")
