@@ -1,11 +1,8 @@
 #script that investigates foraging data from previous winters
 #also includes snow depths from those years
 
-library(data.table)
-library(ggplot2)
-library(lubridate)
-library(ggpubr)
-
+#source the R folder to load any packages and functions
+lapply(dir('R', '*.R', full.names = TRUE), source)
 
 beh <- fread("Input/allHareDailyValues2015_2021.csv")
 trapping <- fread("Input/Trapping_data_all_records.csv")
