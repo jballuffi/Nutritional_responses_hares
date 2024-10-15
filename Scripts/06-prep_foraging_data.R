@@ -6,7 +6,6 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 beh <- fread("Input/allHareDailyValues2015_2021.csv")
 trapping <- fread("Input/Trapping_data_all_records.csv")
-snow <- readRDS("Output/Data/snowgrids.rds")
 
 
 
@@ -47,14 +46,6 @@ beh[grid == "Agnes" | grid == "Kloo" | grid == "Jo", snowgrid := grid]
 beh[grid == "Sulphur" | grid == "Rolo" | grid == "Chadbear" | grid == "Leroy", snowgrid := "Kloo"]
 beh[grid == "Chitty", snowgrid := "Agnes"]
 
-
-# merge snow data with behaviour data -------------------------------------------------------------------
-
-full <- merge(beh, snow, by = c("Date", "winter", "snowgrid"), all.x = TRUE)
-
-#remove values without snow depth for now
-
-full <- full[!is.na(SD)]
 
 full[, Moving := Forage + Hopping + Sprinting]
 
