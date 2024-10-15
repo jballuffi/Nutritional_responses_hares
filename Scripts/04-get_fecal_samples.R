@@ -173,4 +173,4 @@ dat[m == 3, Nmar := .N, by = .(id, winter)]
 
 dat <- dat[order(Vial)]
 
-write.csv(dat, "Output/samplelist.csv")
+write.csv(dat, "Output/Data/samplelist.csv")
