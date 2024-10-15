@@ -2,13 +2,12 @@
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
-#read in prepped fecal data
+#read in prepped data
 fecals <- readRDS("Output/data/CP_results_cleaned.rds")
 fecals[, Eartag := as.factor(Eartag)]
 
 #read in winter weight data
-alltrap <- readRDS("Output/data/winter_weights.rds")
-alltrap <- alltrap[y > 2014] #cut out old trapping for now
+
 alltrap <- alltrap[m > 10|m < 4]
 
 alltrap[, Food := as.factor(Food)]
