@@ -1,9 +1,6 @@
 
-
-
-library(data.table)
-library(lubridate)
-library(ggplot2)
+#source the R folder to load any packages and functions
+lapply(dir('R', '*.R', full.names = TRUE), source)
 
 #read in data
 snow <- readRDS("Output/Data/snowgrids.rds")
