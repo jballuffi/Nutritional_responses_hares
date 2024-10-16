@@ -3,8 +3,15 @@
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
 #read in prepped data
-fecals <- readRDS("Output/data/CP_results_cleaned.rds")
-fecals[, Eartag := as.factor(Eartag)]
+fecal <- readRDS("Output/data/CP_results_cleaned.rds")
+foraging <- readRDS("Output/Data/foraging_rates.rds")
+foodadd <- readRDS("Output/Data/food_adds.rds")
+twigs <- readRDS("Output/Data/snow_and_food.rds")
+weights <- readRDS("Output/Data/winter_weights.rds")
+density <- readRDS("../HR_PopCycle_SnowshoeHares/output/results/dailyharedensities.rds")
+
+
+fecal[, Eartag := as.factor(Eartag)]
 
 #read in winter weight data
 
