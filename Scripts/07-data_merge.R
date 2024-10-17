@@ -21,14 +21,16 @@ weights <- merge(weights, foodadd, by = c("ID", "winter"), all.x = TRUE)
 
 weights[is.na(Food), Food := 0]
 weights[, Food := as.factor(Food)]
+weights <- weights[y < 2020]
 weights[, y := as.factor(y)]
 
 foodcols <- c("1" = "red3", "0" = "grey40")
 
-ggplot(weights[Sex == 2 & m == 3])+
+ggplot(weights[Sex == 2 & m == 1])+
   geom_boxplot(aes(x = y, y = Weightweek, color = Food))+
-  labs(y = "Weight (g)", title = "Female weight in march")+
+  labs(y = "Weight (g)", title = "Female weight in january")+
   scale_color_manual(values = foodcols)+
+  ylim(1100, 2000)+
   theme_minimal()
 
 
