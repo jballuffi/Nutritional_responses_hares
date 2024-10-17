@@ -11,6 +11,37 @@ weights <- readRDS("Output/Data/winter_weights.rds")
 density <- readRDS("../HR_PopCycle_SnowshoeHares/output/results/dailyharedensities.rds")
 
 
+
+
+# merge weight and food add -----------------------------------------------
+
+foodadd[, ID := as.factor(Eartag)]
+
+weights <- merge(weights, foodadd, by = c("ID", "winter"), all.x = TRUE)
+
+weights[is.na(Food), Food := 0]
+weights[, Food := as.factor(Food)]
+weights[, y := as.factor(y)]
+
+foodcols <- c("1" = "red3", "0" = "grey40")
+
+ggplot(weights[Sex == 2 & m == 3])+
+  geom_boxplot(aes(x = y, y = Weightweek, color = Food))+
+  labs(y = "Weight (g)", title = "Female weight in march")+
+  scale_color_manual(values = foodcols)+
+  theme_minimal()
+
+
+
+
+
+
+
+
+
+
+
+
 fecal[, Eartag := as.factor(Eartag)]
 
 #read in winter weight data
