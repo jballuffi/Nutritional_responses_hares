@@ -4,26 +4,15 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 #read in data
 snow <- readRDS("Output/Data/snowgrids.rds")
-pred <- readRDS("../Hare_food_availability/Output/Data/snowdepth_predictions.rds")
+pred <- readRDS("../Willow_twigs_snowdepth/Output/Data/05_willow_avail_prediction.rds")
+
+
 
 #round snow depth to nearest cm
 snow[, Snow := round(SD)]
 
-#cut just willow
-predwillow <- pred[species == "willow", .(Snow, 
-                                          wbiomass = biomassavail, 
-                                          wprop = propavail, 
-                                          wCPcomp = CPavail_comp)]
-
-#cut just spruce
-predspruce <- pred[species == "spruce", .(Snow, 
-                                          sbiomass = biomassavail, 
-                                          sprop = propavail, 
-                                          sCPcomp = CPavail_comp)]
-
 #merge food predictions with snow data
-food <- merge(snow, predwillow, by = "Snow")
-food <- merge(food, predspruce, by = "Snow")
+food <- merge(snow, pred, by = "Snow")
 
 
 
