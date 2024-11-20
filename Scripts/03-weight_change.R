@@ -4,8 +4,7 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 #read in data
 trap <- fread("Input/trapping_all_records.csv")
-density <- readRDS("../HR_PopCycle_SnowshoeHares/output/results/dailyharedensities.rds")
-food <- readRDS("Output/Data/food_adds.rds")
+
 
 
 # column prep ----------------------------------------------------------
@@ -44,10 +43,6 @@ trap[weight == 0, weight := NA]
 #insanely big or small rhf become NA
 trap[rhf > 200 | rhf < 20, rhf := NA]
 
-
-
-# sub-setting --------------------------------------------------------------
-
 #take only adults and 2013 onward
 trap <- trap[age == "Adult" & date > "2014-06-01"]
 
@@ -60,7 +55,7 @@ trap[month(date) < 6, winter := paste0(year(date) - 1, "-", year(date))]
 
 
 
-# calculating weight change -----------------------------------------------
+# create fall data -----------------------------------------------
 
 #subset to just october for fall weights
 fall <- trap[m == 9 | m == 10]
@@ -73,6 +68,10 @@ fall <- fall[date == mindate]
 
 fall <- fall[, .(winter, date, id, sex, weight, rhf)]
 setnames(fall, c("rhf", "weight", "date"), c("rhf.a", "weight.a", "date.a"))
+
+
+
+# create spring data ------------------------------------------------------
 
 #subset to just march for spring dates
 spring <- trap[m == 3 | m == 4]
@@ -88,42 +87,29 @@ setnames(spring, c("rhf", "weight", "date"), c("rhf.s", "weight.s", "date.s"))
 
 
 
+
+# calculate weight change -------------------------------------------------
+
 wloss <- merge(fall, spring, by = c("winter", "id", "sex"))
 
 wloss[, daylength := date.s - date.a]
 wloss[, daylength := as.numeric(daylength)]
 
-wloss[, wchange := (weight.s - weight.a)/daylength] #decide if you want to do it per day
+wloss[, wchange := (weight.s - weight.a)] #decide if you want to do it per day
 
 #recreate figure 5 in Hodges 2006
 ggplot(wloss)+
-  geom_point(aes(x = weight.a, y = wchange, color = sex))
+  geom_point(aes(x = weight.a, y = wchange))+
+  themepoints
+
 
 #remove any hares that were less than 1000 g in fall
 wloss <- wloss[weight.a > 1000]
+
+wlossmeans <- wloss[, .(mean(wchange), sd(wchange)), by = .(food, winter)]
+
 
 ggplot(wloss)+
   geom_boxplot(aes(x = sex, y = wchange))
 
 
-
-# merge in food add info --------------------------------------------------
-
-setnames(food, c("Eartag", "Food"), c("id", "food"))
-
-food[, id := as.factor(id)]
-
-wloss <- merge(wloss, food, by = c("id", "winter"), all.x = TRUE)
-
-wloss[is.na(food), food := 0]
-
-wloss[, food := as.factor(food)]
-
-ggplot(wloss)+
-  geom_boxplot(aes(x = winter, y = wchange, color = food))
-
-
-# save just winter data and all cleaned trapping data ---------------------
-
-saveRDS(winters, "Output/Data/winter_weights.rds")
-saveRDS(adults, "Output/Data/fullyear_weights.rds")
