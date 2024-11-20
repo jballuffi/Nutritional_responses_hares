@@ -44,7 +44,7 @@ trap[weight == 0, weight := NA]
 trap[rhf > 200 | rhf < 20, rhf := NA]
 
 #take only adults and 2013 onward
-trap <- trap[age == "Adult" & date > "2014-06-01"]
+trap <- trap[date > "2014-06-01"]
 
 #subset to only include winter months
 trap <- trap[m %in% wintermonths]
@@ -100,16 +100,13 @@ wloss[, wchange := (weight.s - weight.a)] #decide if you want to do it per day
 #recreate figure 5 in Hodges 2006
 ggplot(wloss)+
   geom_point(aes(x = weight.a, y = wchange))+
+  labs(x = "Weight in autumn (g)", y = "Weight change over winter (g)")
   themepoints
-
 
 #remove any hares that were less than 1000 g in fall
 wloss <- wloss[weight.a > 1000]
 
-wlossmeans <- wloss[, .(mean(wchange), sd(wchange)), by = .(food, winter)]
-
-
-ggplot(wloss)+
-  geom_boxplot(aes(x = sex, y = wchange))
+#save weight change data
+saveRDS(wloss, "Output/Data/weight_change.rds")
 
 
