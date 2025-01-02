@@ -19,6 +19,7 @@ snow[, snow := round(SD)][, SD := NULL]
 #merge food predictions with snow data
 food <- merge(snow, pred, by = "snow")
 
+food[, Date := ymd(Date)]
 
 food123 <- food[month(Date) == 1 | month(Date) == 2 | month(Date) == 3]
 
@@ -33,7 +34,6 @@ ggplot(food123)+
   geom_boxplot(aes(x = winter, y = biomassavail))+
   labs(y = "Available willow biomass (g/m2)")+
   theme_minimal()
-
 
 
 
