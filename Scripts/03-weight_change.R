@@ -102,7 +102,7 @@ wloss[, wchange := (weight.s - weight.a)] #decide if you want to do it per day
 #recreate figure 5 in Hodges 2006
 ggplot(wloss)+
   geom_point(aes(x = weight.a, y = wchange))+
-  labs(x = "Weight in autumn (g)", y = "Weight change over winter (g)")
+  labs(x = "Weight in autumn (g)", y = "Weight change over winter (g)")+
   themepoints
 
 #remove any hares that were less than 1000 g in fall
