@@ -1,4 +1,4 @@
-#script to collect food add buns
+#script to collect food add individuals
 
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)

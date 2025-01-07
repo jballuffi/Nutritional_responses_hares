@@ -1,4 +1,7 @@
 
+#Script takes daily snow depths and converts it to willow availability from an external project
+
+
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
 

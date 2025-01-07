@@ -1,4 +1,6 @@
 
+#use trapping data to calculate individual weight change over winter
+
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
