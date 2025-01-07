@@ -21,7 +21,7 @@ twigs <- twigs[order(snowgrid, Date)]
 twigs[, prevdate := shift(Date, n = 1, type = "lag"), by = .(snowgrid, winter)]
 twigs[, daydiff := as.integer(Date - prevdate)]
 
-twigs <- twigs[daydiff < 4]
+#twigs <- twigs[daydiff < 4]
 
 twigs[, lagsnow := shift(snow, n = 1, type = "lag"), by = .(snowgrid, winter)]
 twigs[, snowfall := (snow - lagsnow)/daydiff, by = .(snowgrid, winter)]
@@ -29,6 +29,12 @@ twigs[, snowfall := (snow - lagsnow)/daydiff, by = .(snowgrid, winter)]
 
 
 
-dt <- merge(foraging, twigs, by = c("Date", "snowgrid"), all.x = TRUE)
+dt <- merge(foraging, twigs, by = c("Date", "snowgrid", "y", "winter"), all.x = TRUE)
 
 
+ggplot(dt)+
+  geom_point(aes(x = snow, y = Forage/3600))
+
+ggplot(dt)+
+  geom_point(aes(x = snowfall, y = Forage/3600))+
+  geom_smooth(aes(x = snowfall, y = Forage/3600))
