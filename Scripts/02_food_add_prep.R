@@ -17,9 +17,10 @@ data = lapply(files, function(x) {
 #rbindlist all food addds
 foodadds <- rbindlist(data, fill = TRUE, use.names = TRUE)
 
-#fix eartag column
-setnames(foodadds, "Eartag", "id")
+#fix eartag and food column
+setnames(foodadds, c("Eartag", "Food"), c("id", "food"))
 foodadds[, id := as.factor(id)]
+foodadds[, food := as.factor(food)]
 
 #save food adds to output
 saveRDS(foodadds, "Output/Data/food_adds.rds")
