@@ -8,7 +8,6 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 trap <- fread("Input/trapping_all_records.csv")
 
 
-
 # column prep ----------------------------------------------------------
 
 #set up data columns
@@ -65,19 +64,23 @@ trap[grid == "Jo", snowgrid := "Jo"]
 
 trap <- trap[!is.na(snowgrid)]
 
+
+
 # create fall data -----------------------------------------------
 
 #subset to just october for fall weights
 fall <- trap[m == 9 | m == 10]
 
-#create col for earliest date caught by bunny that fall
-fall[, mindate := min(date), by = .(id, winter)]
+# #create col for earliest date caught by bunny that fall
+# fall[, mindate := min(date), by = .(id, winter)]
+# 
+# #use only first traps of a fall
+# fall <- fall[date == mindate]
 
-#use only first traps of a fall
-fall <- fall[date == mindate]
+fallsum <- fall[, .(weight.a = mean(weight, na.rm = TRUE), sex = getmode(sex), rhf.a = mean(rhf, na.rm = TRUE)), by = .(id, winter, snowgrid, grid)]
 
-fall <- fall[, .(winter, snowgrid, date, id, sex, weight, rhf)]
-setnames(fall, c("rhf", "weight", "date"), c("rhf.a", "weight.a", "date.a"))
+# fall <- fall[, .(winter, snowgrid, date, id, sex, weight, rhf)]
+# setnames(fall, c("rhf", "weight", "date"), c("rhf.a", "weight.a", "date.a"))
 
 
 
@@ -86,29 +89,32 @@ setnames(fall, c("rhf", "weight", "date"), c("rhf.a", "weight.a", "date.a"))
 #subset to just march for spring dates
 spring <- trap[m == 3 | m == 4]
 
-#create col for earliest date caught by bunny that fall
-spring[, maxdate := max(date), by = .(id, winter)]
+# #create col for earliest date caught by bunny that fall
+# spring[, maxdate := max(date), by = .(id, winter)]
+# 
+# #take only latest trap dates
+# spring <- spring[date == maxdate]
+# 
+# spring <- spring[, .(winter, snowgrid, date, id, sex, weight, rhf)]
+# setnames(spring, c("rhf", "weight", "date"), c("rhf.s", "weight.s", "date.s"))
 
-#take only latest trap dates
-spring <- spring[date == maxdate]
-
-spring <- spring[, .(winter, snowgrid, date, id, sex, weight, rhf)]
-setnames(spring, c("rhf", "weight", "date"), c("rhf.s", "weight.s", "date.s"))
-
+springsum <- spring[, .(weight.s = mean(weight, na.rm = TRUE), sex = getmode(sex), rhf.s = mean(rhf, na.rm = TRUE)), by = .(id, winter, snowgrid, grid)]
 
 
 # calculate weight change -------------------------------------------------
 
-wloss <- merge(fall, spring, by = c("winter", "snowgrid", "id", "sex"))
+wloss <- merge(fallsum, springsum, by = c("winter", "snowgrid", "grid", "id", "sex"), all = TRUE)
 
-wloss[, daylength := date.s - date.a]
-wloss[, daylength := as.numeric(daylength)]
+# wloss[, daylength := date.s - date.a]
+# wloss[, daylength := as.numeric(daylength)]
 
 wloss[, wchange := (weight.s - weight.a)] #decide if you want to do it per day
 
 #recreate figure 5 in Hodges 2006
 ggplot(wloss)+
   geom_point(aes(x = weight.a, y = wchange))+
+  geom_abline(intercept = 0, slope = 0, linetype = 2)+
+  geom_smooth(aes(x = weight.a, y = wchange), method = "lm", color = "black")+
   labs(x = "Weight in autumn (g)", y = "Weight change over winter (g)")+
   themepoints
 
