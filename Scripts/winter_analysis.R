@@ -10,20 +10,11 @@ snow <- readRDS("Output/Data/snow_and_food.rds")
 fecal <- readRDS("Output/Data/CP_results_cleaned.rds")
 
 
-# merge food add and weight loss --------------------------------------------------
 
-#merge files
-wloss <- merge(wloss, food, by = c("id", "winter"), all.x = TRUE)
-
-#fill in empty food column
-wloss[is.na(food), food := "0"]
+# get density and snow stats by winter -------------------------------------------------------
 
 #remove 2014-2015 winter
 wloss <- wloss[!winter == "2014-2015"]
-
-
-
-# get density and snow stats by winter -------------------------------------------------------
 
 #take the phase and mean density for each winter
 wdensity <- density[, .(phase = getmode(phase), densityavg = mean(haredensity)), winter]
@@ -59,16 +50,6 @@ allwsnow[is.na(deepdays), deepdays := 0]
 
 wloss <- merge(wloss, allwsnow, by = c("winter", "snowgrid"), all.x = TRUE)
 
-#weight loss by year
-ggplot(wloss[food == 0])+
-  geom_abline(aes(intercept = 0, slope = 0), linetype = 2)+
-  geom_boxplot(aes(x = winter, y = wchange, fill = snowgrid), alpha = .7)+
-  themepoints
-
-#spring weights by year
-ggplot(wloss)+
-  geom_boxplot(aes(x = winter, y = weight.s, fill = food), alpha = .7)+
-  themepoints
 
 ggplot(wloss[food == 0])+
   geom_abline(aes(intercept = 0, slope = 0), linetype = 2)+
