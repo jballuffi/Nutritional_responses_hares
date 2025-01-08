@@ -116,45 +116,64 @@ wloss <- merge(fallsum, springsum, by = c("winter", "snowgrid", "grid", "id", "s
 
 wloss[, wchange := (weight.s - weight.a)] #decide if you want to do it per day
 
+#change sex numbers to words
+wloss[sex == 1, sex := "male"][sex == 2, sex := "female"]
+
 
 
 # look at trends ----------------------------------------------------------
 
 #recreate figure 5 in Hodges 2006
-ggplot(wloss)+
+(hodges <- 
+  ggplot(wloss)+
   geom_point(aes(x = weight.a, y = wchange))+
   geom_abline(intercept = 0, slope = 0, linetype = 2)+
   geom_smooth(aes(x = weight.a, y = wchange), method = "lm", color = "black")+
-  labs(x = "Weight in autumn (g)", y = "Weight change over winter (g)")+
-  themepoints
+  labs(x = "Weight in autumn (g)", y = "Overwinter weight change (g)")+
+  xlim(750, 2220)+
+  themepoints)
 
 #remove any hares that were less than 1000 g in fall
 wloss[!is.na(weight.a) & weight.a < 1000, include := "no"]
 wloss[is.na(include), include := "yes"]
-
 wlossyes <- wloss[include == "yes"]
 
+#check differences between males and females
+summary(lm(wchange ~ sex, wlossyes[food == 0]))
+summary(lm(weight.a ~ sex, wlossyes[food == 0]))
+summary(lm(weight.s ~ sex, wlossyes[food == 0]))
+
+
 #weight loss by year
-ggplot(wlossyes)+
+(wchange <- ggplot(wlossyes[!winter == "2021-2022"])+
   geom_abline(aes(intercept = 0, slope = 0), linetype = 2)+
   geom_boxplot(aes(x = winter, y = wchange, fill = food), alpha = .7)+
-  themepoints
+  labs(title = "Weight change by winter", y = "Weight change (g)", x = "Winter")+
+  themepoints)
 
 #spring weights by year and sex
-ggplot(wlossyes[!is.na(sex)])+
+(springweight <- 
+  ggplot(wlossyes[!is.na(sex) & food == 0])+
   geom_boxplot(aes(x = winter, y = weight.s, fill = sex), alpha = .7)+
-  themepoints
+  labs(title = "Control spring weights by winter", x = "Winter", y = "Spring weight (g)")+
+  themepoints)
 
 #spring weights by year
-ggplot(wlossyes[sex = 2])+
+(springweightfem <- 
+  ggplot(wlossyes[sex == "female"])+
   geom_boxplot(aes(x = winter, y = weight.s, fill = food), alpha = .7)+
-  themepoints
+  labs(title = "Female spring weight by winter", x = "Winter", y = "Spring weight (g)")+
+  themepoints)
 
 
 
-# save prepped data -------------------------------------------------------
+# save prepped data and figures -------------------------------------------------------
 
 #save weight change data
 saveRDS(wlossyes, "Output/Data/weight_change.rds")
 
-
+#save figures
+ggsave("Output/Figures/hodges_figure.jpeg", hodges, width = 6, height = 4, unit = "in")
+ggsave("Output/Figures/wchange_winter.jpeg", wchange, width = 7, height = 4, unit = "in")
+ggsave("Output/Figures/sweight_winter_sex.jpeg", springweight, width = 7, height = 4, unit = "in")
+ggsave("Output/Figures/sweight_winter_food.jpeg", springweightfem, width = 7, height = 4, unit = "in")
