@@ -57,6 +57,14 @@ trap[month(date) < 6, winter := paste0(year(date) - 1, "-", year(date))]
 
 
 
+# use closest snow grid ----------------------------------------------------
+
+trap[grid == "Agnes" | grid == "Chitty", snowgrid := "Agnes"]
+trap[grid == "Kloo" | grid == "Sulphur" | grid == "Chadbear" | grid == "Rolo", snowgrid := "Kloo"]
+trap[grid == "Jo", snowgrid := "Jo"]
+
+trap <- trap[!is.na(snowgrid)]
+
 # create fall data -----------------------------------------------
 
 #subset to just october for fall weights
@@ -68,7 +76,7 @@ fall[, mindate := min(date), by = .(id, winter)]
 #use only first traps of a fall
 fall <- fall[date == mindate]
 
-fall <- fall[, .(winter, date, id, sex, weight, rhf)]
+fall <- fall[, .(winter, snowgrid, date, id, sex, weight, rhf)]
 setnames(fall, c("rhf", "weight", "date"), c("rhf.a", "weight.a", "date.a"))
 
 
@@ -84,15 +92,14 @@ spring[, maxdate := max(date), by = .(id, winter)]
 #take only latest trap dates
 spring <- spring[date == maxdate]
 
-spring <- spring[, .(winter, date, id, sex, weight, rhf)]
+spring <- spring[, .(winter, snowgrid, date, id, sex, weight, rhf)]
 setnames(spring, c("rhf", "weight", "date"), c("rhf.s", "weight.s", "date.s"))
-
 
 
 
 # calculate weight change -------------------------------------------------
 
-wloss <- merge(fall, spring, by = c("winter", "id", "sex"))
+wloss <- merge(fall, spring, by = c("winter", "snowgrid", "id", "sex"))
 
 wloss[, daylength := date.s - date.a]
 wloss[, daylength := as.numeric(daylength)]
