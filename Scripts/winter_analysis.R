@@ -35,39 +35,42 @@ snow <- snow[!winter == "2014-2015"]
 snow <- snow[month(Date) > 10 | month(Date) < 4]
 
 #get mean snow depth and willow availability by winter
-wsnow <- snow[, .(snowavg = mean(snow), biomassavg = mean(biomassavail)), winter]
+wsnow <- snow[, .(snowavg = mean(snow), snowmax = max(snow), biomassavg = mean(biomassavail)), by = .(winter, snowgrid)]
 
 #get daily snow across grids
-dsnow <- snow[, .(snow = mean(snow)), .(Date, winter)]
+dsnow <- snow[, .(snow = mean(snow)), .(Date, winter, snowgrid)]
 
 ggplot(dsnow)+
-  geom_line(aes(x = Date, y = snow))+
+  geom_line(aes(x = Date, y = snow, color = snowgrid))+
   facet_wrap(~winter, scales = "free")
 
 #get number of days where snow was greater than 45 cm by winter
-deepdays <- dsnow[snow > 45, .(deepdays = .N), winter]
+deepdays <- dsnow[snow > 45, .(deepdays = .N), by = .(winter, snowgrid)]
 
 #merge deep days with averages
-wsnow <- merge(wsnow, deepdays, by = "winter", all.x = TRUE)
+allwsnow <- merge(wsnow, deepdays, by = c("winter", "snowgrid"), all.x = TRUE)
 
 #where deep days is NA make 0
-wsnow[is.na(deepdays), deepdays := 0]
+allwsnow[is.na(deepdays), deepdays := 0]
 
 
 
 # merge in winter stats with weight loss ----------------------------------
 
+wloss <- merge(wloss, allwsnow, by = c("winter", "snowgrid"), all.x = TRUE)
 
-
-
-
-#weight loss
-ggplot(wloss)+
+#weight loss by year
+ggplot(wloss[food == 0])+
   geom_abline(aes(intercept = 0, slope = 0), linetype = 2)+
-  geom_boxplot(aes(x = winter, y = wchange, fill = food), alpha = .7)+
+  geom_boxplot(aes(x = winter, y = wchange, fill = snowgrid), alpha = .7)+
   themepoints
 
-#spring weights
+#spring weights by year
 ggplot(wloss)+
   geom_boxplot(aes(x = winter, y = weight.s, fill = food), alpha = .7)+
   themepoints
+
+ggplot(wloss[food == 0])+
+  geom_abline(aes(intercept = 0, slope = 0), linetype = 2)+
+  geom_point(aes(x = snowavg, y = weight.s))+
+  geom_smooth(aes(x = snowavg, y = weight.s), method = "lm")
