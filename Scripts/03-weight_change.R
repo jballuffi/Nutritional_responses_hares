@@ -6,6 +6,7 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 #read in data
 trap <- fread("Input/trapping_all_records.csv")
+food <- readRDS("Output/Data/food_adds.rds")
 
 
 # column prep ----------------------------------------------------------
@@ -54,6 +55,11 @@ trap <- trap[m %in% wintermonths]
 trap[month(date) > 6, winter := paste0(year(date), "-", year(date) + 1)]
 trap[month(date) < 6, winter := paste0(year(date) - 1, "-", year(date))]
 
+#merge with food add individuals
+trap <- merge(trap, food, by = c("id", "winter"), all.x = TRUE)
+
+#fill in empty food column
+trap[is.na(food), food := "0"]
 
 
 # use closest snow grid ----------------------------------------------------
@@ -77,7 +83,7 @@ fall <- trap[m == 9 | m == 10]
 # #use only first traps of a fall
 # fall <- fall[date == mindate]
 
-fallsum <- fall[, .(weight.a = mean(weight, na.rm = TRUE), sex = getmode(sex), rhf.a = mean(rhf, na.rm = TRUE)), by = .(id, winter, snowgrid, grid)]
+fallsum <- fall[, .(weight.a = mean(weight, na.rm = TRUE), sex = getmode(sex), rhf.a = mean(rhf, na.rm = TRUE)), by = .(id, winter, snowgrid, grid, food)]
 
 # fall <- fall[, .(winter, snowgrid, date, id, sex, weight, rhf)]
 # setnames(fall, c("rhf", "weight", "date"), c("rhf.a", "weight.a", "date.a"))
@@ -98,17 +104,21 @@ spring <- trap[m == 3 | m == 4]
 # spring <- spring[, .(winter, snowgrid, date, id, sex, weight, rhf)]
 # setnames(spring, c("rhf", "weight", "date"), c("rhf.s", "weight.s", "date.s"))
 
-springsum <- spring[, .(weight.s = mean(weight, na.rm = TRUE), sex = getmode(sex), rhf.s = mean(rhf, na.rm = TRUE)), by = .(id, winter, snowgrid, grid)]
+springsum <- spring[, .(weight.s = mean(weight, na.rm = TRUE), sex = getmode(sex), rhf.s = mean(rhf, na.rm = TRUE)), by = .(id, winter, snowgrid, grid, food)]
 
 
 # calculate weight change -------------------------------------------------
 
-wloss <- merge(fallsum, springsum, by = c("winter", "snowgrid", "grid", "id", "sex"), all = TRUE)
+wloss <- merge(fallsum, springsum, by = c("winter", "snowgrid", "grid", "id", "sex", "food"), all = TRUE)
 
 # wloss[, daylength := date.s - date.a]
 # wloss[, daylength := as.numeric(daylength)]
 
 wloss[, wchange := (weight.s - weight.a)] #decide if you want to do it per day
+
+
+
+# look at trends ----------------------------------------------------------
 
 #recreate figure 5 in Hodges 2006
 ggplot(wloss)+
@@ -119,9 +129,32 @@ ggplot(wloss)+
   themepoints
 
 #remove any hares that were less than 1000 g in fall
-wloss <- wloss[weight.a > 1000]
+wloss[!is.na(weight.a) & weight.a < 1000, include := "no"]
+wloss[is.na(include), include := "yes"]
+
+wlossyes <- wloss[include == "yes"]
+
+#weight loss by year
+ggplot(wlossyes)+
+  geom_abline(aes(intercept = 0, slope = 0), linetype = 2)+
+  geom_boxplot(aes(x = winter, y = wchange, fill = food), alpha = .7)+
+  themepoints
+
+#spring weights by year and sex
+ggplot(wlossyes[!is.na(sex)])+
+  geom_boxplot(aes(x = winter, y = weight.s, fill = sex), alpha = .7)+
+  themepoints
+
+#spring weights by year
+ggplot(wlossyes[sex = 2])+
+  geom_boxplot(aes(x = winter, y = weight.s, fill = food), alpha = .7)+
+  themepoints
+
+
+
+# save prepped data -------------------------------------------------------
 
 #save weight change data
-saveRDS(wloss, "Output/Data/weight_change.rds")
+saveRDS(wlossyes, "Output/Data/weight_change.rds")
 
 
