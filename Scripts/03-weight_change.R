@@ -119,10 +119,10 @@ wloss[sex == 1, sex := "male"][sex == 2, sex := "female"]
 
 #recreate figure 5 in Hodges 2006
 (hodges <- 
-  ggplot(wloss)+
+  ggplot(wloss[food == 0])+
   geom_point(aes(x = weight.a, y = wchange))+
   geom_abline(intercept = 0, slope = 0, linetype = 2)+
-  geom_smooth(aes(x = weight.a, y = wchange), method = "lm", color = "black")+
+  geom_smooth(aes(x = weight.a, y = wchange), color = "black", method = "lm")+
   labs(x = "Weight in autumn (g)", y = "Overwinter weight change (g)")+
   xlim(750, 2220)+
   themepoints)
