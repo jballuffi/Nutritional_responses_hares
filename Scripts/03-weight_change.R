@@ -17,9 +17,6 @@ trap[, y := year(date)]
 trap[, m := month(date)]
 setorder(trap, date)
 
-#list months that count as winter
-wintermonths <- c("1", "2", "3", "4", "9", "10","11", "12")
-
 #rename cols
 setnames(trap, c("Hindfoot", "Eartag", "Sex", "Weight", "Maturity"), c("rhf", "id", "sex", "weight", "age"))
 
@@ -28,7 +25,6 @@ trap[, id := as.factor(id)]
 
 #grab only specific columns
 trap <- trap[, .(y, m, date, grid, id, sex, weight, rhf, age)]
-
 
 #for sex: 0 = no data, 1 = female, 2 = male 
 #turn 0s to NAs
@@ -48,9 +44,6 @@ trap[rhf > 200 | rhf < 20, rhf := NA]
 #take only adults and 2013 onward
 trap <- trap[date > "2014-06-01"]
 
-#subset to only include winter months
-trap <- trap[m %in% wintermonths]
-
 #categorize into winters
 trap[month(date) > 6, winter := paste0(year(date), "-", year(date) + 1)]
 trap[month(date) < 6, winter := paste0(year(date) - 1, "-", year(date))]
@@ -60,6 +53,7 @@ trap <- merge(trap, food, by = c("id", "winter"), all.x = TRUE)
 
 #fill in empty food column
 trap[is.na(food), food := "0"]
+
 
 
 # use closest snow grid ----------------------------------------------------
@@ -75,7 +69,7 @@ trap <- trap[!is.na(snowgrid)]
 # create fall data -----------------------------------------------
 
 #subset to just october for fall weights
-fall <- trap[m == 9 | m == 10]
+fall <- trap[m == 9 | m == 10 | m == 11]
 
 # #create col for earliest date caught by bunny that fall
 # fall[, mindate := min(date), by = .(id, winter)]
