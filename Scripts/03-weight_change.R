@@ -59,7 +59,7 @@ trap[is.na(food), food := "0"]
 # use closest snow grid ----------------------------------------------------
 
 trap[grid == "Agnes" | grid == "Chitty", snowgrid := "Agnes"]
-trap[grid == "Kloo" | grid == "Sulphur" | grid == "Chadbear" | grid == "Rolo", snowgrid := "Kloo"]
+trap[grid == "Kloo" | grid == "Sulphur" | grid == "Chadbear" | grid == "Rolo" | grid == "Leroy", snowgrid := "Kloo"]
 trap[grid == "Jo", snowgrid := "Jo"]
 
 trap <- trap[!is.na(snowgrid)]
