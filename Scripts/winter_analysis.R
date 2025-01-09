@@ -17,7 +17,9 @@ fecal <- readRDS("Output/Data/CP_results_cleaned.rds")
 wloss <- wloss[!winter == "2014-2015"]
 
 #take the phase and mean density for each winter
-wdensity <- density[, .(phase = getmode(phase), densityavg = mean(haredensity)), winter]
+wdensity <- density[, .(phase = getmode(phase),
+                        densityavg = mean(haredensity),
+                        mortality = mean(mortality, na.rm = TRUE)), winter]
 
 #remove 2014/2015 winter
 snow <- snow[!winter == "2014-2015"]
@@ -31,18 +33,23 @@ wsnow <- snow[, .(snowavg = mean(snow), snowmax = max(snow), biomassavg = mean(b
 #get daily snow across grids
 dsnow <- snow[, .(snow = mean(snow)), .(Date, winter, snowgrid)]
 
-ggplot(dsnow)+
+snowplot <- 
+  ggplot(dsnow)+
   geom_line(aes(x = Date, y = snow, color = snowgrid))+
-  facet_wrap(~winter, scales = "free")
+  labs(y = "Snow depth (cm)")+
+  facet_wrap(~winter, scales = "free")+
+  themepoints
 
 #get number of days where snow was greater than 45 cm by winter
 deepdays <- dsnow[snow > 45, .(deepdays = .N), by = .(winter, snowgrid)]
+
+deepdays[, deepdays := cut(deepdays, 3)]
 
 #merge deep days with averages
 allwsnow <- merge(wsnow, deepdays, by = c("winter", "snowgrid"), all.x = TRUE)
 
 #where deep days is NA make 0
-allwsnow[is.na(deepdays), deepdays := 0]
+allwsnow[is.na(deepdays), deepdays := "0"]
 
 
 
@@ -51,7 +58,17 @@ allwsnow[is.na(deepdays), deepdays := 0]
 wloss <- merge(wloss, allwsnow, by = c("winter", "snowgrid"), all.x = TRUE)
 
 
-ggplot(wloss[food == 0])+
+ggplot(wloss[sex == "female"])+
   geom_abline(aes(intercept = 0, slope = 0), linetype = 2)+
-  geom_point(aes(x = snowavg, y = weight.s))+
-  geom_smooth(aes(x = snowavg, y = weight.s), method = "lm")
+  geom_point(aes(x = snowmax, y = wchange, color = food))+
+  geom_smooth(aes(x = snowmax, y = wchange, color = food), method = "lm")
+
+ggplot(wloss[sex == "female"])+
+  geom_abline(aes(intercept = 0, slope = 0), linetype = 2)+
+  geom_point(aes(x = snowavg, y = wchange, color = food))+
+  geom_smooth(aes(x = snowavg, y = wchange, color = food))
+
+ggplot(wloss[sex == "female"])+
+  geom_abline(aes(intercept = 0, slope = 0), linetype = 2)+
+  geom_boxplot(aes(x = deepdays, y = wchange, color = food))
+
