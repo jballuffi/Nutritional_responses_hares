@@ -68,6 +68,14 @@ foodcols <- c("1" = "red3", "0" = "grey40")
 
 
 
+# make snow grid col ------------------------------------------------------
+
+dat[grid == "Agnes" | grid == "Chitty", snowgrid := "Agnes"]
+dat[grid == "Kloo" | grid == "Sulphur" | grid == "Chadbear" | grid == "Rolo" | grid == "Leroy", snowgrid := "Kloo"]
+dat[grid == "Jo", snowgrid := "Jo"]
+
+dat[is.na(snowgrid)]
+
 
  # save things -------------------------------------------------------------
 
