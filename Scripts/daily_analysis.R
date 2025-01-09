@@ -10,8 +10,8 @@ twigs <- readRDS("Output/Data/snow_and_food.rds")
 
 #merge food add and foraging
 foraging <- merge(foraging, foodadd, by = c("id", "winter"), all.x = TRUE)
-foraging[is.na(Food), Food := 0]
-foraging[, Food := as.factor(Food)]
+foraging[is.na(food), food := "0"]
+foraging[, food := as.factor(food)]
 
 
 #get the lag difference
@@ -32,9 +32,21 @@ twigs[, snowfall := (snow - lagsnow)/daydiff, by = .(snowgrid, winter)]
 dt <- merge(foraging, twigs, by = c("Date", "snowgrid", "y", "winter"), all.x = TRUE)
 
 
-ggplot(dt)+
-  geom_point(aes(x = snow, y = Forage/3600))
+sdforage <-
+  ggplot(dt)+
+  geom_point(aes(x = snow, y = Forage/3600, color = food), alpha = .1)+
+  geom_smooth(aes(x = snow, y = Forage/3600, color = food), method = "lm")+
+  labs(x = "Daily snow depth", y = "Daily foraging effort (hr)")+
+  themepoints
 
-ggplot(dt)+
-  geom_point(aes(x = snowfall, y = Forage/3600))+
-  geom_smooth(aes(x = snowfall, y = Forage/3600))
+
+sfforage <- 
+  ggplot(dt)+
+  geom_point(aes(x = snowfall, y = Forage/3600, color = food), alpha = .1)+
+  geom_smooth(aes(x = snowfall, y = Forage/3600, color = food))+
+  labs(x = "Daily snowfall (cm)", y = "Daily foraging effort (hr)")+
+  themepoints
+
+
+ggsave("Output/Figures/foraging_snowdepth.jpeg", sdforage, width = 6, height = 4, unit = "in")
+ggsave("Output/Figures/foraging_snowfall.jpeg", sfforage, width = 6, height = 4, unit = "in")
