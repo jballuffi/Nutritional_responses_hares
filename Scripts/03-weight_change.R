@@ -160,11 +160,21 @@ summary(lm(weight.s ~ sex, wlossyes[food == 0]))
   themepoints)
 
 
+#sample sizes for both male and female
+Nbothsex <- wlossyes[, .N, by = .(winter, food)]
+
+#sample size for just females
+Nfemale <- wlossyes[sex == "female", .N, by = .(winter, food)]
+
 
 # save prepped data and figures -------------------------------------------------------
 
 #save weight change data
 saveRDS(wlossyes, "Output/Data/weight_change.rds")
+
+#save sample size summary tables
+write.csv(Nbothsex, "Output/Data/weights_samplesize_bothsexes.csv")
+write.csv(Nfemale, "Output/Data/weights_samplesize_females.csv")
 
 #save figures
 ggsave("Output/Figures/hodges_figure.jpeg", hodges, width = 6, height = 4, unit = "in")
