@@ -3,7 +3,8 @@
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
 
-density <- readRDS("Output/Data/hare_population.rds")
+densitym <- readRDS("Output/Data/hare_population.rds")
+densitya <- readRDS("Output/Data/densities_annual.rds")
 food <- readRDS("Output/Data/food_adds.rds")
 wloss <- readRDS("Output/Data/weight_change.rds")
 snow <- readRDS("Output/Data/snow_and_food.rds")
