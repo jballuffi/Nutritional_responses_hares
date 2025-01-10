@@ -72,13 +72,13 @@ trap <- trap[!is.na(snowgrid)]
 fall <- trap[m == 10 | m == 11]
 
 #take mean weight, sex, mean rhf for each individual in spring
-fallsum <- fall[, .(weight.a = mean(weight, na.rm = TRUE), sex = getmode(sex), rhf.a = mean(rhf, na.rm = TRUE)), by = .(id, winter, snowgrid, grid, food)]
+fallsum <- fall[, .(weight.a = round(mean(weight, na.rm = TRUE)), sex = getmode(sex), rhf.a = round(mean(rhf, na.rm = TRUE))), by = .(id, winter, snowgrid, grid, food)]
 
 #subset to just march for spring dates
 spring <- trap[m == 3 | m == 4]
 
 #take mean weight, sex, mean rhf for each individual in spring
-springsum <- spring[, .(weight.s = mean(weight, na.rm = TRUE), sex = getmode(sex), rhf.s = mean(rhf, na.rm = TRUE)), by = .(id, winter, snowgrid, grid, food)]
+springsum <- spring[, .(weight.s = round(mean(weight, na.rm = TRUE)), sex = getmode(sex), rhf.s = round(mean(rhf, na.rm = TRUE))), by = .(id, winter, snowgrid, grid, food)]
 
 
 # calculate weight change -------------------------------------------------
@@ -87,50 +87,61 @@ springsum <- spring[, .(weight.s = mean(weight, na.rm = TRUE), sex = getmode(sex
 wloss <- merge(fallsum, springsum, by = c("winter", "snowgrid", "grid", "id", "sex", "food"), all = TRUE)
 
 #calculate weight change from fall to spring, in grams
-wloss[, wchange := (weight.s - weight.a)]
+wloss[, weight.c := (weight.s - weight.a)]
 
 #change sex numbers to words
 wloss[sex == 1, sex := "male"][sex == 2, sex := "female"]
 
 #summary of sample size between food adds and controls
-wloss[!is.na(wchange), .N, by = .(food)]
+wloss[!is.na(weight.c), .N, by = .(food)]
 
 
 
-# look at trends ----------------------------------------------------------
+# get weight change residuals based on autumn weight ----------------------------------------------------------
 
 #recreate figure 5 in Hodges 2006
+#this is the relationship between autumn weight and weight change over winter
+
+#make linear model for weight change ~ autumn weight
+weightline <- lm(weight.c ~ weight.a, wloss)
+
+#to get line and confidence limits from linear model
+effs_weightline <- as.data.table(ggpredict(weightline, terms = c("weight.a")))
+
+#make plot with line and confidence limits
 (hodges <- 
-  ggplot(wloss[food == 0])+
-  geom_point(aes(x = weight.a, y = wchange))+
+  ggplot()+
+  geom_point(aes(x = weight.a, y = weight.c), data = wloss)+
   geom_abline(intercept = 0, slope = 0, linetype = 2)+
-  geom_smooth(aes(x = weight.a, y = wchange), color = "black", method = "lm")+
+  geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = 0.2, data = effs_weightline)+
+  geom_line(aes(x = x, y = predicted), size = 1, data = effs_weightline)+
   labs(x = "Weight in autumn (g)", y = "Overwinter weight change (g)")+
   xlim(1000, 2100)+
   themepoints)
 
+#get intercept and slope from linear model
+i <- as.numeric(coef(weightline)["(Intercept)"])
+slope <- as.numeric(coef(weightline)["weight.a"])
 
+#get predicted weight change for every recorded autumn weight
+wloss[, weight.c.pred := i + (weight.a*slope)]
 
-
-
-
-
+#take difference between predicted weight change and actual weight change
+wloss[, weight.c.resid := weight.c - weight.c.pred]
 
 #remove any hares that were less than 1000 g in fall
 wloss[!is.na(weight.a) & weight.a < 1000, include := "no"]
 wloss[is.na(include), include := "yes"]
 wlossyes <- wloss[include == "yes"]
 
-#check differences between males and females
-summary(lm(wchange ~ sex, wlossyes[food == 0]))
-summary(lm(weight.a ~ sex, wlossyes[food == 0]))
-summary(lm(weight.s ~ sex, wlossyes[food == 0]))
 
+
+# look at trends ----------------------------------------------------------
 
 #weight loss by year
-(wchange <- ggplot(wlossyes[!winter == "2021-2022"])+
+(wchange <- ggplot(wlossyes)+
   geom_abline(aes(intercept = 0, slope = 0), linetype = 2)+
-  geom_boxplot(aes(x = winter, y = wchange, fill = food), alpha = .7)+
+  geom_boxplot(aes(x = winter, y = weight.c, fill = food), alpha = .7)+
   labs(title = "Weight change by winter", y = "Weight change (g)", x = "Winter")+
   themepoints)
 
