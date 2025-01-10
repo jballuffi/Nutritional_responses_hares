@@ -66,52 +66,34 @@ trap <- trap[!is.na(snowgrid)]
 
 
 
-# create fall data -----------------------------------------------
+# create fall and spring data -----------------------------------------------
 
-#subset to just october for fall weights
-fall <- trap[m == 9 | m == 10 | m == 11]
+#subset fall weights
+fall <- trap[m == 10 | m == 11]
 
-# #create col for earliest date caught by bunny that fall
-# fall[, mindate := min(date), by = .(id, winter)]
-# 
-# #use only first traps of a fall
-# fall <- fall[date == mindate]
-
+#take mean weight, sex, mean rhf for each individual in spring
 fallsum <- fall[, .(weight.a = mean(weight, na.rm = TRUE), sex = getmode(sex), rhf.a = mean(rhf, na.rm = TRUE)), by = .(id, winter, snowgrid, grid, food)]
-
-# fall <- fall[, .(winter, snowgrid, date, id, sex, weight, rhf)]
-# setnames(fall, c("rhf", "weight", "date"), c("rhf.a", "weight.a", "date.a"))
-
-
-
-# create spring data ------------------------------------------------------
 
 #subset to just march for spring dates
 spring <- trap[m == 3 | m == 4]
 
-# #create col for earliest date caught by bunny that fall
-# spring[, maxdate := max(date), by = .(id, winter)]
-# 
-# #take only latest trap dates
-# spring <- spring[date == maxdate]
-# 
-# spring <- spring[, .(winter, snowgrid, date, id, sex, weight, rhf)]
-# setnames(spring, c("rhf", "weight", "date"), c("rhf.s", "weight.s", "date.s"))
-
+#take mean weight, sex, mean rhf for each individual in spring
 springsum <- spring[, .(weight.s = mean(weight, na.rm = TRUE), sex = getmode(sex), rhf.s = mean(rhf, na.rm = TRUE)), by = .(id, winter, snowgrid, grid, food)]
 
 
 # calculate weight change -------------------------------------------------
 
+#merge fall and spring data
 wloss <- merge(fallsum, springsum, by = c("winter", "snowgrid", "grid", "id", "sex", "food"), all = TRUE)
 
-# wloss[, daylength := date.s - date.a]
-# wloss[, daylength := as.numeric(daylength)]
-
-wloss[, wchange := (weight.s - weight.a)] #decide if you want to do it per day
+#calculate weight change from fall to spring, in grams
+wloss[, wchange := (weight.s - weight.a)]
 
 #change sex numbers to words
 wloss[sex == 1, sex := "male"][sex == 2, sex := "female"]
+
+#summary of sample size between food adds and controls
+wloss[!is.na(wchange), .N, by = .(food)]
 
 
 
@@ -124,8 +106,15 @@ wloss[sex == 1, sex := "male"][sex == 2, sex := "female"]
   geom_abline(intercept = 0, slope = 0, linetype = 2)+
   geom_smooth(aes(x = weight.a, y = wchange), color = "black", method = "lm")+
   labs(x = "Weight in autumn (g)", y = "Overwinter weight change (g)")+
-  xlim(750, 2220)+
+  xlim(1000, 2100)+
   themepoints)
+
+
+
+
+
+
+
 
 #remove any hares that were less than 1000 g in fall
 wloss[!is.na(weight.a) & weight.a < 1000, include := "no"]
