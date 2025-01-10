@@ -60,4 +60,4 @@ phases <- springs[, .(winter, phase)]
 hdensity <- merge(hdensity, phases, by = "winter", all.x = TRUE)
 
 #save
-saveRDS(hdensity, "Output/Data/hare_population.rds")
+saveRDS(hdensity, "Output/Data/hare_population_monthly.rds")
