@@ -1,4 +1,5 @@
 # script to collect annual hare and lynx densities over winter
+# get cycle phase from monthly data set
 
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
@@ -6,6 +7,8 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 hares <- fread("Input/Hare_density_longterm.csv")
 lynx <- fread("Input/Lynx_density_longterm.csv")
+monthly <- readRDS("Output/Data/hare_population_monthly.rds")
+
 
 
 
@@ -59,8 +62,17 @@ setnames(lynx, "density", "lynx")
 
 # merge and save annual densities -----------------------------------------
 
+#get phases from montly data set
+phases <- monthly[, .(phase = getmode(phase)), winter]
+
+#merge hares and lynx
 d <- merge(hareswide, lynx, by = "winter")
 
+#merge densities and phases
+d <- merge(d, phases, by = "winter", all.x = TRUE)
+
+#two earlier winters that are increase but not captured in the monthly 
+d[is.na(phase), phase := "increase"]
 
 saveRDS(d, "Output/Data/densities_annual.rds")
 
