@@ -25,3 +25,7 @@ ggplot(w)+
 
 ggplot(w)+
   geom_boxplot(aes(x = winter, y = weight.c.resid, color = food))
+
+ggplot(w)+
+  geom_boxplot(aes(x = phase, y = weight.c.resid, color = food))
+
