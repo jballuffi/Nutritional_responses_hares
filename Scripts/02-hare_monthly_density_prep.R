@@ -59,5 +59,9 @@ phases <- springs[, .(winter, phase)]
 #merge phase with densities
 hdensity <- merge(hdensity, phases, by = "winter", all.x = TRUE)
 
+#make phase a leveled factor
+hdensity[, phase := factor(phase, levels = c("increase", "peak", "decrease", "low"))]
+
+
 #save
 saveRDS(hdensity, "Output/Data/hare_population_monthly.rds")
