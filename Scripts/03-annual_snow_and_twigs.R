@@ -34,7 +34,7 @@ food <- food[month(Date) > 10 | month(Date) < 4]
 # Get info for each winter and snow grid ------------------------------------------------
 
 #get mean snow depth and willow availability by winter
-wsnow <- food[, .(snowavg = mean(snow), snowmax = max(snow), biomassavg = mean(biomassavail)), by = .(winter, snowgrid)]
+wsnow <- food[, .(snow.avg = mean(snow), snow.max = max(snow), biomass.avg = mean(biomassavail)), by = .(winter, snowgrid)]
 
 #get daily snow across grids
 dsnow <- food[, .(snow = mean(snow)), .(Date, winter, snowgrid)]
