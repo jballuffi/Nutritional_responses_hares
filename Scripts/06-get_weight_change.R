@@ -29,8 +29,15 @@ trap <- trap[, .(y, m, date, grid, id, sex, weight, rhf, age)]
 #for sex: 0 = no data, 1 = female, 2 = male 
 #turn 0s to NAs
 trap[sex == 0, sex := NA]
+
 #get mode by ID, this function doesn't account for NAs
 trap[, sex := getmode(sex), by = id]
+
+trap[, sex := as.character(sex)]
+
+#change sex numbers to words
+trap[sex == 1, sex := "male"][sex == 2, sex := "female"]
+
 #change to factor
 trap[, sex := as.factor(sex)]
 
@@ -88,9 +95,6 @@ wloss <- merge(fallsum, springsum, by = c("winter", "snowgrid", "grid", "id", "s
 
 #calculate weight change from fall to spring, in grams
 wloss[, weight.c := (weight.s - weight.a)]
-
-#change sex numbers to words
-wloss[sex == 1, sex := "male"][sex == 2, sex := "female"]
 
 #summary of sample size between food adds and controls
 wloss[!is.na(weight.c), .N, by = .(food)]
