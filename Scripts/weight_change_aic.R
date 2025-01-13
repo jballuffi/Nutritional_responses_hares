@@ -4,61 +4,146 @@
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
-wloss <- readRDS("Output/Data/weight_change.rds")
-densitym <- readRDS("Output/Data/hare_population_monthly.rds")
+weights <- readRDS("Output/Data/weight_change.rds")
 densitya <- readRDS("Output/Data/densities_annual.rds")
 snow <- readRDS("Output/Data/annual_snow_conditions.rds")
 
-
-#take only weight changes of females
-w <- wloss[!is.na(weight.c) & sex == "female"]
+#remove cases without a sex
+weights <- weights[!is.na(sex)]
 
 #merge with annual hare densities
-w <- merge(w, densitya, by = "winter", all.x = TRUE)
+weights <- merge(weights, densitya, by = "winter", all.x = TRUE)
 
 #merge with annual snow
-w <- merge(w, snow, by = c("winter", "snowgrid"), all.x = TRUE )
+weights <- merge(weights, snow, by = c("winter", "snowgrid"), all.x = TRUE )
+
+#cut dataset to be only instances with weight change
+weights <- weights[!is.na(weight.c)]
+
+#take only females for food add comparisons
+wfem <- weights[sex == "female"]
+
+#take only the years where there was food add
+foodyears <- wfem[food == 1, unique(winter)]
+wfem <- wfem[winter %in% foodyears]
+
+#make a controls only dataset
+wcon <- weights[food == 0]
+
+#end with two datasets: wfem (female weights, controls and food adds, food add years only) 
+#                       wcon (control weights, males and females)
 
 
 
-# make models to compare with AIC -----------------------------------------
+# AIC for control individuals only -----------------------------------------
+
+#no difference between males and females
+summary(lm(weight.c.resid ~ sex, wcon))
+
+#make models
+
+#models with single terms only
+n <- lm(weight.c.resid ~ 1, wcon)
+s <- lm(weight.c.resid ~ snow.avg, wcon)
+t <- lm(weight.c.resid ~ biomass.avg, wcon)
+h <- lm(weight.c.resid ~ hares.avg, wcon)
+l <- lm(weight.c.resid ~ lynx, wcon)
+p <- lm(weight.c.resid ~ phase, wcon)
+
+#models with two terms each
+sh <- lm(weight.c.resid ~ snow.avg + hares.avg, wcon)
+sl <- lm(weight.c.resid ~ snow.avg + lynx, wcon)
+sp <- lm(weight.c.resid ~ snow.avg + phase, wcon)
+th <- lm(weight.c.resid ~ biomass.avg + hares.avg, wcon)
+tl <- lm(weight.c.resid ~ biomass.avg + lynx, wcon)
+tp <- lm(weight.c.resid ~ biomass.avg + phase, wcon)
+
+#list models
+mods <- list(n, s, t, h, l, p,
+             sh, sl, sp,
+             th, tl, tp)
+
+#name models
+Names <- c('n', 's', 't', 'h', 'l', 'p',
+           'sh', 'sl', 'sp',
+           'th', 'tl', 'tp')
+
+#make AIC table
+AICcon <- as.data.table(aictab(REML = F, cand.set = mods, modnames = Names, sort = TRUE))
+
+#remove unwanted columns
+AICcon[, ModelLik := NULL]
+AICcon[, Cum.Wt := NULL]
+
+#round whole table to 3 dec places
+AICcon <- AICcon %>% mutate_if(is.numeric, round, digits = 3)
+
+#run function and get R2s for all models
+R2scon <- lapply(mods, collectR2)
+R2scon <- rbindlist(R2scon, fill = TRUE)
+setnames(R2scon, "V1", "R2")
+R2scon$Modnames <- Names
+
+#merge R2s with AIC table
+AICcon <- merge(AICcon, R2scon, by = "Modnames")
+setorder(AICcon, "Delta_AICc")
+
+ggplot(wcon)+
+  geom_abline(intercept = 0, slope = 0, linetype = 2)+
+  geom_boxplot(aes(y = weight.c.resid, x = phase, fill = sex), alpha = .5)+
+  labs(y = "Weight change resid", x = "Cyle phase")+
+  themepoints
+
+summary(lm(weight.c.resid ~ phase + sex, wcon))
+
+
+
+
+# AIC for food add female years -------------------------------------------
 
 #food add, snow depth, food availability, hare density, lynx density, phase
 #snowgrid, winter
 
+femn <- lm(weight.c.resid ~ 1, wfem)
+femf <- lm(weight.c.resid ~ food, wfem)
+fems <- lm(weight.c.resid ~ food*snow.avg, wfem)
+femt <- lm(weight.c.resid ~ food*biomass.avg, wfem)
+femh <- lm(weight.c.resid ~ food*hares.avg, wfem)
+feml <- lm(weight.c.resid ~ food*lynx, wfem)
+femp <- lm(weight.c.resid ~ food*phase, wfem)
 
-n <- lm(weight.c.resid ~ 1, w)
-f <- lm(weight.c.resid ~ food, w)
-s <- lm(weight.c.resid ~ snowavg, w)
-t <- lm(weight.c.resid ~ biomassavg, w)
-h <- lm(weight.c.resid ~ hares.avg, w)
-l <- lm(weight.c.resid ~ lynx, w)
-p <- lm(weight.c.resid ~ phase, w)
+#list models
+modsfem <- list(femn, femf, fems, femt, femh, feml, femp)
 
+#name models
+Namesfem <- c('femn', 'femf', 'fems', 'femt', 'femh', 'feml', 'femp')
 
+#make AIC table
+AICfem <- as.data.table(aictab(REML = F, cand.set = modsfem, modnames = Namesfem, sort = TRUE))
 
-mods <- list(n, f, s, t, h, l, p)
-
-Names <- c('n', 'f', 's', 't', 'h', 'l', 'p')
-
-AIC <- as.data.table(aictab(REML = F, cand.set = mods, modnames = Names, sort = TRUE))
-
-AIC[, ModelLik := NULL]
-
-AIC[, Cum.Wt := NULL]
+#remove unwanted columns
+AICfem[, ModelLik := NULL]
+AICfem[, Cum.Wt := NULL]
 
 #round whole table to 3 dec places
-AIC <- AIC %>% mutate_if(is.numeric, round, digits = 3)
+AICfem <- AICfem %>% mutate_if(is.numeric, round, digits = 3)
 
+#run function and get R2s for all models
+R2sfem <- lapply(modsfem, collectR2)
+R2sfem <- rbindlist(R2sfem, fill = TRUE)
+R2sfem$Modnames <- Namesfem
 
+#merge R2s with AIC table
+AICfem <- merge(AICfem, R2sfem, by = "Modnames")
+setorder(AICfem, "Delta_AICc")
 
-ggplot(w)+
-  geom_point(aes(x = snowavg, y = weight.c.resid, color = food))+
-  geom_smooth(aes(x = snowavg, y = weight.c.resid, color = food), method = "lm")
+ggplot(wfem)+
+  geom_point(aes(x = snow.avg, y = weight.c.resid, color = food))+
+  geom_smooth(aes(x = snow.avg, y = weight.c.resid, color = food), method = "lm")+
+  themepoints
 
-ggplot(w)+
-  geom_boxplot(aes(x = winter, y = weight.c.resid, color = food))
+ggplot(wfem)+
+  geom_boxplot(aes(x = winter, y = weight.c.resid, fill = food), alpha = .5)+
+  themepoints
 
-ggplot(w)+
-  geom_boxplot(aes(x = phase, y = weight.c.resid, color = food))
 
