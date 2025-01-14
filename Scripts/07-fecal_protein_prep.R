@@ -77,9 +77,16 @@ dat[grid == "Jo", snowgrid := "Jo"]
 dat[is.na(snowgrid)]
 
 
+
+# cut to only important variables -----------------------------------------
+
+dat2 <- dat[, .(Vial, snowgrid, winter, m, idate, id, Sex, Weight, RHF, GPS, axy, Food, Nwinter, CP_dm, Ash)]
+
+
+
  # save things -------------------------------------------------------------
 
-saveRDS(dat, "Output/Data/CP_results_cleaned.rds")
+saveRDS(dat2, "Output/Data/CP_results_cleaned.rds")
 
 ggsave("Output/Figures/fecal_protein_preliminary_withmonth.jpeg", plot, width = 8, height = 4, units = "in")
 
