@@ -9,7 +9,7 @@ trap <- fread("Input/trapping_all_records.csv")
 food <- readRDS("Output/Data/food_adds.rds")
 
 
-# column prep ----------------------------------------------------------
+# variable prep ----------------------------------------------------------
 
 #set up data columns
 trap[, date := dmy(dateCap)]
@@ -32,7 +32,6 @@ trap[sex == 0, sex := NA]
 
 #get mode by ID, this function doesn't account for NAs
 trap[, sex := getmode(sex), by = id]
-
 trap[, sex := as.character(sex)]
 
 #change sex numbers to words
@@ -70,6 +69,12 @@ trap[grid == "Kloo" | grid == "Sulphur" | grid == "Chadbear" | grid == "Rolo" | 
 trap[grid == "Jo", snowgrid := "Jo"]
 
 trap <- trap[!is.na(snowgrid)]
+
+
+
+# pull out individual sex and grid for other future scripts ---------------
+
+ind <- trap[, .(sex = getmode(sex), snowgrid = getmode(snowgrid)), id]
 
 
 
@@ -175,6 +180,9 @@ Nfemale <- wlossyes[sex == "female", .N, by = .(winter, food)]
 
 #save weight change data
 saveRDS(wlossyes, "Output/Data/weight_change.rds")
+
+#save individual sex and grid
+saveRDS(ind, "Output/Data/individual_info.rds")
 
 #save sample size summary tables
 write.csv(Nbothsex, "Output/Data/weights_samplesize_bothsexes.csv")
