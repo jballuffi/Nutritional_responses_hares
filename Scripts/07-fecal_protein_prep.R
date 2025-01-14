@@ -46,6 +46,24 @@ dat <- dat[!is.na(m)]
 dat[, m := as.factor(m)]
 dat[, Food := as.factor(Food)]
 dat[, y := as.factor(y)]
+dat[, id := as.character(id)]
+
+#fix sex variable name
+setnames(dat, "Sex", "sex")
+
+#for sex: 0 = no data, 1 = female, 2 = male 
+#turn 0s to NAs
+dat[sex == 0, sex := NA]
+
+#make character
+dat[, sex := as.character(sex)]
+
+#change sex numbers to words
+dat[sex == 1, sex := "male"][sex == 2, sex := "female"]
+
+#change to factor
+dat[, sex := as.factor(sex)]
+
 
 #model prediction for CP. The interaction of month, year and food add
 mod <- lm(CP_dm ~ m*y*Food, data = dat)
@@ -80,7 +98,7 @@ dat[is.na(snowgrid)]
 
 # cut to only important variables -----------------------------------------
 
-dat2 <- dat[, .(Vial, snowgrid, winter, m, idate, id, Sex, Weight, RHF, GPS, axy, Food, Nwinter, CP_dm, Ash)]
+dat2 <- dat[, .(Vial, snowgrid, winter, m, idate, id, sex, Weight, RHF, GPS, axy, Food, Nwinter, CP_dm, Ash)]
 
 
 
