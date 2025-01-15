@@ -74,7 +74,7 @@ trap <- trap[!is.na(snowgrid)]
 
 # pull out individual sex and grid for other future scripts ---------------
 
-ind <- trap[, .(sex = getmode(sex), snowgrid = getmode(snowgrid)), id]
+ind <- trap[, .(sex = getmode(sex), snowgrid = getmode(snowgrid), food = getmode(food)), by = .(id, winter)]
 
 
 
