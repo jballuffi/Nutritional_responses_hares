@@ -100,6 +100,9 @@ dat[is.na(snowgrid)]
 
 dat2 <- dat[, .(Vial, snowgrid, winter, m, idate, id, sex, Weight, RHF, GPS, axy, Food, Nwinter, CP_dm, Ash)]
 
+#remove the one strange outlier
+dat2 <- dat2[!CP_dm > 25]
+
 
 
  # save things -------------------------------------------------------------
