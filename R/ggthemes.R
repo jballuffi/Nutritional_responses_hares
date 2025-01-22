@@ -16,3 +16,8 @@ themepoints <- theme(text = element_text(family = "serif"),
                      axis.line.y.left = element_line(size=.5),
                      panel.border = element_blank(),
                      panel.grid.major = element_line(size = 0.5, color = "grey90"))
+
+
+
+foodcols <- c("0" = "grey40", "1" = "red3")
+phasecols <- c("increase" = "purple", "peak" = "green4", "decrease" = "orange", "low" = "black")
