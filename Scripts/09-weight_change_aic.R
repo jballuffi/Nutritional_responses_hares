@@ -88,14 +88,16 @@ R2scon$Modnames <- Names
 AICcon <- merge(AICcon, R2scon, by = "Modnames")
 setorder(AICcon, "Delta_AICc")
 
-ggplot(wcon)+
+
+
+# Plot main effect from top model of AIC ----------------------------------
+
+(weightbyphase <- 
+  ggplot(wcon)+
   geom_abline(intercept = 0, slope = 0, linetype = 2)+
   geom_boxplot(aes(y = weight.c.resid, x = phase, fill = sex), alpha = .5)+
-  labs(y = "Weight change resid", x = "Cyle phase")+
-  themepoints
-
-summary(lm(weight.c.resid ~ phase + sex, wcon))
-
+  labs(y = "Weight change residual (g)", x = "Cyle phase")+
+  themepoints)
 
 
 
@@ -137,13 +139,48 @@ R2sfem$Modnames <- Namesfem
 AICfem <- merge(AICfem, R2sfem, by = "Modnames")
 setorder(AICfem, "Delta_AICc")
 
-ggplot(wfem)+
-  geom_point(aes(x = snow.avg, y = weight.c.resid, color = food))+
-  geom_smooth(aes(x = snow.avg, y = weight.c.resid, color = food), method = "lm")+
-  themepoints
 
-ggplot(wfem)+
+
+
+# Plot main effect from top model -----------------------------------------
+
+
+#to get line predictions for both variables
+effs_fems <- as.data.table(ggpredict(fems, terms = c("snow.avg", "food")))
+setnames(effs_fems, "group", "food")
+
+
+(weightbysnow <- 
+  ggplot(wfem)+
+  geom_abline(intercept = 0, slope = 0, linetype = 2, linewidth = 0.75)+
+  geom_point(aes(x = snow.avg, y = weight.c.resid, color = food), alpha = .5, data = wfem)+
+  geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = food, fill = food), alpha = .2, data = effs_fems)+
+  geom_line(aes(x = x, y = predicted, group = food, color = food), linewidth = 1, data = effs_fems)+
+  scale_color_manual(values = foodcols)+
+  scale_fill_manual(values = foodcols)+
+  labs(y = "Weight change residual (g)", x = "Average snow depth (cm)")+
+  themepoints)
+
+(weightbyyear <- 
+  ggplot(wfem)+
+  geom_abline(intercept = 0, slope = 0, linetype = 2, linewidth = 0.75)+
   geom_boxplot(aes(x = winter, y = weight.c.resid, fill = food), alpha = .5)+
-  themepoints
+  scale_fill_manual(values = foodcols)+
+  labs(y = "Weight change residual (g)", x = "Winter")+
+  themepoints)
+
+
+
+
+
+# save AIC tables ---------------------------------------------------------
+
+write.csv(AICcon, "Output/Tables/AIC_weightchange_controls.csv")
+write.csv(AICfem, "Output/Tables/AIC_weightchange_foods.csv")
+
+ggsave("Output/Figures/weight_by_phase_controls.jpeg", weightbyphase, width = 5, height = 4, unit = "in")
+ggsave("Output/Figures/weight_by_year_foods.jpeg", weightbyyear, width = 5, height = 4, unit = "in")
+ggsave("Output/Figures/weight_by_snow_foods.jpeg", weightbysnow, width = 5, height = 4, unit = "in")
+
 
 
