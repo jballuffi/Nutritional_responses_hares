@@ -17,9 +17,6 @@ weights <- merge(weights, densitya, by = "winter", all.x = TRUE)
 #merge with annual snow
 weights <- merge(weights, snow, by = c("winter", "snowgrid"), all.x = TRUE )
 
-#cut dataset to be only instances with weight change
-weights <- weights[!is.na(weight.c)]
-
 #take only females for food add comparisons
 wfem <- weights[sex == "female"]
 
