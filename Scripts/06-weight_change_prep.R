@@ -93,6 +93,7 @@ spring <- trap[m == 3 | m == 4]
 springsum <- spring[, .(weight.s = round(mean(weight, na.rm = TRUE)), sex = getmode(sex), rhf.s = round(mean(rhf, na.rm = TRUE))), by = .(id, winter, snowgrid, grid, food)]
 
 
+
 # calculate weight change -------------------------------------------------
 
 #merge fall and spring data
