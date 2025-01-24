@@ -9,9 +9,6 @@ snow <- readRDS("Output/Data/annual_snow_conditions.rds")
 forag <- readRDS("Output/Data/foraging_rates.rds")
 fecal <- readRDS("Output/Data/CP_results_cleaned.rds")
 
-#remove the one outlier
-fecal <- fecal[!CP_dm > 25]
-
 #make month a number
 fecal[, m := as.numeric(m)]
 
