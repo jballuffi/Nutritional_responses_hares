@@ -140,53 +140,56 @@ wloss[, weight.c.resid := weight.c - weight.c.pred]
 
 #remove any hares that were less than 1000 g in fall
 wloss[!is.na(weight.a) & weight.a < 1000, include := "no"]
-wloss[is.na(include), include := "yes"]
-wlossyes <- wloss[include == "yes"]
+wlossyes <- wloss[!include == "no"]
+
+
+
+# final data --------------------------------------------------------------
+
+#take just rows with weight change
+wdata <- wlossyes[!is.na(weight.c)]
+
+#take all the rows with spring weights
+sdata <- wlossyes[!is.na(weight.s)]
 
 
 
 # look at trends ----------------------------------------------------------
 
 #weight loss by year
-(wchange <- ggplot(wlossyes)+
-  geom_abline(aes(intercept = 0, slope = 0), linetype = 2)+
-  geom_boxplot(aes(x = winter, y = weight.c, fill = food), alpha = .7)+
-  labs(title = "Weight change by winter", y = "Weight change (g)", x = "Winter")+
-  themepoints)
+(wchange <- ggplot(wdata)+
+   geom_abline(aes(intercept = 0, slope = 0), linetype = 2)+
+   geom_boxplot(aes(x = winter, y = weight.c, fill = food), alpha = .7)+
+   labs(title = "Weight change by winter", y = "Weight change (g)", x = "Winter")+
+   themepoints)
 
 #spring weights by year and sex
 (springweight <- 
-  ggplot(wlossyes[!is.na(sex) & food == 0])+
-  geom_boxplot(aes(x = winter, y = weight.s, fill = sex), alpha = .7)+
-  labs(title = "Control spring weights by winter", x = "Winter", y = "Spring weight (g)")+
-  themepoints)
+    ggplot(sdata[!is.na(sex) & food == 0])+
+    geom_boxplot(aes(x = winter, y = weight.s, fill = sex), alpha = .7)+
+    labs(title = "Control spring weights by winter", x = "Winter", y = "Spring weight (g)")+
+    themepoints)
 
 #spring weights by year
 (springweightfem <- 
-  ggplot(wlossyes[sex == "female"])+
-  geom_boxplot(aes(x = winter, y = weight.s, fill = food), alpha = .7)+
-  labs(title = "Female spring weight by winter", x = "Winter", y = "Spring weight (g)")+
-  themepoints)
+    ggplot(sdata[sex == "female"])+
+    geom_boxplot(aes(x = winter, y = weight.s, fill = food), alpha = .7)+
+    labs(title = "Female spring weight by winter", x = "Winter", y = "Spring weight (g)")+
+    themepoints)
 
 
-#sample sizes for both male and female
-Nbothsex <- wlossyes[, .N, by = .(winter, food)]
-
-#sample size for just females
-Nfemale <- wlossyes[sex == "female", .N, by = .(winter, food)]
 
 
 # save prepped data and figures -------------------------------------------------------
 
 #save weight change data
-saveRDS(wlossyes, "Output/Data/weight_change.rds")
+saveRDS(wdata, "Output/Data/weight_change.rds")
+
+#save spring weight data
+saveRDS(sdata, "Output/Data/spring_weights.rds")
 
 #save individual sex and grid
 saveRDS(ind, "Output/Data/individual_info.rds")
-
-#save sample size summary tables
-write.csv(Nbothsex, "Output/Data/weights_samplesize_bothsexes.csv")
-write.csv(Nfemale, "Output/Data/weights_samplesize_females.csv")
 
 #save figures
 ggsave("Output/Figures/hodges_figure.jpeg", hodges, width = 6, height = 4, unit = "in")
