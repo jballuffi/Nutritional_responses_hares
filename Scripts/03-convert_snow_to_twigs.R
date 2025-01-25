@@ -8,7 +8,7 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 #read in snow to willow predictions
 pred <- readRDS("../Willow_twigs_snowdepth/Output/Data/05_willow_biomass_prediction.rds")
-snow <- readRDS("Output/Data/")
+snow <- readRDS("Output/Data/snow_prepped.rds")
 
 
 # merge snow data with prediction for willow availability  -----------
@@ -19,12 +19,11 @@ setnames(pred, "Snow", "snow")
 #merge food predictions with snow data
 food <- merge(snow, pred, by = "snow")
 
-food[, Date := ymd(Date)]
-
+#remove winter of 14/15
 food <- food[!winter == "2014-2015"]
 
 #use november to march to control for different sampling periods between winters
-food <- food[month(Date) > 10 | month(Date) < 4]
+food <- food[month(date) > 10 | month(date) < 4]
 
 
 
