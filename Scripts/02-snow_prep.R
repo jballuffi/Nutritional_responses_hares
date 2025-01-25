@@ -6,20 +6,22 @@
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
-# collect data ------------------------------------------------------------
+# read in data ------------------------------------------------------------
 
 #list snow files from grid-level measurements and fread
 snowfiles <- dir("Input/", "Snow_grid*", full.names = TRUE) 
+
+#fread list of files
 ls.snowfiles <- lapply(snowfiles, fread)
+
 #rbindlist with an origin column
 snowgrids <- rbindlist(ls.snowfiles, fill = TRUE, use.names = TRUE, idcol = "origin")
+
 #now re-assign the origin column the file names
 snowgrids[, origin := factor(origin, labels = basename(snowfiles))]
 
-
 #data from camera traps
 snowcams <- fread("Input/Snow_cameras.csv")
-
 
 
 
@@ -63,6 +65,7 @@ setnames(snowgrids, "OPEN SD", "SD")
 gsnow <- snowgrids[, .(Date, snowgrid, SD)]
 gsnow[, source := "ground"]
 gsnow<-gsnow[!is.na(SD)] #remove no data from grids
+
 
 
 # clean up camera trap data --------------------------------------------------
