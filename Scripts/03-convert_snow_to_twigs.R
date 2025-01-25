@@ -32,17 +32,8 @@ food <- food[month(date) > 10 | month(date) < 4]
 #get mean snow depth and willow availability by winter
 wsnow <- food[, .(snow.avg = mean(snow), snow.max = max(snow), biomass.avg = mean(biomassavail)), by = .(winter, snowgrid)]
 
-#get daily snow across grids
-dsnow <- food[, .(snow = mean(snow)), .(Date, winter, snowgrid)]
-
-#get number of days where snow was greater than 45 cm by winter
-deepdays <- dsnow[snow > 45, .(deepdays = .N), by = .(winter, snowgrid)]
-
-#merge deep days with averages
-allwsnow <- merge(wsnow, deepdays, by = c("winter", "snowgrid"), all.x = TRUE)
-
-#where deep days is NA make 0
-allwsnow[is.na(deepdays), deepdays := "0"]
+#get daily snow for grids
+dsnow <- food[, .(snow = mean(snow)), .(date, winter, snowgrid)]
 
 
 
@@ -52,22 +43,13 @@ allwsnow[is.na(deepdays), deepdays := "0"]
 
 snowplot <- 
   ggplot(dsnow)+
-  geom_line(aes(x = Date, y = snow, color = snowgrid))+
+  geom_line(aes(x = date, y = snow, color = snowgrid))+
   labs(y = "Snow depth (cm)")+
   facet_wrap(~winter, scales = "free")+
   themepoints
 
-ggplot(food)+
-  geom_boxplot(aes(x = winter, y = snow))+
-  labs(y = "mean snow depth (cm)")+
-  theme_minimal()
 
-ggplot(food)+
-  geom_boxplot(aes(x = winter, y = biomassavail))+
-  labs(y = "Available willow biomass (g/m2)")+
-  theme_minimal()
+ggsave("Output/Figures/snow_over_time.jpeg", snowplot, width = 10, height = 8, unit = "in")
 
-
-ggsave("Output/Figures/snow_annual.jpeg", snowplot, width = 10, height = 8, unit = "in")
-saveRDS(allwsnow, "Output/Data/annual_snow_conditions.rds")
+saveRDS(wsnow, "Output/Data/annual_snow_conditions.rds")
 saveRDS(food, "Output/Data/snow_and_food.rds")
