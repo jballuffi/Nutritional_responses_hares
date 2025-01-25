@@ -20,16 +20,26 @@ setnames(hdensity, "hdensity", "haredensity")
 
 #pull months, years, and days into separate col
 hdensity[, date := mdy(Time)]
+hdensity[, m := month(date)]
 
 #categorize into winters
-hdensity[month(date) > 6, winter := paste0(year(date), "-", year(date) + 1)]
-hdensity[month(date) < 6, winter := paste0(year(date) - 1, "-", year(date))]
+hdensity[m > 6, winter := paste0(year(date), "-", year(date) + 1)]
+hdensity[m < 6, winter := paste0(year(date) - 1, "-", year(date))]
 
 #remove time col
 hdensity[, Time := NULL]
 
-#make month col
-hdensity[, month := month(date)]
+#create a day col
+hdensity[, winterday := date - min(date), winter]
+hdensity[, winterday := as.integer(winterday)]
+
+
+
+# get mortality rates by month for predation risk -------------------------
+
+predrisk <- hdensity[, mean(mortality), by = .(m, winter)]
+setnames(predrisk, "V1", "mortrate")
+
 
 
 # Categorize years into cycle phases -------------------------------------
@@ -38,7 +48,7 @@ hdensity[, month := month(date)]
 #took the information from Mike's oecologia paper
 
 #spring to spring, take all april densities
-springs <- hdensity[month(date) == 4]
+springs <- hdensity[m == 4]
 
 #compare last year's density to this year's density
 springs[, nextdens := shift(haredensity, n = 1, type = "lead")]
@@ -62,6 +72,50 @@ hdensity <- merge(hdensity, phases, by = "winter", all.x = TRUE)
 #make phase a leveled factor
 hdensity[, phase := factor(phase, levels = c("increase", "peak", "decrease", "low"))]
 
+#remove winter of 2021-2022
+hdensity <- hdensity[!winter == "2021-2022"]
+
+
+
+# run linear models of density decrease by winter -------------------------
+
+#run predictions function by winter (lm of density over time, predicts for each day)
+densitypred <- hdensity[, .(haredensity = predictdens(yvar = haredensity, xvar = winterday), 
+                            lower = predictdens(yvar = hdensity_low95, xvar = winterday),
+                            upper = predictdens(yvar = hdensity_up95, xvar = winterday)),
+                        by = winter]
+
+#create the same sequence for winterday as in predictdens function
+densitypred[, winterday := seq(1, 197, by = 1), winter]
+
+#recreate date based on winter day if the min date is oct 1
+densitypred[, minyear := tstrsplit(winter, "-", keep = 1)]
+densitypred[, mindate := dmy(paste0("30-09", "-", minyear))]
+densitypred[, date := mindate + winterday]
+
+#merge in cycle phases 
+densitypred <- merge(densitypred, phases, by = "winter", all.x = TRUE)
+
+#delete 31 days from the winterday col because HR data starts at December 1st, not October 1st
+densitypred[, winterday := winterday - 61]
+densitypred <- densitypred[winterday > 0]
+
+
+
+# Figures -----------------------------------------------------------------
+
+(densityregressions <- 
+   ggplot(densitypred)+
+   #geom_ribbon(aes(x = date, ymin = lower, ymax = upper), alpha = 0.3, color = "grey40", data = densitypred)+
+   geom_line(aes(x = date, y = haredensity, group = 1), data = densitypred)+
+   geom_point(aes(x = date, y = haredensity), data = hdensity[winterday > 61])+
+   geom_errorbar(aes(x = date, ymax = hdensity_up95, ymin = hdensity_low95), width = 3, data = hdensity[winterday > 61])+
+   facet_wrap(~winter, scales = "free_x")+
+   labs(x = "Date", y = "Hare density (hares/ha)")+
+   theme_minimal())
+
+
 
 #save
-saveRDS(hdensity, "Output/Data/hare_population_monthly.rds")
+saveRDS(densitypred, "Output/Data/hares_daily.rds")
+saveRDS(hdensity, "Output/Data/hares_monthly.rds")

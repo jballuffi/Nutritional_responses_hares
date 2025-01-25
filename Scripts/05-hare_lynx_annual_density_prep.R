@@ -7,7 +7,7 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 hares <- fread("Input/Hare_density_longterm.csv")
 lynx <- fread("Input/Lynx_density_longterm.csv")
-monthly <- readRDS("Output/Data/hare_population_monthly.rds")
+monthly <- readRDS("Output/Data/hares_monthly.rds")
 
 
 
@@ -74,5 +74,5 @@ d <- merge(d, phases, by = "winter", all.x = TRUE)
 #two earlier winters that are increase but not captured in the monthly 
 d[is.na(phase), phase := "increase"]
 
-saveRDS(d, "Output/Data/hares_lynx_annual.rds")
+saveRDS(d, "Output/Data/hares_lynx_winter.rds")
 
