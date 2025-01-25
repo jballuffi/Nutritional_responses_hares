@@ -79,35 +79,35 @@ csnow[, source := "camera"]
 # merge data sheets -------------------------------------------------------
 
 #bind camera data to human data
-snow <- rbind(gsnow, csnow)
+snowfull <- rbind(gsnow, csnow)
 
 #merge with the blank list of dates so we can fill in NA dates
-snowfull <- merge(blanks, snow, by = c("Date", "snowgrid"), all = TRUE)
+snow <- merge(blanks, snowfull, by = c("Date", "snowgrid"), all = TRUE)
 
 #Order by grid and then date
-setorder(snowfull, snowgrid, Date)
+setorder(snow, snowgrid, Date)
 
 #add winter column
 #categorize fixes into winters
-snowfull[month(Date) > 10, winter := paste0(year(Date), "-", year(Date) + 1)]
-snowfull[month(Date) < 4, winter := paste0(year(Date) - 1, "-", year(Date))]
+snow[month(Date) > 10, winter := paste0(year(Date), "-", year(Date) + 1)]
+snow[month(Date) < 4, winter := paste0(year(Date) - 1, "-", year(Date))]
 
 #grab only winter
-snowfull <- snowfull[!is.na(winter)]
-snowfull <- snowfull[!winter == "NA-NA"]
+snow <- snow[!is.na(winter)]
+snow <- snow[!winter == "NA-NA"]
 
 
 #if source is NA say "fill"
-snowfull[is.na(source), source := "fill"]
+snow[is.na(source), source := "fill"]
 
 #see what major chunks of grids/winters are missing
-snowfull[is.na(SD), .N, by = .(snowgrid, winter)]
+snow[is.na(SD), .N, by = .(snowgrid, winter)]
 
 #fill in missing snow depths with the last value (calls backwards in time)
-snowfull[, SD := nafill(SD, "locf"), by = c("snowgrid", "winter")]
+snow[, SD := nafill(SD, "locf"), by = c("snowgrid", "winter")]
 
 #in november of 2018, make snow depth 0.
 #this month was empty but there was very little snow at the start of that december
-snowfull[month(Date) == 11 & winter == "2018-2019", SD := 0]
+snow[month(Date) == 11 & winter == "2018-2019", SD := 0]
 
 
