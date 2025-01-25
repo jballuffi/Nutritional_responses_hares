@@ -39,6 +39,9 @@ trap[sex == 1, sex := "male"][sex == 2, sex := "female"]
 #change sex to to factor
 trap[, sex := as.factor(sex)]
 
+#id
+trap[, id := as.character(id)]
+
 #turn zeros in weights/RHF to NAs
 trap[rhf == 0 | rhf == 1, rhf := NA]
 trap[weight == 0, weight := NA]

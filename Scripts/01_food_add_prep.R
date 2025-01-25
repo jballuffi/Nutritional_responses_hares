@@ -20,6 +20,7 @@ foodadds <- rbindlist(data, fill = TRUE, use.names = TRUE)
 #fix eartag and food column
 setnames(foodadds, c("Eartag", "Food"), c("id", "food"))
 foodadds[, food := as.factor(food)]
+foodadds[, id := as.character(id)]
 
 #save food adds to output
 saveRDS(foodadds, "Output/Data/food_adds.rds")
