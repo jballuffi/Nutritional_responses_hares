@@ -8,18 +8,20 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 # read in data ------------------------------------------------------------
 
 cp <- fread("Input/fecal_CP_2016_2019.csv")
-cp <- cp[order(vial)]
+cp <- cp[order(vial)] #reorder by vial number
 
 dm <- fread("Input/fecal_DM_2016_2019.csv")
-dm <- dm[order(Vial)]
+dm <- dm[order(Vial)] #reocrder by vial number
 
-samps <- fread("Output/Data/samplelist.csv")
+samps <- fread("Input/samplelist.csv")
 
 #some vials turned out to be duplicated. Grab all the vial numbers for now
 dupvials <- samps[duplicated(Vial) == TRUE, unique(Vial)]
 
+#remove duplicate vials
 cp <- cp[!vial %in% dupvials]
 dm <- dm[!Vial %in% dupvials]
+
 
 
 # merge nutritional composition results --------------------------
@@ -43,13 +45,18 @@ dat <- dat[!is.na(CP_dm)]
 dat <- dat[!is.na(m)]
 
 #make factors
-dat[, m := as.factor(m)]
-dat[, Food := as.factor(Food)]
+#dat[, m := as.factor(m)]
+dat[, food := as.factor(food)]
 dat[, y := as.factor(y)]
 dat[, id := as.character(id)]
+dat[, date := ymd(idate)]
 
 #fix sex variable name
-setnames(dat, "Sex", "sex")
+setnames(dat, c("Sex", "Vial", "Weight", "Ash"), c("sex", "vial", "weight", "ash"))
+
+
+
+# Fix sex issue -----------------------------------------------------------
 
 #for sex: 0 = no data, 1 = female, 2 = male 
 #turn 0s to NAs
@@ -65,26 +72,6 @@ dat[sex == 1, sex := "male"][sex == 2, sex := "female"]
 dat[, sex := as.factor(sex)]
 
 
-#model prediction for CP. The interaction of month, year and food add
-mod <- lm(CP_dm ~ m*y*Food, data = dat)
-summary(mod)
-
-foodcols <- c("1" = "red3", "0" = "grey40")
-
-
-(plot <- 
-  ggplot(dat)+
-  geom_boxplot(aes(x = y, y = CP_dm, color = Food), outlier.shape = NA)+
-  geom_abline(intercept = 7.5, slope = 0, linetype = 2)+
-  geom_abline(intercept = 10, slope = 0, linetype = 2)+
-  labs(x = "Winter", y = "Fecal crude protein (%)")+
-  scale_color_manual(values = foodcols)+
-  ylim(6, 18)+
-  theme_minimal()+
-  facet_wrap(~m)
-  )
-
-
 
 # make snow grid col ------------------------------------------------------
 
@@ -96,9 +83,25 @@ dat[is.na(snowgrid)]
 
 
 
+# Look at trends ----------------------------------------------------------
+
+(plot <- 
+    ggplot(dat)+
+    geom_boxplot(aes(x = y, y = CP_dm, color = food), outlier.shape = NA)+
+    geom_abline(intercept = 7.5, slope = 0, linetype = 2)+
+    geom_abline(intercept = 10, slope = 0, linetype = 2)+
+    labs(x = "Winter", y = "Fecal crude protein (%)")+
+    scale_color_manual(values = foodcols)+
+    ylim(6, 18)+
+    theme_minimal()+
+    facet_wrap(~m)
+)
+
+
+
 # cut to only important variables -----------------------------------------
 
-dat2 <- dat[, .(Vial, snowgrid, winter, m, idate, id, sex, Weight, RHF, GPS, axy, Food, Nwinter, CP_dm, Ash)]
+dat2 <- dat[, .(vial, snowgrid, winter, m, date, id, sex, weight, RHF, GPS, axy, food, Nwinter, CP_dm, ash)]
 
 #remove the one strange outlier
 dat2 <- dat2[!CP_dm > 25]
@@ -107,7 +110,7 @@ dat2 <- dat2[!CP_dm > 25]
 
  # save things -------------------------------------------------------------
 
-saveRDS(dat2, "Output/Data/CP_results_cleaned.rds")
+saveRDS(dat2, "Output/Data/fecal_protein.rds")
 
 ggsave("Output/Figures/fecal_protein_preliminary_withmonth.jpeg", plot, width = 8, height = 4, units = "in")
 
