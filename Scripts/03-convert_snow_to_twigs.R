@@ -13,6 +13,9 @@ snow <- readRDS("Output/Data/")
 
 # merge snow data with prediction for willow availability  -----------
 
+#make snow col lowercase
+setnames(pred, "Snow", "snow")
+
 #merge food predictions with snow data
 food <- merge(snow, pred, by = "snow")
 

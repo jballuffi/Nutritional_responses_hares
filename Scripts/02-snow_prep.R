@@ -97,14 +97,14 @@ snow[month(Date) < 4, winter := paste0(year(Date) - 1, "-", year(Date))]
 
 
 
-# clean and prep ----------------------------------------------------------
+# finish prepping full data ----------------------------------------------------------
+
+#change name of Date
+setnames(snow, "Date", "date")
 
 #grab only winter
 snow <- snow[!is.na(winter)]
 snow <- snow[!winter == "NA-NA"]
-
-#if source is NA say "fill"
-snow[is.na(source), source := "fill"]
 
 #see what major chunks of grids/winters are missing
 snow[is.na(SD), .N, by = .(snowgrid, winter)]
@@ -114,11 +114,13 @@ snow[, SD := nafill(SD, "locf"), by = c("snowgrid", "winter")]
 
 #in november of 2018, make snow depth 0.
 #this month was empty but there was very little snow at the start of that december
-snow[month(Date) == 11 & winter == "2018-2019", SD := 0]
+snow[month(date) == 11 & winter == "2018-2019", SD := 0]
 
-#make snow col lowercase
-setnames(pred, "Snow", "snow")
+#round snow depth to nearest cm, remove extras
+snow[, snow := round(SD)][, SD := NULL][, source := NULL]
 
-#round snow depth to nearest cm
-snow[, snow := round(SD)][, SD := NULL]
 
+
+# save --------------------------------------------------------------------
+
+saveRDS(snow, "Output/Data/snow_prepped.rds")
