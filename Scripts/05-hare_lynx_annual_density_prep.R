@@ -74,5 +74,5 @@ d <- merge(d, phases, by = "winter", all.x = TRUE)
 #two earlier winters that are increase but not captured in the monthly 
 d[is.na(phase), phase := "increase"]
 
-saveRDS(d, "Output/Data/densities_annual.rds")
+saveRDS(d, "Output/Data/hares_lynx_annual.rds")
 
