@@ -20,9 +20,6 @@ setorder(trap, date)
 #rename cols
 setnames(trap, c("Hindfoot", "Eartag", "Sex", "Weight", "Maturity"), c("rhf", "id", "sex", "weight", "age"))
 
-#make ID a factor
-trap[, id := as.factor(id)]
-
 #grab only specific columns
 trap <- trap[, .(y, m, date, grid, id, sex, weight, rhf, age)]
 
@@ -32,12 +29,14 @@ trap[sex == 0, sex := NA]
 
 #get mode by ID, this function doesn't account for NAs
 trap[, sex := getmode(sex), by = id]
+
+#set sex as character
 trap[, sex := as.character(sex)]
 
 #change sex numbers to words
 trap[sex == 1, sex := "male"][sex == 2, sex := "female"]
 
-#change to factor
+#change sex to to factor
 trap[, sex := as.factor(sex)]
 
 #turn zeros in weights/RHF to NAs
@@ -124,7 +123,7 @@ effs_weightline <- as.data.table(ggpredict(weightline, terms = c("weight.a")))
   geom_point(aes(x = weight.a, y = weight.c), data = wloss)+
   geom_abline(intercept = 0, slope = 0, linetype = 2)+
   geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = 0.2, data = effs_weightline)+
-  geom_line(aes(x = x, y = predicted), size = 1, data = effs_weightline)+
+  geom_line(aes(x = x, y = predicted), linewidth = 1, data = effs_weightline)+
   labs(x = "Weight in autumn (g)", y = "Overwinter weight change (g)")+
   xlim(1000, 2100)+
   themepoints)
@@ -141,7 +140,8 @@ wloss[, weight.c.resid := weight.c - weight.c.pred]
 
 #remove any hares that were less than 1000 g in fall
 wloss[!is.na(weight.a) & weight.a < 1000, include := "no"]
-wlossyes <- wloss[!include == "no"]
+wloss[is.na(include), include := "yes"]
+wlossyes <- wloss[include == "yes"]
 
 
 
