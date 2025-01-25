@@ -158,32 +158,6 @@ sdata <- wlossyes[!is.na(weight.s)]
 
 
 
-# look at trends ----------------------------------------------------------
-
-#weight loss by year
-(wchange <- ggplot(wdata)+
-   geom_abline(aes(intercept = 0, slope = 0), linetype = 2)+
-   geom_boxplot(aes(x = winter, y = weight.c, fill = food), alpha = .7)+
-   labs(title = "Weight change by winter", y = "Weight change (g)", x = "Winter")+
-   themepoints)
-
-#spring weights by year and sex
-(springweight <- 
-    ggplot(sdata[!is.na(sex) & food == 0])+
-    geom_boxplot(aes(x = winter, y = weight.s, fill = sex), alpha = .7)+
-    labs(title = "Control spring weights by winter", x = "Winter", y = "Spring weight (g)")+
-    themepoints)
-
-#spring weights by year
-(springweightfem <- 
-    ggplot(sdata[sex == "female"])+
-    geom_boxplot(aes(x = winter, y = weight.s, fill = food), alpha = .7)+
-    labs(title = "Female spring weight by winter", x = "Winter", y = "Spring weight (g)")+
-    themepoints)
-
-
-
-
 # save prepped data and figures -------------------------------------------------------
 
 #save weight change data
@@ -195,8 +169,5 @@ saveRDS(sdata, "Output/Data/spring_weights.rds")
 #save individual sex and grid
 saveRDS(ind, "Output/Data/individual_info.rds")
 
-#save figures
+#save figure
 ggsave("Output/Figures/hodges_figure.jpeg", hodges, width = 6, height = 4, unit = "in")
-ggsave("Output/Figures/wchange_winter.jpeg", wchange, width = 7, height = 4, unit = "in")
-ggsave("Output/Figures/sweight_winter_sex.jpeg", springweight, width = 7, height = 4, unit = "in")
-ggsave("Output/Figures/sweight_winter_food.jpeg", springweightfem, width = 7, height = 4, unit = "in")
