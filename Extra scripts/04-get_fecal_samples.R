@@ -33,7 +33,6 @@ axyind <- axy[, .(id = unique(id)), winter]
 axyind[, axy := "present"]
 
 ###  FOOD DATA
-setnames(foodadds, "Eartag", "id")
 foodadds[, id := as.character(id)]
 
 #merge
@@ -142,8 +141,8 @@ dat <- dat[order(winter, id, idate)]
 #fill in NA values
 dat[is.na(GPS), GPS := "absent"]
 dat[is.na(axy), axy := "absent"]
-dat[is.na(Food), Food := "0"]
-dat[, Food := as.factor(Food)]
+dat[is.na(food), food := "0"]
+dat[, food := as.factor(food)]
 
 
 
@@ -151,7 +150,7 @@ dat[, Food := as.factor(Food)]
 # body weight trends --------------------------------------------
 
 ggplot(dat[m == 3 & Sex == "2"])+
-  geom_boxplot(aes(x = winter, y = Weight, color = Food))+
+  geom_boxplot(aes(x = winter, y = Weight, color = food))+
   theme_minimal()
 
 
