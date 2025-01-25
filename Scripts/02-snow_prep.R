@@ -92,10 +92,13 @@ setorder(snow, snowgrid, Date)
 snow[month(Date) > 10, winter := paste0(year(Date), "-", year(Date) + 1)]
 snow[month(Date) < 4, winter := paste0(year(Date) - 1, "-", year(Date))]
 
+
+
+# clean and prep ----------------------------------------------------------
+
 #grab only winter
 snow <- snow[!is.na(winter)]
 snow <- snow[!winter == "NA-NA"]
-
 
 #if source is NA say "fill"
 snow[is.na(source), source := "fill"]
@@ -110,4 +113,9 @@ snow[, SD := nafill(SD, "locf"), by = c("snowgrid", "winter")]
 #this month was empty but there was very little snow at the start of that december
 snow[month(Date) == 11 & winter == "2018-2019", SD := 0]
 
+#make snow col lowercase
+setnames(pred, "Snow", "snow")
+
+#round snow depth to nearest cm
+snow[, snow := round(SD)][, SD := NULL]
 

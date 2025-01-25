@@ -5,19 +5,13 @@
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
-#read in data
-snow <- readRDS("Output/Data/snowgrids.rds")
+
+#read in snow to willow predictions
 pred <- readRDS("../Willow_twigs_snowdepth/Output/Data/05_willow_biomass_prediction.rds")
+snow <- readRDS("Output/Data/")
 
 
-
-# merge real snow data with prediction for willow availability  -----------
-
-#make snow col lowercase
-setnames(pred, "Snow", "snow")
-
-#round snow depth to nearest cm
-snow[, snow := round(SD)][, SD := NULL]
+# merge snow data with prediction for willow availability  -----------
 
 #merge food predictions with snow data
 food <- merge(snow, pred, by = "snow")
