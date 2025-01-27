@@ -45,4 +45,9 @@ ggplot(snow)+
     labs(title = "Weight change by winter", y = "Weight change (g)", x = "Winter")+
     themepoints)
 
+summary(lm(weight.c ~ food, wchange))
+
+
+ggsave("Output/Figures/weightchange_summary.jpeg", wc, width = 5, height = 4, unit = "in")
+
 
