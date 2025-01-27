@@ -45,16 +45,6 @@ dsnow <- food[, .(snow = mean(snow)), .(date, winter, snowgrid)]
 
 # Figures and save --------------------------------------------------------
 
-#snow depth over time for each winter
-snowplot <- 
-  ggplot(dsnow)+
-  geom_line(aes(x = date, y = snow, color = snowgrid))+
-  labs(y = "Snow depth (cm)")+
-  facet_wrap(~winter, scales = "free")+
-  themepoints
-
-ggsave("Output/Figures/snow_over_time.jpeg", snowplot, width = 10, height = 8, unit = "in")
-
 saveRDS(wfood, "Output/Data/snow_food_winter.rds")
 saveRDS(mfood, "Output/Data/snow_food_monthly.rds")
 saveRDS(food, "Output/Data/snow_food_daily.rds")
