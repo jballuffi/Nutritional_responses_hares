@@ -4,56 +4,55 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 
 weights <- readRDS("Output/Data/weight_change.rds")
-densitya <- readRDS("Output/Data/densities_annual.rds")
-snow <- readRDS("Output/Data/annual_snow_conditions.rds")
-forag <- readRDS("Output/Data/foraging_rates.rds")
-fecal <- readRDS("Output/Data/CP_results_cleaned.rds")
+density_w <- readRDS("Output/Data/hares_lynx_winter.rds")
+density_d <- readRDS("Output/Data/hares_daily.rds")
 
-#make month a number
-fecal[, m := as.numeric(m)]
+snow_w <- readRDS("Output/Data/snow_food_winter.rds")
+snow_d <- readRDS("Output/Data/snow_food_winter.rds")
+snow_m <- readRDS("Output/Data/snow_food_monthly.rds")
 
-setnames(forag, "Date", "idate")
+forag_d <- readRDS("Output/Data/foraging_daily.rds")
+forag_w <- readRDS("Output/Data/foraging_winter.rds")
+forag_m <- readRDS("Output/Data/foraging_monthly.rds")
+
+fecal <- readRDS("Output/Data/fecal_protein.rds")
 
 
 
 # Does foraging rate correlate with fecal protein -------------------------
 
-
-#get monthly foraging rates
-mforag <- forag[, .(mforag = mean(Forage, na.rm = TRUE)/3600), by = .(id, winter, m)]
-
 #merge monthly foraging rates with fecal sample from the same month
-fecal <- merge(fecal, mforag, by = c("id", "winter", "m"), all.x = TRUE)
+fecal_m <- merge(fecal, forag_m, by = c("id", "winter", "m", "snowgrid", "food", "sex"), all.x = TRUE)
 
-ggplot(fecal)+
-  geom_point(aes(x = mforag, y = CP_dm))+
-  geom_smooth(aes(x = mforag, y = CP_dm), method = "lm")+
+ggplot(fecal_m)+
+  geom_point(aes(x = forage, y = CP_dm))+
+  geom_smooth(aes(x = forage, y = CP_dm), method = "lm")+
   labs(x = "Monthly foraging rate (hr/day)", y = "Fecal protein (%)")+
   themepoints
 
 
 #pull dates of each fecal sample, subtract one to get the day before
 #create a column called "used for daily"
-fecaldates <- fecal[, .(idate = unique(idate) - 1, usefordaily = "yes"), id]
+fecaldates <- fecal[, .(date = unique(date) - 1, usefordaily = "yes"), id]
 
 #merge prev days of fecal samples with foraging data
-forag <- merge(forag, fecaldates, by = c("id", "idate"), all.x = TRUE) 
+forag_d <- merge(forag_d, fecaldates, by = c("id", "date"), all.x = TRUE) 
 
 #take anything that has a "use for daily" listed -yes- and take id, month, and forage rate
 #add a day back to date so it matches the fecal data again
-dforag <- forag[usefordaily == "yes", .(id, idate, prev.dforag = Forage/3600)]
-dforag[, idate := idate + 1]
+forag_d_fecal <- forag_d[usefordaily == "yes", .(id, date, prev.dforag = forage)]
+forag_d_fecal[, date := date + 1]
 
-fecal <- merge(fecal, dforag, by = c("id", "idate"), all.x = TRUE)
+fecal_d <- merge(fecal, forag_d_fecal, by = c("id", "date"), all.x = TRUE)
 
 
-ggplot(fecal)+
+ggplot(fecal_d)+
   geom_point(aes(x = prev.dforag, y = CP_dm))+
   geom_smooth(aes(x = prev.dforag, y = CP_dm), method = "lm")+
   labs(x = "Foraging rate of previous day (hr/day)", y = "Fecal protein (%)")+
   themepoints
 
 
-summary(lm(CP_dm ~ mforag, fecal))
-summary(lm(CP_dm ~ prev.dforag, fecal))
+summary(lm(CP_dm ~ forage, fecal_m))
+summary(lm(CP_dm ~ prev.dforag, fecal_d))
 
