@@ -36,8 +36,8 @@ food <- food[m > 10 | m < 4]
 wfood <- food[, .(snow.avg = mean(snow), snow.max = max(snow), biomass.avg = mean(biomassavail)), by = .(winter, snowgrid)]
 
 #pull out just year
-wfood[, y := tstrsplit(winter, "-", keep = 1)]
-wfood[, y := as.integer(y)]
+wfood[, year := tstrsplit(winter, "-", keep = 1)]
+wfood[, year := as.integer(year)]
 
 #get mean snow depth and willow availabitliy by month and grid
 mfood <- food[, .(snow.avg = mean(snow), snow.max = max(snow), biomass.avg = mean(biomassavail)), by = .(winter, m, snowgrid)]

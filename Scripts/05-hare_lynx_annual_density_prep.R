@@ -75,8 +75,8 @@ d <- merge(d, phases, by = "winter", all.x = TRUE)
 d[is.na(phase), phase := "increase"]
 
 #pull out just year
-d[, y := tstrsplit(winter, "-", keep = 1)]
-d[, y := as.integer(y)]
+d[, year := tstrsplit(winter, "-", keep = 1)]
+d[, year := as.integer(year)]
 
 
 
