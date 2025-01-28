@@ -33,6 +33,8 @@ beh[, id := gsub("B", "2", id)]
 #take only main cols and convert foraging to hours
 beh <- beh[, .(winter, id, m, year, date, forage = Forage/3600)]
 
+#cut to only include foraging rates from jan - mar
+beh <- beh[m == 1 | m == 2 | m == 3]
 
 
 # Get foraging by month and winter ----------------------------------------
