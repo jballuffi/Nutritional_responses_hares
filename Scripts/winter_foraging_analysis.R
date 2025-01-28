@@ -13,19 +13,6 @@ ind <- readRDS("Output/Data/individual_info.rds")
 # prep winter summary foraging data ------------------------------------------------------
 #this is all about how much, on average, a hare forages in Jan - Mar
 
-#convert daily foraging effort to hours 
-forag[, dailyf := Forage/3600]
-
-#cut to only include foraging rates from jan - mar
-forag <- forag[m == 1 | m == 2 | m == 3]
-
-#take the mean foraging rate over winter for each individual
-wforag <- forag[, .(dailyf = mean(dailyf)), by = .(winter, id, snowgrid)]
-
-#merge winter foraging rates with snow, density, and sexes
-wforag <- merge(wforag, ind, by = c("id", "snowgrid", "winter"))
-wforag <- merge(wforag, snow, by = c("winter", "snowgrid"), all.x = TRUE)
-wforag <- merge(wforag, densitya, by = "winter", all.x = TRUE)
 
 #merge winter foraging rates with weight changes
 weights <- weights[, .(id, winter, weight.a, weight.s, rhf.a, rhf.s, weight.c, weight.c.resid )]
