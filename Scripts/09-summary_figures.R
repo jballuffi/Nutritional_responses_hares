@@ -19,34 +19,68 @@ wchange <- readRDS("Output/Data/weight_change.rds")
 #remove last winter of snow data 
 snow <- snow[!winter == "2021-2022"]
 
+setorder(winterdensity, year)
+
+setorder(wintersnow, snowgrid, year)
 
 
 
-# figure for the independent variables ------------------------------------
 
-(d <- ggplot(density)+
+# environmental data by winter ------------------------------------
+
+(ddaily <- ggplot(density)+
     geom_path(aes(x = date, y = haredensity, group = winter, color = phase))+
     scale_color_manual(values = phasecols, breaks=c('increase', 'peak', 'decrease', 'low'))+
-    labs(x = "", y = "Hare density (hares/ha)", subtitle = "A")+
+    labs(x = "", y = "Hare density (hares/ha)")+
     themepoints)
 
-(s <- 
-  ggplot(snow)+
-  geom_line(aes(x = date, y = snow, color = snowgrid))+
-  labs(y = "Snow depth (cm)", x = "Date")+
-  facet_wrap(~winter, scales = "free")+
-  scale_color_ordinal(guide = NULL)+
+(dwinter <- ggplot(density)+
+    geom_boxplot(aes(x = winter, y = haredensity, fill = phase), alpha = 0.5)+
+    scale_fill_manual(values = phasecols, breaks=c('increase', 'peak', 'decrease', 'low'))+
+    labs(x = "", y = "Hare density (hares/ha)")+
+    themepoints)
+
+(lwinter <- ggplot(winterdensity)+
+    geom_path(aes(x = year, y = lynx, group = 1, color = phase), size = .75)+
+    scale_color_manual(values = phasecols, breaks=c('increase', 'peak', 'decrease', 'low'))+
+    labs(x = "", y = "Lynx density (lynx/?)")+
+    themepoints)
+
+(swinter <- ggplot(wintersnow)+
+   geom_path(aes(x = year, y = snow.avg, group = snowgrid, linetype = snowgrid), size = .75)+
+   labs(x = "", y = "Average snow depth (cm)")+
+   themepoints)
+
+(twinter <- ggplot(wintersnow)+
+  geom_path(aes(x = year, y = biomass.avg, group = snowgrid, linetype = snowgrid), size = .75)+
+  labs(x = "", y = "Average available willow (g/m2)")+
   themepoints)
 
-(t <- 
+sumenvfig <- ggarrange(dwinter, lwinter, swinter, twinter, ncol = 2, nrow = 2)
+sumenvfig
+
+
+sumenvfig2 <- ggarrange(ddaily, lwinter, swinter, twinter, ncol = 2, nrow = 2)
+sumenvfig2
+
+
+# Daily snow and twig data ------------------------------------------------
+
+(sdaily <- 
+  ggplot(snow)+
+  geom_line(aes(x = date, y = snow, linetype = snowgrid))+
+  labs(y = "Snow depth (cm)", x = "Date")+
+  facet_wrap(~winter, scales = "free")+
+  themepointstop)
+
+(tdaily <- 
     ggplot(snow)+
-    geom_line(aes(x = date, y = biomassavail, color = snowgrid))+
+    geom_line(aes(x = date, y = biomassavail, linetype = snowgrid))+
     labs(y = "Available willow biomass (g/m2)", x = "Date")+
     facet_wrap(~winter, scales = "free")+
-    scale_color_ordinal(guide = NULL)+
-    themepoints)
+    themepointstop)
 
-ind.var.fig <- ggarrange(s, t, ncol = 1, nrow = 2)
+dailysnowfig <- ggarrange(sdaily, tdaily, ncol = 2, nrow = 1)
 
 
 
@@ -54,37 +88,38 @@ ind.var.fig <- ggarrange(s, t, ncol = 1, nrow = 2)
 
 fecal[m == "1", month := "January"][m == "3", month := "March"]
 
-(fecalplot <- 
+(feces <- 
    ggplot(fecal)+
    geom_boxplot(aes(x = winter, y = CP_dm, fill = food), alpha = .5, outlier.shape = NA)+
-   #geom_abline(intercept = 7.5, slope = 0, linetype = 2)+
    geom_abline(intercept = 10, slope = 0, linetype = 2)+
    labs(x = "Winter", y = "Fecal crude protein (%)")+
    scale_fill_manual(values = foodcols)+
-   #ylim(6, 18)+
-   themepoints+
-   facet_wrap(~month, nrow = 2, ncol = 1))
+   themepoints)
 
-(forageplot <- ggplot(forag)+
+(foraging <- ggplot(forag)+
   geom_boxplot(aes(x = winter, y = forage, fill = food), alpha = .5)+
-  scale_fill_manual(values = foodcols)+
+  scale_fill_manual(values = foodcols, guide = NULL)+
   labs(y = "Foraging effort (hr/day)", x = "Winter")+
   themepoints)
 
 #weight loss by year
-(wcplot <- ggplot(wchange)+
+(wcresid <- ggplot(wchange)+
     geom_abline(aes(intercept = 0, slope = 0), linetype = 2)+
-    geom_boxplot(aes(x = winter, y = weight.c, fill = food), alpha = .5)+
-    scale_fill_manual(values = foodcols)+
-    labs(title = "Weight change by winter", y = "Weight change (g)", x = "Winter")+
+    geom_boxplot(aes(x = winter, y = weight.c.resid, fill = food), alpha = .5)+
+    scale_fill_manual(values = foodcols, guide = NULL)+
+    labs(y = "Weight change residual (g)", x = "Winter")+
     themepoints)
 
 
+sumdepfig <- ggarrange(wcresid, foraging, feces, nrow = 3, ncol = 1)
 
 
-ggsave("Output/Figures/ind_var_summary_figure.jpeg", ind.var.fig, width = 7, height = 12, unit = "in")
-ggsave("Output/Figures/weightchange_summary.jpeg", wcplot, width = 5, height = 4, unit = "in")
-ggsave("Output/Figures/fecalprotein_summary.jpeg", fecalplot, width = 6, height = 8, unit = "in")
-ggsave("Output/Figures/forage_summary.jpeg", forageplot, width = 7, height = 4, unit = "in")
+
+ggsave("Output/Figures/env_summary_figure1.jpeg", sumenvfig, width = 14, height = 10, unit = "in")
+ggsave("Output/Figures/env_summary_figure2.jpeg", sumenvfig2, width = 14, height = 10, unit = "in")
+
+ggsave("Output/Figures/snow_daily_figure.jpeg", dailysnowfig, width = 14, height = 7, unit = "in")
+
+ggsave("Output/Figures/dep_var_figure.jpeg", sumdepfig, width = 6, height = 14, unit = "in")
 
 
