@@ -4,12 +4,11 @@
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
 #read in data
-foraging <- readRDS("Output/Data/foraging_rates.rds")
-density <- readRDS("../HR_PopCycle_SnowshoeHares/output/results/dailyharedensities.rds")
-twigs <- readRDS("Output/Data/snow_and_food.rds")
-ind <- readRDS("Output/Data/individual_info.rds")
+foraging <- readRDS("Output/Data/foraging_daily.rds")
+twigs <- readRDS("Output/Data/snow_food_daily.rds")
+density <- readRDS("Output/Data/hares_daily.rds")
 
-
+#this will be broken ^correct data up here but rest of script needs to be fixed
 
 # Calculate snow fall -----------------------------------------------------
 
