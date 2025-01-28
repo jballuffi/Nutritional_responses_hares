@@ -14,7 +14,7 @@ inds <- readRDS("Output/Data/individual_info.rds")
 
 #create year and month column
 beh[, m := month(Date)]
-beh[, y := year(Date)]
+beh[, year := year(Date)]
 beh[, date := ymd(Date)]
 
 #name the winter months
@@ -24,22 +24,22 @@ wintermonths <- c(1, 2, 3, 11, 12)
 beh <- beh[m %in% wintermonths]
 
 #create a winter column
-beh[m < 4, winter := paste0(y-1, "-", y)]
-beh[m > 8, winter := paste0(y, "-", y+1)]
+beh[m < 4, winter := paste0(year-1, "-", year)]
+beh[m > 8, winter := paste0(year, "-", year+1)]
 
 #swap B's in the collar data for 2's
 beh[, id := gsub("B", "2", id)]
 
 #take only main cols and convert foraging to hours
-beh <- beh[, .(winter, id, m, y, date, forage = Forage/3600)]
+beh <- beh[, .(winter, id, m, year, date, forage = Forage/3600)]
 
 
 
 # Get foraging by month and winter ----------------------------------------
 
-behwinter <- dat[, .(forage = mean(forage)), by = .(winter, id)]
+behwinter <- beh[, .(forage = mean(forage)), by = .(winter, id)]
 
-behmonth <- dat[, .(forage = mean(forage)), by = .(winter, m, id)]
+behmonth <- beh[, .(forage = mean(forage)), by = .(winter, m, id)]
 
 
 #merge grids into behaviour data set
