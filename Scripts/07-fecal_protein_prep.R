@@ -83,22 +83,6 @@ dat[is.na(snowgrid)]
 
 
 
-# Look at trends ----------------------------------------------------------
-
-(plot <- 
-    ggplot(dat)+
-    geom_boxplot(aes(x = y, y = CP_dm, color = food), outlier.shape = NA)+
-    geom_abline(intercept = 7.5, slope = 0, linetype = 2)+
-    geom_abline(intercept = 10, slope = 0, linetype = 2)+
-    labs(x = "Winter", y = "Fecal crude protein (%)")+
-    scale_color_manual(values = foodcols)+
-    ylim(6, 18)+
-    theme_minimal()+
-    facet_wrap(~m)
-)
-
-
-
 # cut to only important variables -----------------------------------------
 
 dat2 <- dat[, .(vial, snowgrid, winter, m, date, id, sex, weight, RHF, GPS, axy, food, Nwinter, CP_dm, ash)]
@@ -111,7 +95,5 @@ dat2 <- dat2[!CP_dm > 25]
  # save things -------------------------------------------------------------
 
 saveRDS(dat2, "Output/Data/fecal_protein.rds")
-
-ggsave("Output/Figures/fecal_protein_preliminary_withmonth.jpeg", plot, width = 8, height = 4, units = "in")
 
 
