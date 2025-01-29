@@ -9,6 +9,10 @@ density_w <- readRDS("Output/Data/hares_lynx_winter.rds")
 snow_w <- readRDS("Output/Data/snow_food_winter.rds")
 forag_w <- readRDS("Output/Data/foraging_winter.rds")
 
+density_d <- readRDS("Output/Data/hares_daily.rds")
+snow_d <- readRDS("Output/Data/snow_food_daily.rds")
+forag_d <- readRDS("Output/Data/foraging_daily.rds")
+
 
 
 # merge info and make a control and food add dataset --------
@@ -94,7 +98,7 @@ ggplot(foragwc)+
 
 
 
-# AIC for food add dataset ------------------------------------------------
+# AIC to explain winter foraging for food add dataset - ------------------------------------------------
 
 foodn <- lm(forage ~ 1, foragwf)
 foodf <- lm(forage ~ food, foragwf)
@@ -123,6 +127,7 @@ AICfood <- AICfood %>% mutate_if(is.numeric, round, digits = 3)
 #run function and get R2s for all models
 R2sfood <- lapply(modsfood, collectR2)
 R2sfood <- rbindlist(R2sfood, fill = TRUE)
+setnames(R2sfood, "V1", "R2")
 R2sfood$Modnames <- Namesfood
 
 #merge R2s with AIC table
@@ -135,5 +140,74 @@ ggplot(foragwf)+
   scale_fill_manual(values = foodcols)+
   labs(x = "Cycle Phase", y = "Average foraging effort (hr/day)")+
   themepoints
+
+
+
+# Calculate snow fall -----------------------------------------------------
+
+#order twigs and snow by date and grid
+snow_d <- snow_d[order(snowgrid, date)]
+
+#make new column for previous snow day within grid and winter
+snow_d[, prevdate := shift(date, n = 1, type = "lag"), by = .(snowgrid, winter)]
+
+#difference between current date and the previous date
+snow_d[, daydiff := as.integer(date - prevdate)]
+snow_d[, unique(daydiff)]
+
+#get previous date's snow depth
+snow_d[, lagsnow := shift(snow, n = 1, type = "lag"), by = .(snowgrid, winter)]
+
+#get difference in snow between current date and previous date
+#get rate of snow fall by dividing by the difference in days (max 3 right now)
+snow_d[, snowfall := (snow - lagsnow)/daydiff, by = .(snowgrid, winter)]
+
+
+
+# AIC to predict daily foraging effort for food adds and controls ---------------------------------------------
+
+foragd <- merge(forag_d, snow_d, by = c("winter", "snowgrid", "m", "date"), all.x = TRUE)
+foragd <- merge(foragd, density_d, by = c("winter", "date"))
+
+dayn <- lm(forage ~ 1, foragd)
+dayf <- lm(forage ~ food, foragd)
+days <- lm(forage ~ food*snow, foragd)
+dayt <- lm(forage ~ food*biomassavail, foragd)
+dayh <- lm(forage ~ food*haredensity, foragd)
+
+modsday <- list(dayn, dayf, days, dayt, dayh)
+namesday <- c('Null', "Food", "Food*Snow", "Food*Twigs", "Food*Hares")
+
+#make AIC table
+AICday <- as.data.table(aictab(REML = F, cand.set = modsday, modnames = namesday, sort = TRUE))
+
+#remove unwanted columns
+AICday[, ModelLik := NULL]
+AICday[, Cum.Wt := NULL]
+
+#round whole table to 3 dec places
+AICday <- AICday %>% mutate_if(is.numeric, round, digits = 3)
+
+#run function and get R2s for all models
+R2sday <- lapply(modsday, collectR2)
+R2sday <- rbindlist(R2sday, fill = TRUE)
+setnames(R2sday, "V1", "R2")
+R2sday$Modnames <- namesday
+
+#merge R2s with AIC table
+AICday <- merge(AICday, R2sday, by = "Modnames")
+setorder(AICday, "Delta_AICc")
+
+summary(dayt)
+
+
+# save --------------------------------------------------------------------
+
+
+
+
+write.csv(AICcon, "Output/Tables/AIC_foraging_winter_controls.csv")
+write.csv(AICfood, "Output/Tables/AIC_foraging_winter_foods.csv")
+write.csv(AICday, "Output/Tables/AIC_foraging_daily_foods.csv")
 
 
