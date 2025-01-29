@@ -13,7 +13,9 @@ wintersnow <- readRDS("Output/Data/snow_food_winter.rds")
 
 forag <- readRDS("Output/Data/foraging_daily.rds")
 fecal <- readRDS("Output/Data/fecal_protein.rds")
+
 wchange <- readRDS("Output/Data/weight_change.rds")
+wspring <- readRDS("Output/Data/spring_weights.rds")
 
 
 #remove last winter of snow data 
@@ -112,6 +114,23 @@ fecal[m == "1", month := "January"][m == "3", month := "March"]
 
 
 sumdepfig <- ggarrange(wcresid, foraging, feces, nrow = 3, ncol = 1)
+
+
+
+
+# Extra figure for spring weights -----------------------------------------
+
+wspring <- merge(wspring, winterdensity, by = "winter", all.x = TRUE)
+
+ggplot(wspring[food == 0 & !is.na(sex)])+
+  geom_boxplot(aes(x = phase, y = weight.s, fill = sex), alpha = 0.5)+
+  labs(x = "Cycle phase", y = "Spring weight (g)", title = "Controls only")+
+  themepoints
+
+ggplot(wspring[food == 0 & !is.na(sex)])+
+  geom_boxplot(aes(x = winter, y = weight.s, fill = sex), alpha = 0.5)+
+  labs(x = "Winter", y = "Spring weight (g)", title = "Controls only")+
+  themepoints
 
 
 
