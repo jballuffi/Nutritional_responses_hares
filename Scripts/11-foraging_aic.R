@@ -16,6 +16,9 @@ density_d <- readRDS("Output/Data/hares_daily.rds")
 snow_d <- readRDS("Output/Data/snow_food_daily.rds")
 forag_d <- readRDS("Output/Data/foraging_daily.rds")
 
+density_m <- readRDS("Output/Data/hares_monthly.rds")
+mort <- density_m[, .(winter, m, mortality)]
+
 
 
 # merge info and make a control and food add dataset --------
@@ -171,16 +174,17 @@ snow_d[, snowfall := (snow - lagsnow)/daydiff, by = .(snowgrid, winter)]
 
 foragd <- merge(forag_d, snow_d, by = c("winter", "snowgrid", "m", "date"), all.x = TRUE)
 foragd <- merge(foragd, density_d, by = c("winter", "date"))
+foragd <- merge(foragd, mort, by = c("winter", "m"), all.x = TRUE)
 
 dayn <- lm(forage ~ 1, foragd)
 dayf <- lm(forage ~ food, foragd)
 days <- lm(forage ~ food*snow, foragd)
 dayt <- lm(forage ~ food*biomassavail, foragd)
 dayh <- lm(forage ~ food*haredensity, foragd)
-#dayp <- lm(forage ~ food*phase, foragd)
+dayp <- lm(forage ~ food*mortality, foragd)
 
-modsday <- list(dayn, dayf, days, dayt, dayh)
-namesday <- c('Null', "Food", "Food*Snow", "Food*Twigs", "Food*Hares")
+modsday <- list(dayn, dayf, days, dayt, dayh, dayp)
+namesday <- c('Null', "Food", "Food*Snow", "Food*Twigs", "Food*Hares", "Food*Mortality")
 
 #make AIC table
 AICday <- as.data.table(aictab(REML = F, cand.set = modsday, modnames = namesday, sort = TRUE))
