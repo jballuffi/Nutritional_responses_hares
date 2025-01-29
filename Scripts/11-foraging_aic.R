@@ -1,5 +1,8 @@
 
-#script to assess how environmental factors 
+#script to assess how environmental factors impact foraging rates on a winter and daily basis
+
+#TO DO: mixed models for daily. 
+#To do: make a full AIC function to shorten script
 
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
@@ -174,6 +177,7 @@ dayf <- lm(forage ~ food, foragd)
 days <- lm(forage ~ food*snow, foragd)
 dayt <- lm(forage ~ food*biomassavail, foragd)
 dayh <- lm(forage ~ food*haredensity, foragd)
+#dayp <- lm(forage ~ food*phase, foragd)
 
 modsday <- list(dayn, dayf, days, dayt, dayh)
 namesday <- c('Null', "Food", "Food*Snow", "Food*Twigs", "Food*Hares")
@@ -201,8 +205,17 @@ setorder(AICday, "Delta_AICc")
 summary(dayt)
 
 
-# save --------------------------------------------------------------------
+ggplot(foragd)+
+  geom_point(aes(x = biomassavail, y = forage, color = food), alpha = .2)+
+  geom_smooth(aes(x = biomassavail, y = forage, color = food, fill = food), method = "lm")+
+  scale_color_manual(values = foodcols)+
+  scale_fill_manual(values = foodcols)+
+  labs(x = "Daily willow available (g/m2)", y = "Daily foraging effort (hr)")+
+  themepoints
 
+
+
+# save --------------------------------------------------------------------
 
 
 
