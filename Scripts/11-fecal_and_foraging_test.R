@@ -68,9 +68,10 @@ weights <- merge(weights, forag_w, by = c("id", "winter", "sex", "food", "snowgr
 
 #get mean fecal protein by ind and winter
 meanfecal <- fecal[, .(CP_dm_avg = mean(CP_dm)), by = .(id, winter)]
+marchfecal <- fecal[m == 3, .(CP_dm_march = mean(CP_dm)), by = .(id, winter)]
 
 weights <- merge(weights, meanfecal, by = c("id", "winter"), all.x = TRUE)
-
+weights <- merge(weights, marchfecal, by = c("id", "winter"), all.x = TRUE)
 
 ggplot(weights)+
   geom_abline(intercept = 0, slope = 0, linetype = 2, color = "grey30", linewidth = 0.75)+
