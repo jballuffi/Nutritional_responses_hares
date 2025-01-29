@@ -25,6 +25,8 @@ setorder(winterdensity, year)
 
 setorder(wintersnow, snowgrid, year)
 
+#keep only jan - march for snow figure
+snow <- snow[m == 1 | m == 2 | m == 3]
 
 
 
@@ -43,7 +45,7 @@ setorder(wintersnow, snowgrid, year)
     themepoints)
 
 (lwinter <- ggplot(winterdensity)+
-    geom_path(aes(x = year, y = lynx, group = 1, color = phase), size = .75)+
+    geom_path(aes(x = year, y = lynx, group = 1, color = phase), linewidth = .75)+
     scale_color_manual(values = phasecols, breaks=c('increase', 'peak', 'decrease', 'low'))+
     labs(x = "", y = "Lynx density (lynx/?)")+
     themepoints)
