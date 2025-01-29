@@ -22,6 +22,7 @@ fecal_m <- merge(fecal, forag_m, by = c("id", "winter", "m", "snowgrid", "food",
 
 #plot fecal protein in response to monthly foraging rate
 ggplot(fecal_m)+
+  geom_abline(intercept = 10, slope = 0, linetype = 2)+
   geom_point(aes(x = forage, y = CP_dm, color = food))+
   geom_smooth(aes(x = forage, y = CP_dm, color = food, fill = food), method = "lm")+
   scale_color_manual(values = foodcols)+
@@ -49,6 +50,7 @@ fecal_d <- merge(fecal, forag_d_fecal, by = c("id", "date"), all.x = TRUE)
 
 #plot fecal protein in response to foraging effort of previous day
 ggplot(fecal_d)+
+  geom_abline(intercept = 10, slope = 0, linetype = 2)+
   geom_point(aes(x = prev.dforag, y = CP_dm, color = food))+
   geom_smooth(aes(x = prev.dforag, y = CP_dm, color = food, fill = food), method = "lm")+
   scale_color_manual(values = foodcols)+
