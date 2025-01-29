@@ -119,6 +119,7 @@ densitypred <- densitypred[winterday > 0]
 #get final daily hare dataset
 dailydata <- densitypred[, .(winter, date, phase, haredensity, lower, upper)]
 
+hdensity <- hdensity[, date := NULL][, winterday := NULL]
 
 #save
 saveRDS(dailydata, "Output/Data/hares_daily.rds")
