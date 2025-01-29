@@ -53,6 +53,7 @@ setorder(AICfood, "Delta_AICc")
 summary(snow)
 
 ggplot(fecal)+
+  geom_abline(intercept = 10, slope = 0, linetype = 2)+
   geom_point(aes(x = snow.avg, y = CP_dm, color = food), alpha = .2)+
   geom_smooth(aes(x = snow.avg, y = CP_dm, color = food, fill = food), method = "lm")+
   scale_color_manual(values = foodcols)+
@@ -63,6 +64,7 @@ ggplot(fecal)+
 summary(twig)
 
 ggplot(fecal)+
+  geom_abline(intercept = 10, slope = 0, linetype = 2)+
   geom_point(aes(x = biomass.avg, y = CP_dm, color = food), alpha = .2)+
   geom_smooth(aes(x = biomass.avg, y = CP_dm, color = food, fill = food), method = "lm")+
   scale_color_manual(values = foodcols)+
