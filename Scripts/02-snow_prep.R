@@ -41,7 +41,7 @@ JO <- data.table(
 #rbind all dates together
 blanks <- rbind(AG, KL, JO)
 
-#state months we care about (winter)
+#state winter months
 wintermonths <- c(11, 12, 1, 2, 3)
 
 #subset to only those winter months
@@ -64,7 +64,7 @@ setnames(snowgrids, "OPEN SD", "SD")
 #cut to just three columns of interest
 gsnow <- snowgrids[, .(Date, snowgrid, SD)]
 gsnow[, source := "ground"]
-gsnow<-gsnow[!is.na(SD)] #remove no data from grids
+gsnow <- gsnow[!is.na(SD)] #remove no data from grids
 
 
 
@@ -99,9 +99,6 @@ snow[month(Date) < 4, winter := paste0(year(Date) - 1, "-", year(Date))]
 
 # finish prepping full data ----------------------------------------------------------
 
-#change name of Date
-setnames(snow, "Date", "date")
-
 #grab only winter
 snow <- snow[!is.na(winter)]
 snow <- snow[!winter == "NA-NA"]
@@ -112,12 +109,19 @@ snow[is.na(SD), .N, by = .(snowgrid, winter)]
 #fill in missing snow depths with the last value (calls backwards in time)
 snow[, SD := nafill(SD, "locf"), by = c("snowgrid", "winter")]
 
-#in november of 2018, make snow depth 0.
-#this month was empty but there was very little snow at the start of that december
-snow[month(date) == 11 & winter == "2018-2019", SD := 0]
-
 #round snow depth to nearest cm, remove extras
 snow[, snow := round(SD)][, SD := NULL][, source := NULL]
+
+#change name of Date
+setnames(snow, "Date", "date")
+
+#make year and month columns
+snow[, m := month(date)]
+snow[, year := year(date)]
+
+#cut to just january to march, and start data on jan 1 of 2016
+snow <- snow[m == 1 | m == 2 | m == 3]
+snow <- snow[year > 2015]
 
 
 
