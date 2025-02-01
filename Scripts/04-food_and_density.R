@@ -9,6 +9,8 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 #read in snow to willow predictions
 pred <- readRDS("../Willow_twigs_snowdepth/Output/Data/05_willow_biomass_prediction.rds")
 snow <- readRDS("Output/Data/snow_prepped.rds")
+ddensity <- readRDS("Output/Data/hares_daily.rds")
+wdensity <- readRDS("Output/Data/hares_annual.rds")
 
 
 
@@ -24,14 +26,18 @@ food <- merge(snow, pred, by = "snow")
 
 # Get info for each winter and snow grid ------------------------------------------------
 
-#get mean snow depth and willow availability by winter and grid
-wfood <- food[, .(snow.avg = mean(snow), snow.max = max(snow), biomass.avg = mean(biomassavail)), by = .(winter, year, snowgrid)]
+#get mean snow depth and willow availability by winter averaged across grids
+wfood <- food[, .(snow.avg = mean(snow), snow.max = max(snow), biomass.avg = mean(biomassavail)), by = .(winter, year)]
 
-#get mean snow depth and willow availability by month and grid
-mfood <- food[, .(snow.avg = mean(snow), snow.max = max(snow), biomass.avg = mean(biomassavail)), by = .(winter, year, m, snowgrid)]
 
-#get daily snow for grids
-dsnow <- food[, .(snow = mean(snow)), .(date, winter, year, m, snowgrid)]
+#get daily snow averaged across grids
+dsnow <- food[, .(snow = mean(snow)), .(date, winter, year, m)]
+
+
+
+# merge with densities ----------------------------------------------------
+
+
 
 
 
