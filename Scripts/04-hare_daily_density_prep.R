@@ -21,6 +21,7 @@ setnames(hdensity, "hdensity", "haredensity")
 #pull months, years, and days into separate col
 hdensity[, date := mdy(Time)]
 hdensity[, m := month(date)]
+hdensity[, year := year(date)]
 
 #categorize into winters
 hdensity[m > 6, winter := paste0(year(date), "-", year(date) + 1)]
@@ -100,27 +101,41 @@ densitypred <- merge(densitypred, phases, by = "winter", all.x = TRUE)
 densitypred[, winterday := winterday - 61]
 densitypred <- densitypred[winterday > 0]
 
+#pull month and year
+densitypred[, m := month(date)]
+densitypred[, year := year(date)]
+
+
+
+# get final datasets ------------------------------------------------------
+
+#pull wanted columns from daily predictions and subset to just jan to march
+dailydata <- densitypred[m == 1|m == 2|m == 3, .(winter, date, m, year, phase, haredensity, lower, upper)]
+
+#merge predation risk with daily data
+dailydata <- merge(dailydata, predrisk, by = c("winter", "m"))
+
+#crop to just jan to march for monthly data
+hdensity <- hdensity[m == 1|m == 2|m == 3]
+annualdata <- hdensity[, .(haredensity = mean(haredensity), mortality = mean(mortality)), by = .(winter, year, phase)]
+
 
 
 # Figures -----------------------------------------------------------------
 
 (densityregressions <- 
-   ggplot(densitypred)+
-   #geom_ribbon(aes(x = date, ymin = lower, ymax = upper), alpha = 0.3, color = "grey40", data = densitypred)+
-   geom_line(aes(x = date, y = haredensity, group = 1), data = densitypred)+
-   geom_point(aes(x = date, y = haredensity), data = hdensity[winterday > 61])+
-   geom_errorbar(aes(x = date, ymax = hdensity_up95, ymin = hdensity_low95), width = 3, data = hdensity[winterday > 61])+
+   ggplot()+
+   geom_ribbon(aes(x = date, ymin = lower, ymax = upper), alpha = 0.3, color = "grey40", data = dailydata)+
+   geom_line(aes(x = date, y = haredensity, group = 1), data = dailydata)+
+   geom_point(aes(x = date, y = haredensity), data = hdensity)+
+   geom_errorbar(aes(x = date, ymax = hdensity_up95, ymin = hdensity_low95), width = 3, data = hdensity)+
    facet_wrap(~winter, scales = "free_x")+
    labs(x = "Date", y = "Hare density (hares/ha)")+
    theme_minimal())
 
 
 
-#get final daily hare dataset
-dailydata <- densitypred[, .(winter, date, phase, haredensity, lower, upper)]
-
-hdensity <- hdensity[, date := NULL][, winterday := NULL]
-
 #save
 saveRDS(dailydata, "Output/Data/hares_daily.rds")
 saveRDS(hdensity, "Output/Data/hares_monthly.rds")
+saveRDS(annualdata, "Output/Data/hares_annual.rds")
