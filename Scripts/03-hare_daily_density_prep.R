@@ -137,5 +137,4 @@ annualdata <- hdensity[, .(haredensity = mean(haredensity), mortality = mean(mor
 
 #save
 saveRDS(dailydata, "Output/Data/hares_daily.rds")
-saveRDS(hdensity, "Output/Data/hares_monthly.rds")
 saveRDS(annualdata, "Output/Data/hares_annual.rds")
