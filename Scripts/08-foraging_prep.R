@@ -1,6 +1,9 @@
 #script that investigates foraging data from previous winters
 #also includes snow depths from those years
 
+
+#CHANGE TO A WEEKLY BASIS
+
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
@@ -67,7 +70,5 @@ allwinters <-
 ggsave("Output/Figures/foraging_allwinters.jpg", allwinters, width = 12, height = 10, unit = "in")
 
 
-saveRDS(dat, "Output/Data/foraging_daily.rds")
-saveRDS(datmonth, "Output/Data/foraging_monthly.rds")
-saveRDS(datwinter, "Output/Data/foraging_winter.rds")
+saveRDS(dat, "Output/Data/foraging_daily.rds") #make weekly
 
