@@ -6,7 +6,7 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 #read in data
 trap <- fread("Input/trapping_all_records.csv")
-food <- readRDS("Output/Data/food_adds.rds")
+food <- readRDS("Input/food_adds.rds")
 
 
 # variable prep ----------------------------------------------------------
