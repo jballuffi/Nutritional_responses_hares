@@ -9,8 +9,8 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 #read in snow to willow predictions
 pred <- readRDS("../Willow_twigs_snowdepth/Output/Data/05_willow_biomass_prediction.rds")
 snow <- readRDS("Output/Data/snow_prepped.rds")
-ddensity <- readRDS("Output/Data/hares_daily.rds")
-wdensity <- readRDS("Output/Data/hares_annual.rds")
+temp <- readRDS("Output/Data/temperature_prepped.rds")
+density <- readRDS("Output/Data/hares_daily.rds")
 
 
 
@@ -20,29 +20,47 @@ wdensity <- readRDS("Output/Data/hares_annual.rds")
 setnames(pred, "Snow", "snow")
 
 #merge food predictions with snow data
-food <- merge(snow, pred, by = "snow")
+food <- merge(snow, pred[, 1:2], by = "snow")
+
+#biomass of available willow is in g/m2
+#convert to kg/hectare by multiplying by 10
+food[, biomassavail := biomassavail*10]
 
 
 
-# Get info for each winter and snow grid ------------------------------------------------
+# Get snow and twig availability daily ------------------------------------------------
 
 #get mean snow depth and willow availability by winter averaged across grids
-wfood <- food[, .(snow.avg = mean(snow), snow.max = max(snow), biomass.avg = mean(biomassavail)), by = .(winter, year)]
-
-
-#get daily snow averaged across grids
-dsnow <- food[, .(snow = mean(snow)), .(date, winter, year, m)]
+dfood <- food[, .(snow = mean(snow), twig = mean(biomassavail)), by = .(date, m, year, winter)]
 
 
 
-# merge with densities ----------------------------------------------------
+# merge with density and snow data ----------------------------------------------------
 
+#merge daily snow and food data with density
+daily <- merge(dfood, density[, 4:7], by = c("date"), all = TRUE)
 
+#calculate the per capita twig availability
+daily[, twigpergrid := twig*36 ]
+daily[, harespergrid := haredensity*36]
+daily[, percap := twigpergrid/harespergrid]
+
+#merge with temp data
+daily <- merge(daily, temp[, 1:3], by = "date", all = TRUE)
+
+#get annual means for each value of interest
+annual <- daily[, .(snow = mean(snow),
+                    twig = mean(twig),
+                    haredensity = mean(haredensity),
+                    mortrate = mean(mortrate),
+                    percap = mean(percap),
+                    tempmean = mean(tempmean, na.rm = TRUE),
+                    snow_station = mean(snow_station, na.rm = TRUE)),
+                by = .(year)]
 
 
 
 # Figures and save --------------------------------------------------------
 
-saveRDS(wfood, "Output/Data/snow_food_winter.rds")
-saveRDS(mfood, "Output/Data/snow_food_monthly.rds")
-saveRDS(food, "Output/Data/snow_food_daily.rds")
+saveRDS(annual, "Output/Data/full_data_annual.rds")
+saveRDS(daily, "Output/Data/full_data_daily.rds")
