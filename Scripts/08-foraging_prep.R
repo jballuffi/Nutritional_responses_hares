@@ -60,5 +60,5 @@ behweek <- merge(behweek, inds, by = c("id", "winter"), all.x = TRUE)
 # Save --------------------------------------------------------------------
 
 ggsave("Output/Figures/foraging_allwinters.jpg", allwinters, width = 12, height = 10, unit = "in")
-saveRDS(beh, "Output/Data/foraging_weekly.rds") #make weekly
+saveRDS(behweek, "Output/Data/foraging_weekly.rds") #make weekly
 
