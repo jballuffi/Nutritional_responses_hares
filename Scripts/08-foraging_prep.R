@@ -33,32 +33,32 @@ beh <- beh[, .(winter, id, m, year, date, forage = Forage/3600)]
 
 
 
-# Get foraging on a weekly basis ----------------------------------------
+# get weekly foraging rate --------------------------------------
 
+#categorize dates into weeks
+beh[, week := week(date), year]
 
+#get mean foraging effor by week and individual
+behweek <- beh[, .(forage = mean(forage)), by = .(id, year, winter)]
 
-#merge grids into behaviour data set
-dat <- merge(beh, inds, by = c("id", "winter"), all.x = TRUE)
-datwinter <- merge(behwinter, inds, by = c("id", "winter"), all.x = TRUE)
-datmonth <- merge(behmonth, inds, by = c("id", "winter"), all.x = TRUE)
+#merge in individual data
+behweek <- merge(behweek, inds, by = c("id", "winter"), all.x = TRUE)
 
 
 
 # figures -----------------------------------------------------------------
 
-allwinters <-
-  ggplot(dat[m < 5 & m > 1])+
+(allwinters <-
+  ggplot(beh)+
   geom_point(aes(x = date, y = forage))+
-  facet_wrap(~winter, scales = "free")+
+  facet_wrap(~year, scales = "free")+
   labs(x = "Date", y = "Daily foraging effort (hr)")+
-  theme_minimal()
+  theme_minimal())
 
 
 
 # Save --------------------------------------------------------------------
 
 ggsave("Output/Figures/foraging_allwinters.jpg", allwinters, width = 12, height = 10, unit = "in")
-
-
-saveRDS(dat, "Output/Data/foraging_daily.rds") #make weekly
+saveRDS(beh, "Output/Data/foraging_weekly.rds") #make weekly
 
