@@ -4,112 +4,105 @@
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
-
-density <- readRDS("Output/Data/hares_daily.rds")
-winterdensity <- readRDS("Output/Data/hares_lynx_winter.rds")
-
-snow <- readRDS("Output/Data/snow_food_daily.rds")
-wintersnow <- readRDS("Output/Data/snow_food_winter.rds")
-
-forag <- readRDS("Output/Data/foraging_daily.rds")
+dat <- readRDS("Output/Data/full_data_daily.rds")
 fecal <- readRDS("Output/Data/fecal_protein.rds")
+forag <- readRDS("Output/Data/foraging_weekly.rds")
+weights <- readRDS("Output/Data/weight_change.rds")
 
-wchange <- readRDS("Output/Data/weight_change.rds")
-wspring <- readRDS("Output/Data/spring_weights.rds")
-
-
-#remove last winter of snow data 
-snow <- snow[!winter == "2021-2022"]
-
-setorder(winterdensity, year)
-
-setorder(wintersnow, snowgrid, year)
-
-#keep only jan - march for snow figure
-snow <- snow[m == 1 | m == 2 | m == 3]
+#cut to years with all data
+dat <- dat[year > 2015 & !year == 2022]
+setorder(dat, date)
+dat[, yearfactor := as.factor(year)]
+fecal[, yearfactor := as.factor(year)]
+forag[, yearfactor := as.factor(year)]
+weights[, yearfactor := as.factor(year)]
 
 
+# plots that show annual trends -------------------------------------------
 
-# environmental data by winter ------------------------------------
-
-(ddaily <- ggplot(density)+
-    geom_path(aes(x = date, y = haredensity, group = winter, color = phase))+
-    scale_color_manual(values = phasecols, breaks=c('increase', 'peak', 'decrease', 'low'))+
+(density <- ggplot(dat)+
+    geom_boxplot(aes(x = yearfactor, y = haredensity), alpha = 0.5)+
     labs(x = "", y = "Hare density (hares/ha)")+
     themepoints)
 
-(dwinter <- ggplot(density)+
-    geom_boxplot(aes(x = winter, y = haredensity, fill = phase), alpha = 0.5)+
-    scale_fill_manual(values = phasecols, breaks=c('increase', 'peak', 'decrease', 'low'))+
-    labs(x = "", y = "Hare density (hares/ha)")+
+(mortality <- ggplot(dat)+
+    geom_boxplot(aes(x = yearfactor, y = mortrate), alpha = 0.5)+
+    labs(x = "", y = "Mortality rate")+
     themepoints)
 
-(lwinter <- ggplot(winterdensity)+
-    geom_path(aes(x = year, y = lynx, group = 1, color = phase), linewidth = .75)+
-    scale_color_manual(values = phasecols, breaks=c('increase', 'peak', 'decrease', 'low'))+
-    labs(x = "", y = "Lynx density (lynx/?)")+
+(snow <- ggplot(dat)+
+    geom_boxplot(aes(x = yearfactor, y = snow), alpha = 0.5)+
+    labs(x = "", y = "Snow depth (cm)")+
     themepoints)
 
-(swinter <- ggplot(wintersnow)+
-   geom_path(aes(x = year, y = snow.avg, group = snowgrid, linetype = snowgrid), size = .75)+
-   labs(x = "", y = "Average snow depth (cm)")+
-   themepoints)
+(twigs <- ggplot(dat)+
+    geom_boxplot(aes(x = yearfactor, y = twig), alpha = 0.5)+
+    labs(x = "", y = "Twig availability (kg/ha)")+
+    themepoints)
 
-(twinter <- ggplot(wintersnow)+
-  geom_path(aes(x = year, y = biomass.avg, group = snowgrid, linetype = snowgrid), size = .75)+
-  labs(x = "", y = "Average available willow (g/m2)")+
-  themepoints)
+(percap <- ggplot(dat)+
+    geom_boxplot(aes(x = yearfactor, y = percap), alpha = 0.5)+
+    labs(x = "", y = "Twig availability (kg/ha)")+
+    themepoints)
 
-sumenvfig <- ggarrange(dwinter, lwinter, swinter, twinter, ncol = 2, nrow = 2)
+(temp <- ggplot(dat)+
+    geom_boxplot(aes(x = yearfactor, y = tempmean), alpha = 0.5)+
+    labs(x = "", y = "Temperature (C)")+
+    themepoints)
+
+sumenvfig <- ggarrange(density, snow, mortality, twigs, temp, percap, ncol = 2, nrow = 3)
 sumenvfig
 
-
-sumenvfig2 <- ggarrange(ddaily, lwinter, swinter, twinter, ncol = 2, nrow = 2)
-sumenvfig2
 
 
 # Daily snow and twig data ------------------------------------------------
 
+#daily density by year
+ggplot(dat)+
+  geom_path(aes(x = date, y = haredensity, group = year))+
+  labs(x = "", y = "Hare density (hares/ha)")+
+  themepoints
+
+#daily snow depth
 (sdaily <- 
-  ggplot(snow)+
-  geom_line(aes(x = date, y = snow, linetype = snowgrid))+
+  ggplot(dat)+
+  geom_line(aes(x = date, y = snow))+
   labs(y = "Snow depth (cm)", x = "Date")+
-  facet_wrap(~winter, scales = "free")+
+  facet_wrap(~year, scales = "free")+
   themepointstop)
 
 (tdaily <- 
-    ggplot(snow)+
-    geom_line(aes(x = date, y = biomassavail, linetype = snowgrid))+
-    labs(y = "Available willow biomass (g/m2)", x = "Date")+
+    ggplot(dat)+
+    geom_line(aes(x = date, y = twig))+
+    labs(y = "Twig availability (kg/ha)", x = "Date")+
     facet_wrap(~winter, scales = "free")+
     themepointstop)
 
-dailysnowfig <- ggarrange(sdaily, tdaily, ncol = 2, nrow = 1)
+dailysnowfig <- ggarrange(sdaily, tdaily, ncol = 1, nrow = 2)
 
 
 
 # Figure showing summary of dependent variables ---------------------------
 
-fecal[m == "1", month := "January"][m == "3", month := "March"]
-
 (feces <- 
    ggplot(fecal)+
-   geom_boxplot(aes(x = winter, y = CP_dm, fill = food), alpha = .5, outlier.shape = NA)+
+   geom_boxplot(aes(x = yearfactor, y = CP_dm, fill = food), alpha = .5, outlier.shape = NA)+
    geom_abline(intercept = 10, slope = 0, linetype = 2)+
-   labs(x = "Winter", y = "Fecal crude protein (%)")+
+   labs(y = "Fecal crude protein (%)", x = "year")+
    scale_fill_manual(values = foodcols)+
    themepoints)
 
-(foraging <- ggplot(forag)+
-  geom_boxplot(aes(x = winter, y = forage, fill = food), alpha = .5)+
+(foraging <- 
+  ggplot(forag)+
+  geom_boxplot(aes(x = yearfactor, y = forage, fill = food), alpha = .5)+
   scale_fill_manual(values = foodcols, guide = NULL)+
   labs(y = "Foraging effort (hr/day)", x = "Winter")+
   themepoints)
 
 #weight loss by year
-(wcresid <- ggplot(wchange)+
+(wcresid <- ggplot(weights)+
     geom_abline(aes(intercept = 0, slope = 0), linetype = 2)+
-    geom_boxplot(aes(x = winter, y = weight.c.resid, fill = food), alpha = .5)+
+    geom_boxplot(aes(x = yearfactor, y = weight.c.resid, fill = food), alpha = .5)+
     scale_fill_manual(values = foodcols, guide = NULL)+
     labs(y = "Weight change residual (g)", x = "Winter")+
     themepoints)
@@ -119,28 +112,10 @@ sumdepfig <- ggarrange(wcresid, foraging, feces, nrow = 3, ncol = 1)
 
 
 
+# save -----------------------------------------
 
-# Extra figure for spring weights -----------------------------------------
-
-wspring <- merge(wspring, winterdensity, by = "winter", all.x = TRUE)
-
-ggplot(wspring[food == 0 & !is.na(sex)])+
-  geom_boxplot(aes(x = phase, y = weight.s, fill = sex), alpha = 0.5)+
-  labs(x = "Cycle phase", y = "Spring weight (g)", title = "Controls only")+
-  themepoints
-
-ggplot(wspring[food == 0 & !is.na(sex)])+
-  geom_boxplot(aes(x = winter, y = weight.s, fill = sex), alpha = 0.5)+
-  labs(x = "Winter", y = "Spring weight (g)", title = "Controls only")+
-  themepoints
-
-
-
-ggsave("Output/Figures/env_summary_figure1.jpeg", sumenvfig, width = 14, height = 10, unit = "in")
-ggsave("Output/Figures/env_summary_figure2.jpeg", sumenvfig2, width = 14, height = 10, unit = "in")
-
-ggsave("Output/Figures/snow_daily_figure.jpeg", dailysnowfig, width = 14, height = 7, unit = "in")
-
+ggsave("Output/Figures/env_summary_figure1.jpeg", sumenvfig, width = 10, height = 8, unit = "in")
+ggsave("Output/Figures/snow_daily_figure.jpeg", dailysnowfig, width = 8, height = 14, unit = "in")
 ggsave("Output/Figures/dep_var_figure.jpeg", sumdepfig, width = 6, height = 14, unit = "in")
 
 
