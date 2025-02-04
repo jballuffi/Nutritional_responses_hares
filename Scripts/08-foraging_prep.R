@@ -1,14 +1,9 @@
-#script that investigates foraging data from previous winters
-#also includes snow depths from those years
-
-
-#CHANGE TO A WEEKLY BASIS
+#script that collects foraging effort on a weekly basis
 
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
 beh <- fread("Input/allHareDailyValues2015_2021.csv")
-#trapping <- fread("Input/Trapping_data_all_records.csv")
 inds <- readRDS("Output/Data/individual_info.rds")
 
 
@@ -21,14 +16,14 @@ beh[, year := year(Date)]
 beh[, date := ymd(Date)]
 
 #name the winter months
-wintermonths <- c(1, 2, 3, 11, 12)
+wintermonths <- c(1, 2, 3)
 
 #cut to only winter 
 beh <- beh[m %in% wintermonths]
 
 #create a winter column
-beh[m < 4, winter := paste0(year-1, "-", year)]
-beh[m > 8, winter := paste0(year, "-", year+1)]
+beh[, winter := paste0(year-1, "-", year)] 
+# ^^^ different line than other scripts because we already cut to just jan-march
 
 #swap B's in the collar data for 2's
 beh[, id := gsub("B", "2", id)]
@@ -36,15 +31,10 @@ beh[, id := gsub("B", "2", id)]
 #take only main cols and convert foraging to hours
 beh <- beh[, .(winter, id, m, year, date, forage = Forage/3600)]
 
-#cut to only include foraging rates from jan - mar
-beh <- beh[m == 1 | m == 2 | m == 3]
 
 
-# Get foraging by month and winter ----------------------------------------
+# Get foraging on a weekly basis ----------------------------------------
 
-behwinter <- beh[, .(forage = mean(forage)), by = .(winter, id)]
-
-behmonth <- beh[, .(forage = mean(forage)), by = .(winter, m, id)]
 
 
 #merge grids into behaviour data set
