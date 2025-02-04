@@ -13,7 +13,7 @@ food <- readRDS("Input/food_adds.rds")
 
 #set up data columns
 trap[, date := dmy(dateCap)]
-trap[, y := year(date)]
+trap[, year := year(date)]
 trap[, m := month(date)]
 setorder(trap, date)
 
@@ -21,7 +21,7 @@ setorder(trap, date)
 setnames(trap, c("Hindfoot", "Eartag", "Sex", "Weight", "Maturity"), c("rhf", "id", "sex", "weight", "age"))
 
 #grab only specific columns
-trap <- trap[, .(y, m, date, grid, id, sex, weight, rhf, age)]
+trap <- trap[, .(year, m, date, grid, id, sex, weight, rhf, age)]
 
 #for sex: 0 = no data, 1 = female, 2 = male 
 #turn 0s to NAs
@@ -46,11 +46,14 @@ trap[, id := as.character(id)]
 trap[rhf == 0 | rhf == 1, rhf := NA]
 trap[weight == 0, weight := NA]
 
+#remove NA weights
+trap <- trap[!is.na(weight)]
+
 #insanely big or small rhf become NA
 trap[rhf > 200 | rhf < 20, rhf := NA]
 
 #take only adults and 2013 onward
-trap <- trap[date > "2014-06-01"]
+#trap <- trap[date > "2014-06-01"]
 
 #categorize into winters
 trap[month(date) > 6, winter := paste0(year(date), "-", year(date) + 1)]
@@ -83,7 +86,7 @@ ind <- trap[, .(sex = getmode(sex), snowgrid = getmode(snowgrid), food = getmode
 # create fall and spring data -----------------------------------------------
 
 #subset fall weights
-fall <- trap[m == 10 | m == 11]
+fall <- trap[m == 9 | m == 10 | m == 11]
 
 #take mean weight, sex, mean rhf for each individual in spring
 fallsum <- fall[, .(weight.a = round(mean(weight, na.rm = TRUE)), sex = getmode(sex), rhf.a = round(mean(rhf, na.rm = TRUE))), by = .(id, winter, snowgrid, grid, food)]
@@ -99,7 +102,7 @@ springsum <- spring[, .(weight.s = round(mean(weight, na.rm = TRUE)), sex = getm
 # calculate weight change -------------------------------------------------
 
 #merge fall and spring data
-wloss <- merge(fallsum, springsum, by = c("winter", "snowgrid", "grid", "id", "sex", "food"), all = TRUE)
+wloss <- merge(fallsum, springsum, by = c("winter", "grid", "snowgrid", "id", "sex", "food"), all = TRUE)
 
 #calculate weight change from fall to spring, in grams
 wloss[, weight.c := (weight.s - weight.a)]
@@ -128,7 +131,7 @@ effs_weightline <- as.data.table(ggpredict(weightline, terms = c("weight.a")))
   geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = 0.2, data = effs_weightline)+
   geom_line(aes(x = x, y = predicted), linewidth = 1, data = effs_weightline)+
   labs(x = "Weight in autumn (g)", y = "Overwinter weight change (g)")+
-  xlim(1000, 2100)+
+  #xlim(1000, 2100)+
   themepoints)
 
 #get intercept and slope from linear model
@@ -146,6 +149,8 @@ wloss[!is.na(weight.a) & weight.a < 1000, include := "no"]
 wloss[is.na(include), include := "yes"]
 wlossyes <- wloss[include == "yes"]
 
+wlossyes[, year := tstrsplit(winter, "-", keep = 2)]
+wlossyes <- wlossyes[year > 2014]
 
 
 # final data --------------------------------------------------------------
