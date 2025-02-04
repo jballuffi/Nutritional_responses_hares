@@ -107,27 +107,17 @@ densitypred <- densitypred[winterday > 0]
 densitypred[, m := month(date)]
 densitypred[, year := year(date)]
 
-
-
-# get final datasets ------------------------------------------------------
-
-#pull wanted columns from daily predictions and subset to just jan to march
-dailydata <- densitypred[m == 1|m == 2|m == 3, .(winter, date, m, year, phase, haredensity, lower, upper)]
-
-#merge predation risk with daily data
-dailydata <- merge(dailydata, predrisk, by = c("winter", "m"))
-
-#crop to just jan to march for monthly data
+#keep only jan to march for both datasets
+densitypred <- densitypred[m == 1|m == 2|m == 3]
 hdensity <- hdensity[m == 1|m == 2|m == 3]
 
 
-
-# Figures -----------------------------------------------------------------
+# Figure -----------------------------------------------------------------
 
 (densityregressions <- 
    ggplot()+
-   geom_ribbon(aes(x = date, ymin = lower, ymax = upper), alpha = 0.3, color = "grey40", data = dailydata)+
-   geom_line(aes(x = date, y = haredensity, group = 1), data = dailydata)+
+   geom_ribbon(aes(x = date, ymin = lower, ymax = upper), alpha = 0.3, color = "grey40", data = densitypred)+
+   geom_line(aes(x = date, y = haredensity, group = 1), data = densitypred)+
    geom_point(aes(x = date, y = haredensity), data = hdensity)+
    geom_errorbar(aes(x = date, ymax = hdensity_up95, ymin = hdensity_low95), width = 3, data = hdensity)+
    facet_wrap(~winter, scales = "free_x")+
@@ -135,6 +125,14 @@ hdensity <- hdensity[m == 1|m == 2|m == 3]
    theme_minimal())
 
 
+
+# get final data sets ------------------------------------------------------
+
+#pull wanted columns from daily predictions and subset to just jan to march
+dailydata <- densitypred[, .(winter, year, m, date, phase, haredensity)]
+
+#merge predation risk with daily data
+dailydata <- merge(dailydata, predrisk, by = c("winter", "m"))
 
 #save
 saveRDS(dailydata, "Output/Data/hares_daily.rds")
