@@ -22,12 +22,10 @@ weather <- rbindlist(ls.weather, fill = TRUE, use.names = TRUE)
 # clean and prep data -----------------------------------------------------
 
 #take only the columns of interest and rename
-weather <- weather[, .SD, .SDcols = c(5, 10, 12, 14, 26)]
-names(weather) <- c("date", "tempmax", "tempmin", "tempmean", "snow")
+weather <- weather[, .SD, .SDcols = c(5, 14, 26, 10, 12)]
+names(weather) <- c("date", "tempmean", "snow", "tempmax", "tempmin")
 
-#get month and year
 weather[, m := month(date)]
-weather[, year := year(date)]
 
 #cut to just january to march
 winter <- weather[m == 1|m == 2|m == 3]
