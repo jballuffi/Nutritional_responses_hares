@@ -41,9 +41,9 @@ dfood <- food[, .(snow = mean(snow), twig = mean(biomassavail)), by = .(date, m,
 daily <- merge(dfood, density[, 4:7], by = c("date"), all = TRUE)
 
 #calculate the per capita twig availability
-daily[, twigpergrid := twig*36 ]
-daily[, harespergrid := haredensity*36]
-daily[, percap := twigpergrid/harespergrid]
+daily[, twigpergrid := twig*36 ] #kg/grid
+daily[, harespergrid := haredensity*36] #hares/grid
+daily[, percap := twigpergrid/harespergrid] #kg/hare
 
 #merge with temp data
 daily <- merge(daily, temp[, 1:3], by = "date", all = TRUE)
