@@ -49,7 +49,8 @@ daily[, percap := twigpergrid/harespergrid]
 daily <- merge(daily, temp[, 1:3], by = "date", all = TRUE)
 
 #get annual means for each value of interest
-annual <- daily[, .(snow = mean(snow),
+annual <- daily[, .(phase = getmode(phase),
+                    snow = mean(snow),
                     twig = mean(twig),
                     haredensity = mean(haredensity),
                     mortrate = mean(mortrate),
