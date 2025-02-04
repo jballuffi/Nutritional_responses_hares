@@ -7,6 +7,8 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 #import hare densities
 hdensity <- fread("Input/Hare_density_monthly.csv")
 
+#hare densities are in hares/hectare
+
 
 
 # clean hare density ------------------------------------------------------
@@ -117,7 +119,6 @@ dailydata <- merge(dailydata, predrisk, by = c("winter", "m"))
 
 #crop to just jan to march for monthly data
 hdensity <- hdensity[m == 1|m == 2|m == 3]
-annualdata <- hdensity[, .(haredensity = mean(haredensity), mortality = mean(mortality)), by = .(winter, year, phase)]
 
 
 
@@ -137,4 +138,4 @@ annualdata <- hdensity[, .(haredensity = mean(haredensity), mortality = mean(mor
 
 #save
 saveRDS(dailydata, "Output/Data/hares_daily.rds")
-saveRDS(annualdata, "Output/Data/hares_annual.rds")
+
