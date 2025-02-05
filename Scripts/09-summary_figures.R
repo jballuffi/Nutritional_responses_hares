@@ -52,7 +52,7 @@ weights[, yearfactor := as.factor(year)]
     themepoints)
 
 
-sumenvfig <- ggarrange(density, snow, mortality, twigs, temp, percap, ncol = 2, nrow = 3)
+sumenvfig <- ggarrange(temp, density, mortality, snow, twigs, percap, ncol = 2, nrow = 3)
 sumenvfig
 
 
