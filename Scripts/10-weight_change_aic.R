@@ -5,30 +5,23 @@
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
 weights <- readRDS("Output/Data/weight_change.rds")
-densitya <- readRDS("Output/Data/densities_annual.rds")
-snow <- readRDS("Output/Data/annual_snow_conditions.rds")
+datannual <- readRDS("Output/Data/full_data_annual.rds")
 
 #remove cases without a sex
 weights <- weights[!is.na(sex)]
 
-#merge with annual hare densities
-weights <- merge(weights, densitya, by = "winter", all.x = TRUE)
-
-#merge with annual snow
-weights <- merge(weights, snow, by = c("winter", "snowgrid"), all.x = TRUE )
-
-#take only females for food add comparisons
-wfem <- weights[sex == "female"]
+#merge with annual env data
+weights <- merge(weights, datannual, by = c("year", "yearfactor"), all.x = TRUE)
 
 #take only the years where there was food add
-foodyears <- wfem[food == 1, unique(winter)]
-wfem <- wfem[winter %in% foodyears]
+foodyears <- weights[food == 1, unique(winter)]
+wfood <- weights[winter %in% foodyears]
 
 #make a controls only dataset
 wcon <- weights[food == 0]
 
-#end with two datasets: wfem (female weights, controls and food adds, food add years only) 
-#                       wcon (control weights, males and females)
+#end with two datasets: wfem (food add and control weights, food add years only) 
+#                       wcon (control weights, all years)
 
 
 
@@ -40,12 +33,19 @@ summary(lm(weight.c.resid ~ sex, wcon))
 #make models
 
 #models with single terms only
-n <- lm(weight.c.resid ~ 1, wcon)
-s <- lm(weight.c.resid ~ snow.avg, wcon)
-t <- lm(weight.c.resid ~ biomass.avg, wcon)
-h <- lm(weight.c.resid ~ hares.avg, wcon)
-l <- lm(weight.c.resid ~ lynx, wcon)
-p <- lm(weight.c.resid ~ phase, wcon)
+n <- lm(weight.c.resid ~ 1 + sex, wcon)
+t <- lm(weight.c.resid ~ tempmean + sex, wcon)
+
+s <- lm(weight.c.resid ~ snow + sex, wcon)
+f <- lm(weight.c.resid ~ twig + sex, wcon)
+
+h <- lm(weight.c.resid ~ haredensity + sex, wcon)
+m <- lm(weight.c.resid ~ mortrate + sex, wcon)
+
+p <- lm(weight.c.resid ~ percap + sex, wcon)
+
+
+
 
 #models with two terms each
 sh <- lm(weight.c.resid ~ snow.avg + hares.avg, wcon)
