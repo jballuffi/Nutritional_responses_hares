@@ -7,68 +7,65 @@
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
-
-density_w <- readRDS("Output/Data/hares_lynx_winter.rds")
-snow_w <- readRDS("Output/Data/snow_food_winter.rds")
-forag_w <- readRDS("Output/Data/foraging_winter.rds")
-
-density_d <- readRDS("Output/Data/hares_daily.rds")
-snow_d <- readRDS("Output/Data/snow_food_daily.rds")
-forag_d <- readRDS("Output/Data/foraging_daily.rds")
-
-density_m <- readRDS("Output/Data/hares_monthly.rds")
-mort <- density_m[, .(winter, m, mortality)]
+forag <- readRDS("Output/Data/foraging_weekly.rds")
+dat <- readRDS("Output/Data/full_data_daily.rds")
 
 
 
 # merge info and make a control and food add dataset --------
 
-foragw <- merge(forag_w, density_w, by = "winter", all.x = TRUE)
-foragw <- merge(foragw, snow_w, by = c("winter", "year", "snowgrid"))
+#get weekly values from full env dat to merge with forag data
+
+dat[, week := week(date), year]
+
+datweek <- dat[, .(haredensity = mean(haredensity),
+                   mortrate = mean(mortrate),
+                   snow = mean(snow),
+                   twig = mean(twig),
+                   percap = mean(percap),
+                   temp = mean(tempmean, na.rm = TRUE)),
+               by = .(year, week)]
+
+forag <- merge(forag, datweek, by = c("year", "week"), all.x = TRUE)
 
 #get controls only
-foragwc <- foragw[food == 0]
+foragcon <- forag[food == 0]
 
 #take only the years where there was food add
-foodyears <- foragw[food == 1, unique(winter)]
+foodyears <- forag[food == 1, unique(winter)]
 
 #take only females for food add comparisons
-foragwf <- foragw[winter %in% foodyears]
+foragfood <- forag[winter %in% foodyears]
 
-#no difference between foraging effort of males and control females
-summary(lm(forage ~ sex, data = foragwc))
+#difference between foraging effort of males and control females?
+summary(lm(forage ~ sex, data = foragcon))
+
+ggplot(datweek)+
+  geom_path(aes(x = week, y = snow))+
+  facet_wrap(~year)
 
 
 
-# AIC to explain winter foraging for controls only ------------------------
+# AIC to explain weekly foraging for controls only ------------------------
 
 #models for controls only
-n <- lm(forage ~ 1, foragwc)
-s <- lm(forage ~ snow.avg, foragwc)
-t <- lm(forage ~ biomass.avg, foragwc)
-h <- lm(forage ~ hares.avg, foragwc)
-l <- lm(forage ~ lynx, foragwc)
-p <- lm(forage ~ phase, foragwc)
-
-sh <- lm(forage ~ snow.avg + hares.avg, foragwc)
-sl <- lm(forage ~ snow.avg + lynx, foragwc)
-sp <- lm(forage ~ snow.avg + phase, foragwc)
-th <- lm(forage ~ biomass.avg + hares.avg, foragwc)
-tl <- lm(forage ~ biomass.avg + lynx, foragwc)
-tp <- lm(forage ~ biomass.avg + phase, foragwc)
+n <- lm(forage ~ 1 + sex, foragcon)
+s <- lm(forage ~ snow + sex, foragcon)
+tw <- lm(forage ~ twig + sex, foragcon)
+pc <- lm(forage ~ percap + sex, foragcon)
+h <- lm(forage ~ haredensity + sex, foragcon)
+m <- lm(forage ~ mortrate + sex, foragcon)
+te <- lm(forage ~ temp +sex, foragcon)
 
 #list models
-mods <- list(n, s, t, h, l, p,
-             sh, sl, sp,
-             th, tl, tp)
+mods <- list(n, s, tw, pc, h, m, te)
 
 #name models
-Names <- c('null', 'snow', 'twig', 'hares', 'lynx', 'phase',
-           'snow + hares', 'snow + lynx', 'snow + phase',
-           'twigs + hares', 'twigs + lynx', 'twigs + phase')
+Names <- c('null', 'snow', 'twig', 'per-capita', 'hares', 'mortality', 'temperature')
 
 #make AIC table
 AICcon <- as.data.table(aictab(REML = F, cand.set = mods, modnames = Names, sort = TRUE))
+summary(lm(forage ~ sex, data = foragcon))
 
 #remove unwanted columns
 AICcon[, ModelLik := NULL]
@@ -88,37 +85,36 @@ AICcon <- merge(AICcon, R2scon, by = "Modnames")
 setorder(AICcon, "Delta_AICc")
 
 #most parsimonious model is the twig availability with hares and lynx
-summary(sp)
-sp_int <- coefficients(sp)['(Intercept)']
-sp_s <- coefficients(sp)['snow.avg']
+summary(pc)
+pc_int <- coefficients(pc)['(Intercept)']
+pc_s <- coefficients(pc)['percap']
 
-ggplot(foragwc)+
-  geom_point(aes(x = snow.avg, y = forage))+
-  labs(x = "Average snow depth (cm)", y = "Average foraging effort (hr/day)")+
-  themepoints
-
-ggplot(foragwc)+
-  geom_boxplot(aes(x = phase, y = forage))+
-  labs(x = "Cycle Phase", y = "Average foraging effort (hr/day)")+
+ggplot(foragcon)+
+  geom_point(aes(x = percap, y = forage), alpha = .3)+
+  geom_abline(intercept = pc_int, slope = pc_s)+
+  labs(x = "Weekly twig availability (kg/hare)", y = "Weekly foraging effort (hr/day)")+
   themepoints
 
 
 
-# AIC to explain winter foraging for food add dataset - ------------------------------------------------
+# AIC to explain weekly foraging in food add data set ------------------------------------------------
 
-foodn <- lm(forage ~ 1, foragwf)
-foodf <- lm(forage ~ food, foragwf)
-foods <- lm(forage ~ food*snow.avg, foragwf)
-foodt <- lm(forage ~ food*biomass.avg, foragwf)
-foodh <- lm(forage ~ food*hares.avg, foragwf)
-foodl <- lm(forage ~ food*lynx, foragwf)
-foodp <- lm(forage ~ food*phase, foragwf)
+foodn <- lm(forage ~ 1, foragfood)
+foodf <- lm(forage ~ food, foragfood)
+foods <- lm(forage ~ food*snow, foragfood)
+foodtw <- lm(forage ~ food*twig, foragfood)
+foodpc <- lm(forage ~ food*percap, foragfood)
+foodh <- lm(forage ~ food*haredensity, foragfood)
+foodm <- lm(forage ~ food*mortrate, foragfood)
+foodte <- lm(forage ~ food*temp, foragfood)
 
 #list models
-modsfood <- list(foodn, foodf, foods, foodt, foodh, foodl, foodp)
+modsfood <- list(foodn, foodf, foods, foodtw, foodpc, 
+                 foodh, foodm, foodte)
 
 #name models
-Namesfood <- c('Null', 'Food', 'Food*Snow', 'Food*Twigs', 'Food*Hares', 'Food*Lynx', 'Food*Phase')
+Namesfood <- c('Null', 'Food', 'Food*Snow', 'Food*Twigs', 'Food*PerCap',
+               'Food*Hares', 'Food*Mortality', 'Food*Temp')
 
 #make AIC table
 AICfood <- as.data.table(aictab(REML = F, cand.set = modsfood, modnames = Namesfood, sort = TRUE))
@@ -141,90 +137,30 @@ AICfood <- merge(AICfood, R2sfood, by = "Modnames")
 setorder(AICfood, "Delta_AICc")
 
 
-ggplot(foragwf)+
-  geom_boxplot(aes(x = phase, y = forage, fill = food), alpha = .5)+
-  scale_fill_manual(values = foodcols)+
-  labs(x = "Cycle Phase", y = "Average foraging effort (hr/day)")+
-  themepoints
-
-
-
-# Calculate snow fall -----------------------------------------------------
-
-#order twigs and snow by date and grid
-snow_d <- snow_d[order(snowgrid, date)]
-
-#make new column for previous snow day within grid and winter
-snow_d[, prevdate := shift(date, n = 1, type = "lag"), by = .(snowgrid, winter)]
-
-#difference between current date and the previous date
-snow_d[, daydiff := as.integer(date - prevdate)]
-snow_d[, unique(daydiff)]
-
-#get previous date's snow depth
-snow_d[, lagsnow := shift(snow, n = 1, type = "lag"), by = .(snowgrid, winter)]
-
-#get difference in snow between current date and previous date
-#get rate of snow fall by dividing by the difference in days (max 3 right now)
-snow_d[, snowfall := (snow - lagsnow)/daydiff, by = .(snowgrid, winter)]
-
-
-
-# AIC to predict daily foraging effort for food adds and controls ---------------------------------------------
-
-foragd <- merge(forag_d, snow_d, by = c("winter", "snowgrid", "m", "date"), all.x = TRUE)
-foragd <- merge(foragd, density_d, by = c("winter", "date"))
-foragd <- merge(foragd, mort, by = c("winter", "m"), all.x = TRUE)
-
-dayn <- lm(forage ~ 1, foragd)
-dayf <- lm(forage ~ food, foragd)
-days <- lm(forage ~ food*snow, foragd)
-dayt <- lm(forage ~ food*biomassavail, foragd)
-dayh <- lm(forage ~ food*haredensity, foragd)
-dayp <- lm(forage ~ food*mortality, foragd)
-
-modsday <- list(dayn, dayf, days, dayt, dayh, dayp)
-namesday <- c('Null', "Food", "Food*Snow", "Food*Twigs", "Food*Hares", "Food*Mortality")
-
-#make AIC table
-AICday <- as.data.table(aictab(REML = F, cand.set = modsday, modnames = namesday, sort = TRUE))
-
-#remove unwanted columns
-AICday[, ModelLik := NULL]
-AICday[, Cum.Wt := NULL]
-
-#round whole table to 3 dec places
-AICday <- AICday %>% mutate_if(is.numeric, round, digits = 3)
-
-#run function and get R2s for all models
-R2sday <- lapply(modsday, collectR2)
-R2sday <- rbindlist(R2sday, fill = TRUE)
-setnames(R2sday, "V1", "R2")
-R2sday$Modnames <- namesday
-
-#merge R2s with AIC table
-AICday <- merge(AICday, R2sday, by = "Modnames")
-setorder(AICday, "Delta_AICc")
-
-summary(dayt)
-
-
-ggplot(foragd)+
-  geom_point(aes(x = biomassavail, y = forage, color = food), alpha = .2)+
-  geom_smooth(aes(x = biomassavail, y = forage, color = food, fill = food), method = "lm")+
+#top model = temp
+ggplot(foragfood)+
+  geom_point(aes(x = temp, y = forage, color = food), alpha = .2)+
+  geom_smooth(aes(x = temp, y = forage, color = food, fill = food), method = "lm")+
   scale_color_manual(values = foodcols)+
   scale_fill_manual(values = foodcols)+
-  labs(x = "Daily willow available (g/m2)", y = "Daily foraging effort (hr)")+
+  labs(x = "Weekly mean temperature (C))", y = "Weekly foraging effort (hr)")+
   themepoints
+
+#not far behind = per cap
+ggplot(foragfood)+
+  geom_point(aes(x = percap, y = forage, color = food), alpha = .2)+
+  geom_smooth(aes(x = percap, y = forage, color = food, fill = food), method = "lm")+
+  scale_color_manual(values = foodcols)+
+  scale_fill_manual(values = foodcols)+
+  labs(x = "Weekly twig availability (kg/hare)", y = "Weekly foraging effort (hr)")+
+  themepoints
+
+
 
 
 
 # save --------------------------------------------------------------------
 
-
-
 write.csv(AICcon, "Output/Tables/AIC_foraging_winter_controls.csv")
 write.csv(AICfood, "Output/Tables/AIC_foraging_winter_foods.csv")
-write.csv(AICday, "Output/Tables/AIC_foraging_daily_foods.csv")
-
 
