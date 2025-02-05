@@ -10,63 +10,79 @@ forag <- readRDS("Output/Data/foraging_weekly.rds")
 weights <- readRDS("Output/Data/weight_change.rds")
 winters <- readRDS("Output/Data/full_data_annual.rds")
 
-#cut to years with all data
-dat <- dat[year > 2015 & !year == 2022]
-fecal <- fecal[year > 2015]
-forag <- forag[year > 2015]
-weights <- weights[year > 2015]
-
-#make a year factor col
-dat[, yearfactor := as.factor(year)]
-fecal[, yearfactor := as.factor(year)]
-forag[, yearfactor := as.factor(year)]
-weights[, yearfactor := as.factor(year)]
-
-#order daily data by date
-setorder(dat, date)
-
-
-
-# make a summary table by year --------------------------------------------
-
 
 
 
 # plots that show annual trends -------------------------------------------
 
 (temp <- ggplot(dat)+
+   geom_abline(intercept = median(dat$tempmean, na.rm = TRUE), slope = 0, linetype = 3)+
    geom_boxplot(aes(x = yearfactor, y = tempmean), alpha = 0.5)+
    labs(x = "", y = "Temperature (C)", title = "A)")+
    themepoints)
 
 (density <- ggplot(dat)+
+    geom_abline(intercept = median(dat$haredensity, na.rm = TRUE), slope = 0, linetype = 3)+
     geom_boxplot(aes(x = yearfactor, y = haredensity), alpha = 0.5)+
     labs(x = "", y = "Hare density (hares/ha)", title = "B)")+
     themepoints)
 
 (mortality <- ggplot(dat)+
+    geom_abline(intercept = median(dat$mortrate, na.rm = TRUE), slope = 0, linetype = 3)+
     geom_boxplot(aes(x = yearfactor, y = mortrate), alpha = 0.5)+
     labs(x = "", y = "Mortality rate", title = "C)")+
     themepoints)
 
 (snow <- ggplot(dat)+
+    geom_abline(intercept = median(dat$snow, na.rm = TRUE), slope = 0, linetype = 3)+
     geom_boxplot(aes(x = yearfactor, y = snow), alpha = 0.5)+
     labs(x = "", y = "Snow depth (cm)", title = "D)")+
     themepoints)
 
 (twigs <- ggplot(dat)+
+    geom_abline(intercept = median(dat$twig, na.rm = TRUE), slope = 0, linetype = 3)+
     geom_boxplot(aes(x = yearfactor, y = twig), alpha = 0.5)+
     labs(x = "", y = "Twig availability (kg/ha)", title = "E)")+
     themepoints)
 
 (percap <- ggplot(dat)+
+    geom_abline(intercept = median(dat$percap, na.rm = TRUE), slope = 0, linetype = 3)+
     geom_boxplot(aes(x = yearfactor, y = percap), alpha = 0.5)+
     labs(x = "", y = "Twig availability (kg/ha)", title = "F)")+
     themepoints)
 
-
 sumenvfig <- ggarrange(temp, density, mortality, snow, twigs, percap, ncol = 2, nrow = 3)
 sumenvfig
+
+
+
+# Figure showing summary of dependent variables ---------------------------
+
+#weight loss by year
+(wcresid <- ggplot(weights)+
+   geom_abline(aes(intercept = 0, slope = 0), linetype = 2)+
+   geom_boxplot(aes(x = yearfactor, y = weight.c.resid, fill = food), alpha = .5)+
+   scale_fill_manual(values = foodcols, guide = NULL)+
+   labs(y = "Weight change residual (g)", x = "Winter", title = "A)")+
+   themepoints)
+
+(feces <- 
+    ggplot(fecal)+
+    geom_boxplot(aes(x = yearfactor, y = CP_dm, fill = food), alpha = .5, outlier.shape = NA)+
+    geom_abline(intercept = 10, slope = 0, linetype = 2)+
+    labs(y = "Fecal crude protein (%)", x = "year", title = "B)")+
+    scale_fill_manual(values = foodcols)+
+    themepoints)
+
+(foraging <- 
+    ggplot(forag)+
+    geom_boxplot(aes(x = yearfactor, y = forage, fill = food), alpha = .5)+
+    scale_fill_manual(values = foodcols, guide = NULL)+
+    labs(y = "Foraging effort (hr/day)", x = "Winter", title = "C)")+
+    themepoints)
+
+sumdepfig <- ggarrange(wcresid, feces, foraging, nrow = 3, ncol = 1)
+
 
 
 
@@ -93,37 +109,6 @@ sumenvfig
     labs(y = "Twig availability (kg/hare)", x = "Date")+
     facet_wrap(~year, scales = "free")+
     themepointstop)
-
-
-
-# Figure showing summary of dependent variables ---------------------------
-
-#weight loss by year
-(wcresid <- ggplot(weights)+
-   geom_abline(aes(intercept = 0, slope = 0), linetype = 2)+
-   geom_boxplot(aes(x = yearfactor, y = weight.c.resid, fill = food), alpha = .5)+
-   scale_fill_manual(values = foodcols, guide = NULL)+
-   labs(y = "Weight change residual (g)", x = "Winter", title = "A)")+
-   themepoints)
-
-(feces <- 
-   ggplot(fecal)+
-   geom_boxplot(aes(x = yearfactor, y = CP_dm, fill = food), alpha = .5, outlier.shape = NA)+
-   geom_abline(intercept = 10, slope = 0, linetype = 2)+
-   labs(y = "Fecal crude protein (%)", x = "year", title = "B)")+
-   scale_fill_manual(values = foodcols)+
-   themepoints)
-
-(foraging <- 
-  ggplot(forag)+
-  geom_boxplot(aes(x = yearfactor, y = forage, fill = food), alpha = .5)+
-  scale_fill_manual(values = foodcols, guide = NULL)+
-  labs(y = "Foraging effort (hr/day)", x = "Winter", title = "C)")+
-  themepoints)
-
-
-
-sumdepfig <- ggarrange(wcresid, feces, foraging, nrow = 3, ncol = 1)
 
 
 
