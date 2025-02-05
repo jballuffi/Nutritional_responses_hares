@@ -81,5 +81,7 @@ annual <- dat[, .(phase = getmode(phase),
 
 # Figures and save --------------------------------------------------------
 
+setorder(dat, date)
+
 saveRDS(annual, "Output/Data/full_data_annual.rds")
 saveRDS(daily, "Output/Data/full_data_daily.rds")
