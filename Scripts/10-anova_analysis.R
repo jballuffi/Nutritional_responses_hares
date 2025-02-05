@@ -52,7 +52,7 @@ forag <- merge(forag, yearcat, by = "year", all.x = TRUE)
 # two-way anova on controls --------------------------------------------
 
 #weight change residual as response
-wmod <- lm(weight.c.resid ~ dcat + scat, weights[food == 0])
+wmod <- lm(weight.c.resid ~ dcat + twigcat, weights[food == 0])
 summary(wmod)
 wanova <- anova(wmod)
 waov <- aov(wmod)
@@ -61,14 +61,14 @@ wposthoc
 
 (wcontrol <- ggplot(weights[food == 0])+
     geom_abline(aes(intercept = 0, slope = 0), linetype = 2)+
-    geom_boxplot(aes(x = dcat, y = weight.c.resid, fill = scat), alpha = .5)+
-    scale_fill_grey(name = "Snow Block")+
+    geom_boxplot(aes(x = dcat, y = weight.c.resid, fill = twigcat), alpha = .5)+
+    scale_fill_grey(name = "Twig Block")+
     labs(y = "Weight change residual (g)", x = "Density Block")+
     themepoints)
 
 
 #fecal protein as response
-fecmod <- lm(CP_dm ~ dcat + scat, fecal[food == 0])
+fecmod <- lm(CP_dm ~ dcat + twigcat, fecal[food == 0])
 summary(fecmod)
 fecanova <- anova(fecmod)
 fecaov <- aov(fecmod)
@@ -77,15 +77,15 @@ fecposthoc
 
 (fecescontrol <- 
     ggplot(fecal[food == 0])+
-    geom_boxplot(aes(x = dcat, y = CP_dm, fill = scat), alpha = .5, outlier.shape = NA)+
+    geom_boxplot(aes(x = dcat, y = CP_dm, fill = twigcat), alpha = .5, outlier.shape = NA)+
     geom_abline(intercept = 10, slope = 0, linetype = 2)+
-    scale_fill_grey(name = "Snow Block")+
+    scale_fill_grey(name = "Twig Block")+
     labs(y = "Fecal crude protein (%)", x = "Density Block")+
     themepoints)
 
 
 #foraging rate
-formod <- lm(forage ~ dcat + scat, forag[food == 0])
+formod <- lm(forage ~ dcat + twigcat, forag[food == 0])
 summary(formod)
 foranova <- anova(formod)
 foraov <- aov(formod)
@@ -94,8 +94,8 @@ forposthoc
 
 (forcontrol <- 
     ggplot(forag[food == 0])+
-    geom_boxplot(aes(x = dcat, y = forage, fill = scat), alpha = .5)+
-    scale_fill_grey(name = "Snow Block")+
+    geom_boxplot(aes(x = dcat, y = forage, fill = twigcat), alpha = .5)+
+    scale_fill_grey(name = "Twig Block")+
     labs(y = "Weekly foraging effort (hr/day)", x = "Density-Snow Year")+
     themepoints)
 
