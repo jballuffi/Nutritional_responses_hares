@@ -17,6 +17,9 @@ fecal[, yearfactor := as.factor(year)]
 forag[, yearfactor := as.factor(year)]
 weights[, yearfactor := as.factor(year)]
 
+fecal <- fecal[year > 2015]
+forag <- forag[year > 2015]
+weights <- weights[year > 2015]
 
 
 # plots that show annual trends -------------------------------------------
