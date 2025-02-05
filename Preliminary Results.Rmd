@@ -1,12 +1,13 @@
 ---
 title: "Preliminary Results"
 author: "Juliana Balluffi-Fry"
-date: "2025-01-22"
-output: word_document
+date: '2025-01-22'
+output:
+  pdf_document: default
+  word_document: default
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{}
 ```
 
 ## Preliminary results
@@ -22,7 +23,6 @@ Figures and preliminary results for chapter 4.
 Categorizing years into high's and low's for each respective environmental variable we get:
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
 library(data.table)
 tab <- fread("Output/Tables/year_categories.csv")
 print(tab[, 2:8])
@@ -38,4 +38,4 @@ Snow, Temperature, and twig availability always matched. While density and per c
 
 ![Figure 6. Daily twig availability (kg/ha) by winter.](Output/Figures/twig_daily_figure.jpeg)
 
-![Figure 7. Daily per capita twig (kg/hare) availability by winter. ](Output/Figures/percap_daily_figure.jpeg)
+![Figure 7. Daily per capita twig (kg/hare) availability by winter.](Output/Figures/percap_daily_figure.jpeg)
