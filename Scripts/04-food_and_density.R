@@ -84,4 +84,4 @@ annual <- dat[, .(phase = getmode(phase),
 setorder(dat, date)
 
 saveRDS(annual, "Output/Data/full_data_annual.rds")
-saveRDS(daily, "Output/Data/full_data_daily.rds")
+saveRDS(dat, "Output/Data/full_data_daily.rds")
