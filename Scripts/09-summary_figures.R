@@ -58,12 +58,6 @@ sumenvfig
 
 # Daily snow and twig data ------------------------------------------------
 
-#daily density by year
-ggplot(dat)+
-  geom_path(aes(x = date, y = haredensity, group = year))+
-  labs(x = "", y = "Hare density (hares/ha)")+
-  themepoints
-
 #daily snow depth
 (sdaily <- 
   ggplot(dat)+
@@ -76,7 +70,14 @@ ggplot(dat)+
     ggplot(dat)+
     geom_line(aes(x = date, y = twig))+
     labs(y = "Twig availability (kg/ha)", x = "Date")+
-    facet_wrap(~winter, scales = "free")+
+    facet_wrap(~year, scales = "free")+
+    themepointstop)
+
+(pcdaily <- 
+    ggplot(dat)+
+    geom_line(aes(x = date, y = percap))+
+    labs(y = "Twig availability (kg/hare)", x = "Date")+
+    facet_wrap(~year, scales = "free")+
     themepointstop)
 
 
@@ -116,7 +117,8 @@ sumdepfig <- ggarrange(wcresid, foraging, feces, nrow = 3, ncol = 1)
 ggsave("Output/Figures/env_summary_figure1.jpeg", sumenvfig, width = 10, height = 10, unit = "in")
 
 ggsave("Output/Figures/snow_daily_figure.jpeg", sdaily, width = 8, height = 7, unit = "in")
-ggsave("Output/Figures/twig_daily_figure.jpeg", tdaily, width = 9, height = 7, unit = "in")
+ggsave("Output/Figures/twig_daily_figure.jpeg", tdaily, width = 8, height = 7, unit = "in")
+ggsave("Output/Figures/percap_daily_figure.jpeg", pcdaily, width = 8, height = 7, unit = "in")
 
 ggsave("Output/Figures/dep_var_figure.jpeg", sumdepfig, width = 8, height = 14, unit = "in")
 
