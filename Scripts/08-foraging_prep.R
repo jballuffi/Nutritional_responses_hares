@@ -44,6 +44,8 @@ behweek <- beh[, .(forage = mean(forage)), by = .(id, year, winter)]
 #merge in individual data
 behweek <- merge(behweek, inds, by = c("id", "winter"), all.x = TRUE)
 
+behweek[, yearfactor := as.factor(year)]
+
 
 
 # figures -----------------------------------------------------------------
@@ -58,6 +60,8 @@ behweek <- merge(behweek, inds, by = c("id", "winter"), all.x = TRUE)
 
 
 # Save --------------------------------------------------------------------
+
+behweek <- behweek[year > 2015]
 
 ggsave("Output/Figures/foraging_allwinters.jpg", allwinters, width = 12, height = 10, unit = "in")
 saveRDS(behweek, "Output/Data/foraging_weekly.rds") #make weekly
