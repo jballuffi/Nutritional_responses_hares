@@ -39,7 +39,7 @@ beh <- beh[, .(winter, id, m, year, date, forage = Forage/3600)]
 beh[, week := week(date), year]
 
 #get mean foraging effort by week and individual
-behweek <- beh[, .(forage = mean(forage)), by = .(id, year, winter)]
+behweek <- beh[, .(forage = mean(forage)), by = .(id, year, winter, week)]
 
 #merge in individual data
 behweek <- merge(behweek, inds, by = c("id", "winter"), all.x = TRUE)
@@ -64,5 +64,5 @@ behweek[, yearfactor := as.factor(year)]
 behweek <- behweek[year > 2015]
 
 ggsave("Output/Figures/foraging_allwinters.jpg", allwinters, width = 12, height = 10, unit = "in")
-saveRDS(behweek, "Output/Data/foraging_weekly.rds") #make weekly
+saveRDS(behweek, "Output/Data/foraging_weekly.rds")
 
