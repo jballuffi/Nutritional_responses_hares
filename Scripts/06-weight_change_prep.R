@@ -9,6 +9,7 @@ trap <- fread("Input/trapping_all_records.csv")
 food <- readRDS("Input/food_adds.rds")
 
 
+
 # variable prep ----------------------------------------------------------
 
 #set up data columns
@@ -149,8 +150,14 @@ wloss[!is.na(weight.a) & weight.a < 1000, include := "no"]
 wloss[is.na(include), include := "yes"]
 wlossyes <- wloss[include == "yes"]
 
+#pull out year and make numeric. Make a year factor
 wlossyes[, year := tstrsplit(winter, "-", keep = 2)]
-wlossyes <- wlossyes[year > 2014]
+wlossyes[, year := as.numeric(year)]
+wlossyes[, yearfactor := as.factor(year)]
+
+#remove 2015
+wlossyes <- wlossyes[year > 2015]
+
 
 
 # final data --------------------------------------------------------------
