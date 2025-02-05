@@ -8,23 +8,11 @@
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
 forag <- readRDS("Output/Data/foraging_weekly.rds")
-dat <- readRDS("Output/Data/full_data_daily.rds")
+datweek <- readRDS("Output/Data/full_data_weekly.rds")
 
 
 
 # merge info and make a control and food add dataset --------
-
-#get weekly values from full env dat to merge with forag data
-
-dat[, week := week(date), year]
-
-datweek <- dat[, .(haredensity = mean(haredensity),
-                   mortrate = mean(mortrate),
-                   snow = mean(snow),
-                   twig = mean(twig),
-                   percap = mean(percap),
-                   temp = mean(tempmean, na.rm = TRUE)),
-               by = .(year, week)]
 
 forag <- merge(forag, datweek, by = c("year", "week"), all.x = TRUE)
 
@@ -86,14 +74,15 @@ setorder(AICcon, "Delta_AICc")
 
 #most parsimonious model is the twig availability with hares and lynx
 summary(pc)
-pc_int <- coefficients(pc)['(Intercept)']
-pc_s <- coefficients(pc)['percap']
+pc_pred <- as.data.table(ggpredict(pc, terms = "percap"))
 
-ggplot(foragcon)+
-  geom_point(aes(x = percap, y = forage), alpha = .3)+
-  geom_abline(intercept = pc_int, slope = pc_s)+
+(pc_fig <- 
+  ggplot()+
+  geom_point(aes(x = percap, y = forage), alpha = .3, data = foragcon)+
+  geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = pc_pred)+
+  geom_line(aes(x = x, y = predicted), data = pc_pred)+
   labs(x = "Weekly twig availability (kg/hare)", y = "Weekly foraging effort (hr/day)")+
-  themepoints
+  themepoints)
 
 
 
@@ -136,26 +125,33 @@ R2sfood$Modnames <- Namesfood
 AICfood <- merge(AICfood, R2sfood, by = "Modnames")
 setorder(AICfood, "Delta_AICc")
 
+foodte_pred <- as.data.table(ggpredict(foodte, terms = c("temp", "food")))
+setnames(foodte_pred, "group", "food")
 
 #top model = temp
-ggplot(foragfood)+
-  geom_point(aes(x = temp, y = forage, color = food), alpha = .2)+
-  geom_smooth(aes(x = temp, y = forage, color = food, fill = food), method = "lm")+
+(foodte_fig <-
+  ggplot(foragfood)+
+  geom_point(aes(x = temp, y = forage, color = food), alpha = .2, data = foragfood)+
+  geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = .5, data = foodte_pred)+
+  geom_line(aes(x = x, y = predicted, color = food), data = foodte_pred)+
   scale_color_manual(values = foodcols)+
   scale_fill_manual(values = foodcols)+
   labs(x = "Weekly mean temperature (C))", y = "Weekly foraging effort (hr)")+
-  themepoints
+  themepoints)
 
 #not far behind = per cap
-ggplot(foragfood)+
-  geom_point(aes(x = percap, y = forage, color = food), alpha = .2)+
-  geom_smooth(aes(x = percap, y = forage, color = food, fill = food), method = "lm")+
+foodpc_pred <- as.data.table(ggpredict(foodpc, terms = c("percap", "food")))
+setnames(foodpc_pred, "group", "food")
+
+(foodpc_fig <- 
+  ggplot()+
+  geom_point(aes(x = percap, y = forage, color = food), alpha = .2, data = foragfood)+
+  geom_ribbon(aes(x = x, ymax = conf.high, ymin = conf.low, fill = food), alpha = .5, data = foodpc_pred)+
+  geom_line(aes(x = x, y = predicted, color = food), data = foodpc_pred)+
   scale_color_manual(values = foodcols)+
   scale_fill_manual(values = foodcols)+
   labs(x = "Weekly twig availability (kg/hare)", y = "Weekly foraging effort (hr)")+
-  themepoints
-
-
+  themepoints)
 
 
 
@@ -163,4 +159,8 @@ ggplot(foragfood)+
 
 write.csv(AICcon, "Output/Tables/AIC_foraging_winter_controls.csv")
 write.csv(AICfood, "Output/Tables/AIC_foraging_winter_foods.csv")
+
+ggsave("Output/Figures/foraging_percap_control.jpeg", pc_fig, width = 6, height = 5, unit = "in")
+ggsave("Output/Figures/foraging_percap_food.jpeg", foodpc_fig, width = 6, height = 5, unit = "in")
+ggsave("Output/Figures/foraging_temp_food.jpeg", foodte_fig, width = 6, height = 5, unit = "in")
 
