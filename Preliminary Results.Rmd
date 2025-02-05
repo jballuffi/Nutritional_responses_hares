@@ -9,22 +9,18 @@ output: word_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## Preliminary results
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Figures and preliminary results for chapter 4.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+![Figure 2. Linear relationship between hare overwinter weight loss in response to hare weight in the previous autumn on an individual basis. Weight loss is the difference between body weight in autumn (average from September -- November) and spring (average from March and April). Line uses data from 1977 -- 2022.](Output/Figures/hodges_figure.jpeg "Figure 2.")
 
-```{r cars}
-summary(cars)
-```
+![Figure 3. Means by winter for A) daily mean temperature (C), B) daily hare density (hares/hectare), C) monthly mortality rate, D) daily snow depth (cm), E) daily willow twig availability (kg/hectare), and F) daily per capita willow twig availability (kg/hare). Data includes all values collected in January through March for each winter.](Output/Figures/env_summary_figure1.jpeg)
 
-## Including Plots
+![Figure 4. Mean A) overwinter weight change residuals (g), B) fecal protein content (%), C) and daily foraging effort (hours/day) by winter. Boxes are colored according to food supplementation treatment (red = food add, grey = control).](Output/Figures/dep_var_figure.jpeg)
 
-You can also embed plots, for example:
+![Figure 5.](Output/Figures/snow_daily_figure.jpeg)
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+![Figure 6.](Output/Figures/twig_daily_figure.jpeg)
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+![Figure 7.](Output/Figures/percap_daily_figure.jpeg)
