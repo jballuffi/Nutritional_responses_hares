@@ -21,35 +21,36 @@ weights[, yearfactor := as.factor(year)]
 
 # plots that show annual trends -------------------------------------------
 
+(temp <- ggplot(dat)+
+   geom_boxplot(aes(x = yearfactor, y = tempmean), alpha = 0.5)+
+   labs(x = "", y = "Temperature (C)", title = "A)")+
+   themepoints)
+
 (density <- ggplot(dat)+
     geom_boxplot(aes(x = yearfactor, y = haredensity), alpha = 0.5)+
-    labs(x = "", y = "Hare density (hares/ha)")+
+    labs(x = "", y = "Hare density (hares/ha)", title = "B)")+
     themepoints)
 
 (mortality <- ggplot(dat)+
     geom_boxplot(aes(x = yearfactor, y = mortrate), alpha = 0.5)+
-    labs(x = "", y = "Mortality rate")+
+    labs(x = "", y = "Mortality rate", title = "C)")+
     themepoints)
 
 (snow <- ggplot(dat)+
     geom_boxplot(aes(x = yearfactor, y = snow), alpha = 0.5)+
-    labs(x = "", y = "Snow depth (cm)")+
+    labs(x = "", y = "Snow depth (cm)", title = "D)")+
     themepoints)
 
 (twigs <- ggplot(dat)+
     geom_boxplot(aes(x = yearfactor, y = twig), alpha = 0.5)+
-    labs(x = "", y = "Twig availability (kg/ha)")+
+    labs(x = "", y = "Twig availability (kg/ha)", title = "E)")+
     themepoints)
 
 (percap <- ggplot(dat)+
     geom_boxplot(aes(x = yearfactor, y = percap), alpha = 0.5)+
-    labs(x = "", y = "Twig availability (kg/ha)")+
+    labs(x = "", y = "Twig availability (kg/ha)", title = "F)")+
     themepoints)
 
-(temp <- ggplot(dat)+
-    geom_boxplot(aes(x = yearfactor, y = tempmean), alpha = 0.5)+
-    labs(x = "", y = "Temperature (C)")+
-    themepoints)
 
 sumenvfig <- ggarrange(density, snow, mortality, twigs, temp, percap, ncol = 2, nrow = 3)
 sumenvfig
