@@ -49,11 +49,12 @@ dat[, food := as.factor(food)]
 dat[, id := as.character(id)]
 dat[, date := ymd(idate)]
 dat[, year := year(date)]
+dat[, yearfactor := as.factor(year)]
 
 #fix sex variable name
 setnames(dat, c("Sex", "Vial", "Weight", "Ash"), c("sex", "vial", "weight", "ash"))
 
-
+dat <- dat[year > 2015]
 
 # Fix sex issue -----------------------------------------------------------
 
@@ -84,7 +85,7 @@ dat[is.na(snowgrid)]
 
 # make final data -----------------------------------------
 
-dat2 <- dat[, .(vial, snowgrid, winter, year, m, date, id, sex, food, CP_dm, ash)]
+dat2 <- dat[, .(vial, snowgrid, winter, year, yearfactor, m, date, id, sex, food, CP_dm, ash)]
 
 #remove the one strange outlier
 dat2 <- dat2[!CP_dm > 25]
@@ -94,7 +95,7 @@ dat2[, date_start := date - 3]
 dat2[, date_end := date + 3]
 
 #get annual averages
-datannual <- dat2[, .(CP_dm = mean(CP_dm), ash = mean(ash), food = getmode(food), sex = getmode(sex)), by = .(winter, year, id)]
+datannual <- dat2[, .(CP_dm = mean(CP_dm), ash = mean(ash), food = getmode(food), sex = getmode(sex)), by = .(winter, year, yearfactor, id)]
 
 
 
