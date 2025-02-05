@@ -85,11 +85,19 @@ sumenvfig
 
 # Figure showing summary of dependent variables ---------------------------
 
+#weight loss by year
+(wcresid <- ggplot(weights)+
+   geom_abline(aes(intercept = 0, slope = 0), linetype = 2)+
+   geom_boxplot(aes(x = yearfactor, y = weight.c.resid, fill = food), alpha = .5)+
+   scale_fill_manual(values = foodcols, guide = NULL)+
+   labs(y = "Weight change residual (g)", x = "Winter", title = "A)")+
+   themepoints)
+
 (feces <- 
    ggplot(fecal)+
    geom_boxplot(aes(x = yearfactor, y = CP_dm, fill = food), alpha = .5, outlier.shape = NA)+
    geom_abline(intercept = 10, slope = 0, linetype = 2)+
-   labs(y = "Fecal crude protein (%)", x = "year")+
+   labs(y = "Fecal crude protein (%)", x = "year", title = "B)")+
    scale_fill_manual(values = foodcols)+
    themepoints)
 
@@ -97,19 +105,12 @@ sumenvfig
   ggplot(forag)+
   geom_boxplot(aes(x = yearfactor, y = forage, fill = food), alpha = .5)+
   scale_fill_manual(values = foodcols, guide = NULL)+
-  labs(y = "Foraging effort (hr/day)", x = "Winter")+
+  labs(y = "Foraging effort (hr/day)", x = "Winter", title = "C)")+
   themepoints)
 
-#weight loss by year
-(wcresid <- ggplot(weights)+
-    geom_abline(aes(intercept = 0, slope = 0), linetype = 2)+
-    geom_boxplot(aes(x = yearfactor, y = weight.c.resid, fill = food), alpha = .5)+
-    scale_fill_manual(values = foodcols, guide = NULL)+
-    labs(y = "Weight change residual (g)", x = "Winter")+
-    themepoints)
 
 
-sumdepfig <- ggarrange(wcresid, foraging, feces, nrow = 3, ncol = 1)
+sumdepfig <- ggarrange(wcresid, feces, foraging, nrow = 3, ncol = 1)
 
 
 
