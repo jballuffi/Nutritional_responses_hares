@@ -18,6 +18,7 @@ forag[, yearfactor := as.factor(year)]
 weights[, yearfactor := as.factor(year)]
 
 
+
 # plots that show annual trends -------------------------------------------
 
 (density <- ggplot(dat)+
