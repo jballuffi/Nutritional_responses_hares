@@ -38,7 +38,7 @@ beh <- beh[, .(winter, id, m, year, date, forage = Forage/3600)]
 #categorize dates into weeks
 beh[, week := week(date), year]
 
-#get mean foraging effor by week and individual
+#get mean foraging effort by week and individual
 behweek <- beh[, .(forage = mean(forage)), by = .(id, year, winter)]
 
 #merge in individual data
