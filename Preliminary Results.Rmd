@@ -19,8 +19,23 @@ Figures and preliminary results for chapter 4.
 
 ![Figure 4. Mean A) overwinter weight change residuals (g), B) fecal protein content (%), C) and daily foraging effort (hours/day) by winter. Boxes are colored according to food supplementation treatment (red = food add, grey = control).](Output/Figures/dep_var_figure.jpeg)
 
-![Figure 5.](Output/Figures/snow_daily_figure.jpeg)
+Categorizing years into high's and low's for each respective environmental variable we get:
 
-![Figure 6.](Output/Figures/twig_daily_figure.jpeg)
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+tab <- fread("Output/Tables/year_categories.csv")
+print(tab[, 2:8])
+```
 
-![Figure 7.](Output/Figures/percap_daily_figure.jpeg)
+Snow, Temperature, and twig availability always matched. While density and per capita always matched. Therefore, we categorized years using density and twig availability, either high or low, to conduct a two-way anova.
+
+![Figure 5. Results from the two-way anova testing how high vs. low hare density years and high vs. low twig availability years affect overwinter weight loss. Twig availability was significant.](Output/Figures/weight_anova.jpeg)
+
+![Figure 6.](Output/Figures/foraging_percap_control.jpeg)
+
+![Figure 5. Daily snow depth by winter.](Output/Figures/snow_daily_figure.jpeg)
+
+![Figure 6. Daily twig availability (kg/ha) by winter.](Output/Figures/twig_daily_figure.jpeg)
+
+![Figure 7. Daily per capita twig (kg/hare) availability by winter. ](Output/Figures/percap_daily_figure.jpeg)
