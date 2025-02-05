@@ -51,13 +51,24 @@ daily <- merge(daily, temp[, 1:3], by = "date", all = TRUE)
 
 #get annual means for each value of interest
 annual <- daily[, .(phase = getmode(phase),
+                    
                     snow = mean(snow),
+                    snow_sd = sd(snow),
+                    
                     twig = mean(twig),
+                    twig_sd = sd(twig),
+                    
                     haredensity = mean(haredensity),
+                    haredensity_sd = sd(haredensity),
+                    
                     mortrate = mean(mortrate),
+                    mortrate_sd = sd(mortrate),
+                    
                     percap = mean(percap),
+                    percap_sd = sd(percap),
+                    
                     tempmean = mean(tempmean, na.rm = TRUE),
-                    snow_station = mean(snow_station, na.rm = TRUE)),
+                    tempmean_sd = mean(tempmean)),
                 by = .(year)]
 
 
