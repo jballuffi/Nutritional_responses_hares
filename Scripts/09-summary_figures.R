@@ -8,18 +8,28 @@ dat <- readRDS("Output/Data/full_data_daily.rds")
 fecal <- readRDS("Output/Data/fecal_protein.rds")
 forag <- readRDS("Output/Data/foraging_weekly.rds")
 weights <- readRDS("Output/Data/weight_change.rds")
+winters <- readRDS("Output/Data/full_data_annual.rds")
 
 #cut to years with all data
 dat <- dat[year > 2015 & !year == 2022]
-setorder(dat, date)
+fecal <- fecal[year > 2015]
+forag <- forag[year > 2015]
+weights <- weights[year > 2015]
+
+#make a year factor col
 dat[, yearfactor := as.factor(year)]
 fecal[, yearfactor := as.factor(year)]
 forag[, yearfactor := as.factor(year)]
 weights[, yearfactor := as.factor(year)]
 
-fecal <- fecal[year > 2015]
-forag <- forag[year > 2015]
-weights <- weights[year > 2015]
+#order daily data by date
+setorder(dat, date)
+
+
+
+# make a summary table by year --------------------------------------------
+
+
 
 
 # plots that show annual trends -------------------------------------------
