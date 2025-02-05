@@ -49,8 +49,14 @@ daily[, percap := twigpergrid/harespergrid] #kg/hare
 #merge with temp data
 daily <- merge(daily, temp[, 1:3], by = "date", all = TRUE)
 
+#cut out years without data
+dat <- daily[year > 2015 & !year == 2022]
+
+#make a year factor col
+dat[, yearfactor := as.factor(year)]
+
 #get annual means for each value of interest
-annual <- daily[, .(phase = getmode(phase),
+annual <- dat[, .(phase = getmode(phase),
                     
                     snow = mean(snow),
                     snow_sd = sd(snow),
@@ -69,7 +75,7 @@ annual <- daily[, .(phase = getmode(phase),
                     
                     tempmean = mean(tempmean, na.rm = TRUE),
                     tempmean_sd = mean(tempmean)),
-                by = .(year)]
+                by = .(year, yearfactor)]
 
 
 
