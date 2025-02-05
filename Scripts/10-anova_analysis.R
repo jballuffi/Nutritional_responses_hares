@@ -61,9 +61,9 @@ wposthoc
 
 (wcontrol <- ggplot(weights[food == 0])+
     geom_abline(aes(intercept = 0, slope = 0), linetype = 2)+
-    geom_boxplot(aes(x = cat, y = weight.c.resid, fill = food), alpha = .5)+
-    scale_fill_manual(values = foodcols, guide = NULL)+
-    labs(y = "Weight change residual (g)", x = "Density-Snow Year")+
+    geom_boxplot(aes(x = dcat, y = weight.c.resid, fill = scat), alpha = .5)+
+    scale_fill_grey(name = "Snow Block")+
+    labs(y = "Weight change residual (g)", x = "Density Block")+
     themepoints)
 
 
@@ -77,10 +77,10 @@ fecposthoc
 
 (fecescontrol <- 
     ggplot(fecal[food == 0])+
-    geom_boxplot(aes(x = cat, y = CP_dm, fill = food), alpha = .5, outlier.shape = NA)+
+    geom_boxplot(aes(x = dcat, y = CP_dm, fill = scat), alpha = .5, outlier.shape = NA)+
     geom_abline(intercept = 10, slope = 0, linetype = 2)+
-    scale_fill_manual(values = foodcols, guide = NULL)+
-    labs(y = "Fecal crude protein (%)", x = "Density-Snow Year")+
+    scale_fill_grey(name = "Snow Block")+
+    labs(y = "Fecal crude protein (%)", x = "Density Block")+
     themepoints)
 
 
@@ -94,12 +94,10 @@ forposthoc
 
 (forcontrol <- 
     ggplot(forag[food == 0])+
-    geom_boxplot(aes(x = cat, y = forage, fill = food), alpha = .5)+
-    scale_fill_manual(values = foodcols, guide = NULL)+
+    geom_boxplot(aes(x = dcat, y = forage, fill = scat), alpha = .5)+
+    scale_fill_grey(name = "Snow Block")+
     labs(y = "Weekly foraging effort (hr/day)", x = "Density-Snow Year")+
     themepoints)
-
-
 
 
 
@@ -114,6 +112,6 @@ write.csv(wanova, "Output/Tables/weight_anova.csv")
 write.csv(fecanova, "Output/Tables/fecal_anova.csv")
 write.csv(foranova, "Output/Tables/forage_anova.csv")
 
-ggsave("Output/Figures/weight_anova.jpeg", wcontrol,  width = 6, height = 5, unit = "in")
-ggsave("Output/Figures/fecal_anova.jpeg", fecescontrol,  width = 6, height = 5, unit = "in")
-ggsave("Output/Figures/foraging_anova.jpeg", forcontrol,  width = 6, height = 5, unit = "in")
+ggsave("Output/Figures/weight_anova.jpeg", wcontrol,  width = 5, height = 5, unit = "in")
+ggsave("Output/Figures/fecal_anova.jpeg", fecescontrol,  width = 5, height = 5, unit = "in")
+ggsave("Output/Figures/foraging_anova.jpeg", forcontrol,  width = 5, height = 5, unit = "in")
