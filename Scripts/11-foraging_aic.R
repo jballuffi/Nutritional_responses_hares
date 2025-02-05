@@ -61,7 +61,7 @@ te <- lm(forage ~ temp +sex, foragcon)
 mods <- list(n, s, tw, pc, h, m, te)
 
 #name models
-Names <- c('null', 'snow', 'twig', 'per-capita', 'hares', 'mortality', 'temperature')
+Names <- c('Null', 'Snow', 'Twigs', 'PerCap', 'Hares', 'Mortality', 'Temp')
 
 #make AIC table
 AICcon <- as.data.table(aictab(REML = F, cand.set = mods, modnames = Names, sort = TRUE))
