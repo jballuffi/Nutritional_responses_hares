@@ -78,6 +78,17 @@ annual <- dat[, .(phase = getmode(phase),
                 by = .(year, yearfactor)]
 
 
+#get weekly values from full env dat to merge with forag data
+dat[, week := week(date), year]
+
+datweek <- dat[, .(haredensity = mean(haredensity),
+                   mortrate = mean(mortrate),
+                   snow = mean(snow),
+                   twig = mean(twig),
+                   percap = mean(percap),
+                   temp = mean(tempmean, na.rm = TRUE)),
+               by = .(year, week)]
+
 
 # Figures and save --------------------------------------------------------
 
@@ -85,3 +96,4 @@ setorder(dat, date)
 
 saveRDS(annual, "Output/Data/full_data_annual.rds")
 saveRDS(dat, "Output/Data/full_data_daily.rds")
+saveRDS(datweek, "Output/Data/full_data_weekly.rds")
