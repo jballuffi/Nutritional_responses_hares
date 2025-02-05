@@ -5,28 +5,26 @@
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
-density_m <- readRDS("Output/Data/hares_monthly.rds")
-snow_m <- readRDS("Output/Data/snow_food_monthly.rds")
+datweek <- readRDS("Output/Data/full_data_weekly.rds")
 fecal <- readRDS("Output/Data/fecal_protein.rds")
 
 
-
-#merge
-fecal <- merge(fecal, density_m, by = c("winter", "m"))
-fecal <- merge(fecal, snow_m, by = c("winter", "m", "snowgrid"))
-
-plot(fecal$CP_dm ~ fecal$ash)
+fecal <- merge(fecal, datweek, by = c("year", "week"), all.x = TRUE)
 
 
-N <- lm(CP_dm ~ 1, fecal)
+N    <- lm(CP_dm ~ 1, fecal)
 food <- lm(CP_dm ~ food, fecal)
-snow <- lm(CP_dm ~ snow.avg*food, fecal)
-twig <- lm(CP_dm ~ biomass.avg*food, fecal)
+snow <- lm(CP_dm ~ snow*food, fecal)
+twig <- lm(CP_dm ~ twig*food, fecal)
+pcap <- lm(CP_dm ~ percap*food, fecal)
 hare <- lm(CP_dm ~ haredensity*food, fecal)
-pred <- lm(CP_dm ~ mortality*food, fecal)
+pred <- lm(CP_dm ~ mortrate*food, fecal)
 
-mods <- list(N, food, snow, twig, hare, pred)
-names <- c("Null", "Food", "Snow*Food", "Twig*Food", "Hares*Food", "Mortality*Food")
+mods <- list(N, food, snow, twig, 
+             pcap, hare, pred)
+
+names <- c("Null", "Food", "Snow*Food", "Twig*Food", 
+           "PerCap*Food", "Hares*Food", "Mortality*Food")
 
 
 #make AIC table
@@ -54,8 +52,8 @@ summary(snow)
 
 ggplot(fecal)+
   geom_abline(intercept = 10, slope = 0, linetype = 2)+
-  geom_point(aes(x = snow.avg, y = CP_dm, color = food), alpha = .2)+
-  geom_smooth(aes(x = snow.avg, y = CP_dm, color = food, fill = food), method = "lm")+
+  geom_point(aes(x = snow, y = CP_dm, color = food), alpha = .2)+
+  geom_smooth(aes(x = snow, y = CP_dm, color = food, fill = food), method = "lm")+
   scale_color_manual(values = foodcols)+
   scale_fill_manual(values = foodcols)+
   labs(x = "Average monthly snow depth (cm)", y = "Fecal protein (%)")+
@@ -65,8 +63,8 @@ summary(twig)
 
 ggplot(fecal)+
   geom_abline(intercept = 10, slope = 0, linetype = 2)+
-  geom_point(aes(x = biomass.avg, y = CP_dm, color = food), alpha = .2)+
-  geom_smooth(aes(x = biomass.avg, y = CP_dm, color = food, fill = food), method = "lm")+
+  geom_point(aes(x = twig, y = CP_dm, color = food), alpha = .2)+
+  geom_smooth(aes(x = twig, y = CP_dm, color = food, fill = food), method = "lm")+
   scale_color_manual(values = foodcols)+
   scale_fill_manual(values = foodcols)+
   labs(x = "Average willow available (g/m2)", y = "Fecal protein (%)")+

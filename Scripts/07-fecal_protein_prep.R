@@ -90,9 +90,8 @@ dat2 <- dat[, .(vial, snowgrid, winter, year, yearfactor, m, date, id, sex, food
 #remove the one strange outlier
 dat2 <- dat2[!CP_dm > 25]
 
-#make a date three days prior and three days later for later extracting weekly data
-dat2[, date_start := date - 3]
-dat2[, date_end := date + 3]
+#make week cat by year
+dat2[, week := week(date), year]
 
 #get annual averages
 datannual <- dat2[, .(CP_dm = mean(CP_dm), ash = mean(ash), food = getmode(food), sex = getmode(sex)), by = .(winter, year, yearfactor, id)]
