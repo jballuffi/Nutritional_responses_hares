@@ -84,6 +84,16 @@ pc_pred <- as.data.table(ggpredict(pc, terms = "percap"))
   labs(x = "Weekly twig availability (kg/hare)", y = "Weekly foraging effort (hr/day)")+
   themepoints)
 
+summary(tw)
+tw_pred <- as.data.table(ggpredict(tw, terms = "twig"))
+
+(tw_fig <- 
+    ggplot()+
+    geom_point(aes(x = twig, y = forage), alpha = .3, data = foragcon)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = tw_pred)+
+    geom_line(aes(x = x, y = predicted), data = tw_pred)+
+    labs(x = "Weekly twig availability (kg/hectare)", y = "Weekly foraging effort (hr/day)")+
+    themepoints)
 
 
 # AIC to explain weekly foraging in food add data set ------------------------------------------------
@@ -161,6 +171,8 @@ write.csv(AICcon, "Output/Tables/AIC_foraging_winter_controls.csv")
 write.csv(AICfood, "Output/Tables/AIC_foraging_winter_foods.csv")
 
 ggsave("Output/Figures/foraging_percap_control.jpeg", pc_fig, width = 6, height = 5, unit = "in")
+ggsave("Output/Figures/foraging_twig_control.jpeg", tw_fig, width = 6, height = 5, unit = "in")
+
 ggsave("Output/Figures/foraging_percap_food.jpeg", foodpc_fig, width = 6, height = 5, unit = "in")
 ggsave("Output/Figures/foraging_temp_food.jpeg", foodte_fig, width = 6, height = 5, unit = "in")
 
