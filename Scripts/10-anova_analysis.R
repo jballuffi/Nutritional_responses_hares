@@ -96,7 +96,7 @@ forposthoc
     ggplot(forag[food == 0])+
     geom_boxplot(aes(x = dcat, y = forage, fill = twigcat), alpha = .5)+
     scale_fill_grey(name = "Twig Block")+
-    labs(y = "Weekly foraging effort (hr/day)", x = "Density-Snow Year")+
+    labs(y = "Weekly foraging effort (hr/day)", x = "Density Block")+
     themepoints)
 
 

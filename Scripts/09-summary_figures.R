@@ -42,13 +42,13 @@ winters <- readRDS("Output/Data/full_data_annual.rds")
 (twigs <- ggplot(dat)+
     geom_abline(intercept = median(dat$twig, na.rm = TRUE), slope = 0, linetype = 3)+
     geom_boxplot(aes(x = yearfactor, y = twig), alpha = 0.5)+
-    labs(x = "", y = "Twig availability (kg/ha)", title = "E)")+
+    labs(x = "", y = "Twig availability (kg/hectare)", title = "E)")+
     themepoints)
 
 (percap <- ggplot(dat)+
     geom_abline(intercept = median(dat$percap, na.rm = TRUE), slope = 0, linetype = 3)+
     geom_boxplot(aes(x = yearfactor, y = percap), alpha = 0.5)+
-    labs(x = "", y = "Twig availability (kg/ha)", title = "F)")+
+    labs(x = "", y = "Twig availability (kg/hare)", title = "F)")+
     themepoints)
 
 sumenvfig <- ggarrange(temp, density, mortality, snow, twigs, percap, ncol = 2, nrow = 3)
