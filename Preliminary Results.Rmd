@@ -7,9 +7,6 @@ output:
   word_document: default
 ---
 
-```{}
-```
-
 ## Preliminary results
 
 Figures and preliminary results for chapter 4.
