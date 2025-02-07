@@ -8,7 +8,7 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 
 #read in snow to willow predictions
-pred <- readRDS("../Willow_twigs_snowdepth/Output/Data/05_willow_biomass_prediction.rds")
+pred <- readRDS("../Willow_twigs_snowdepth/Output/Data/05_willow_prediction.rds")
 snow <- readRDS("Output/Data/snow_prepped.rds")
 temp <- readRDS("Output/Data/temperature_prepped.rds")
 density <- readRDS("Output/Data/hares_daily.rds")
@@ -21,7 +21,7 @@ density <- readRDS("Output/Data/hares_daily.rds")
 setnames(pred, "Snow", "snow")
 
 #merge food predictions with snow data
-food <- merge(snow, pred[, 1:2], by = "snow")
+food <- merge(snow, pred[, .(snow, biomassavail, NDSavail_comp)], by = "snow")
 
 #biomass of available willow is in g/m2
 #convert to kg/hectare by multiplying by 10
@@ -32,7 +32,7 @@ food[, biomassavail := biomassavail*10]
 # Get snow and twig availability daily ------------------------------------------------
 
 #get mean snow depth and willow availability by winter averaged across grids
-dfood <- food[, .(snow = mean(snow), twig = mean(biomassavail)), by = .(date, m, year, winter)]
+dfood <- food[, .(snow = mean(snow), biomass = mean(biomassavail), quality = mean(NDSavail_comp)), by = .(date, m, year, winter)]
 
 
 
@@ -42,7 +42,7 @@ dfood <- food[, .(snow = mean(snow), twig = mean(biomassavail)), by = .(date, m,
 daily <- merge(dfood, density[, 4:7], by = c("date"), all = TRUE)
 
 #calculate the per capita twig availability
-daily[, twigpergrid := twig*36 ] #kg/grid
+daily[, twigpergrid := biomass*36 ] #kg/grid
 daily[, harespergrid := haredensity*36] #hares/grid
 daily[, percap := twigpergrid/harespergrid] #kg/hare
 
@@ -61,8 +61,11 @@ annual <- dat[, .(phase = getmode(phase),
                     snow = mean(snow),
                     snow_sd = sd(snow),
                     
-                    twig = mean(twig),
-                    twig_sd = sd(twig),
+                    biomass = mean(biomass),
+                    biomass_sd = sd(biomass),
+                    
+                    quality = mean(quality),
+                    quality_sd = sd(quality),
                     
                     haredensity = mean(haredensity),
                     haredensity_sd = sd(haredensity),
@@ -73,8 +76,8 @@ annual <- dat[, .(phase = getmode(phase),
                     percap = mean(percap),
                     percap_sd = sd(percap),
                     
-                    tempmean = mean(tempmean, na.rm = TRUE),
-                    tempmean_sd = mean(tempmean)),
+                    temp = mean(tempmean, na.rm = TRUE),
+                    temp_sd = mean(tempmean)),
                 by = .(year, yearfactor)]
 
 
@@ -84,7 +87,8 @@ dat[, week := week(date), year]
 datweek <- dat[, .(haredensity = mean(haredensity),
                    mortrate = mean(mortrate),
                    snow = mean(snow),
-                   twig = mean(twig),
+                   biomass = mean(biomass),
+                   quality = mean(quality),
                    percap = mean(percap),
                    temp = mean(tempmean, na.rm = TRUE)),
                by = .(year, week)]
