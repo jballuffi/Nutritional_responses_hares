@@ -101,6 +101,6 @@ datannual <- dat2[, .(CP_dm = mean(CP_dm), ash = mean(ash), food = getmode(food)
 # save things -------------------------------------------------------------
 
 saveRDS(dat2, "Output/Data/fecal_protein.rds")
-saveRDS(datannual, "Output/fecal_protein_annual.rds")
+saveRDS(datannual, "Output/Data/fecal_protein_annual.rds")
 
 
