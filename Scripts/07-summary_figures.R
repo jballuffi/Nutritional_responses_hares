@@ -10,7 +10,7 @@ forag <- readRDS("Output/Data/foraging_weekly.rds")
 weights <- readRDS("Output/Data/weight_change.rds")
 winters <- readRDS("Output/Data/full_data_annual.rds")
 
-
+### REDO ALL OF THIS WITH NEW PLAN
 
 
 # plots that show annual trends -------------------------------------------
