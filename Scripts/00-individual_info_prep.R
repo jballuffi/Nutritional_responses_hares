@@ -74,8 +74,6 @@ trap[grid == "Agnes" | grid == "Chitty", snowgrid := "Agnes"]
 trap[grid == "Kloo" | grid == "Sulphur" | grid == "Chadbear" | grid == "Rolo" | grid == "Leroy", snowgrid := "Kloo"]
 trap[grid == "Jo", snowgrid := "Jo"]
 
-trap <- trap[!is.na(snowgrid)]
-
 
 
 # pull out individual sex and grid for other future scripts ---------------
@@ -156,23 +154,25 @@ wlossyes[, year := as.numeric(year)]
 wlossyes[, yearfactor := as.factor(year)]
 
 
-#wlossyes[, yearshort := substr(yearfactor, 3, 4)]
 
-forstan <- 
-  ggplot(wlossyes)+
-  geom_abline(intercept = 0, slope = 0, linetype = 2, color = "grey30")+
-  geom_boxplot(aes(x = yearfactor, y = weight.c.resid))+
-  ylim(-350, 350)+
-  labs(x = "Spring Year", y = "Weight change residual (g)")+
-  themepoints
+# extra figure for stan ---------------------------------------------------
 
-
-#remove 2015
-wlossyes <- wlossyes[year > 2015]
+# forstandat <- wlossyes[grid == "Silver"|grid == "Sulphur"|grid == "Chitty"]
+# forstandat <- forstandat[!is.na(sex)]
+# 
+# (forstan <- 
+#   ggplot(forstandat[sex == "female"])+
+#   geom_abline(intercept = 0, slope = 0, linetype = 2, color = "grey30")+
+#   geom_boxplot(aes(x = yearfactor, y = weight.s))+
+#   labs(x = "Spring Year", y = "Spring weight (g)", title = "Females only")+
+#   themepoints)
 
 
 
 # final data --------------------------------------------------------------
+
+#remove 2015
+wlossyes <- wlossyes[year > 2015]
 
 #take just rows with weight change
 wdata <- wlossyes[!is.na(weight.c)]
@@ -195,4 +195,4 @@ saveRDS(ind, "Output/Data/individual_info.rds")
 
 # #save figure
 # ggsave("Output/Figures/hodges_figure.jpeg", hodges, width = 6, height = 4, unit = "in")
-# ggsave("Output/Figures/forstan.jpeg", width = 12, height = 6, unit = "in")
+# ggsave("Output/Figures/forstan_spring2.jpeg", width = 12, height = 6, unit = "in")
