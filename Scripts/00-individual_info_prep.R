@@ -184,12 +184,6 @@ sdata <- wlossyes[!is.na(weight.s)]
 
 # save prepped data and figures -------------------------------------------------------
 
-# #save weight change data
-# saveRDS(wdata, "Output/Data/weight_change.rds")
-# 
-# #save spring weight data
-# saveRDS(sdata, "Output/Data/spring_weights.rds")
-
 #save individual sex and grid
 saveRDS(ind, "Output/Data/individual_info.rds")
 
