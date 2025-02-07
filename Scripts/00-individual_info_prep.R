@@ -155,6 +155,18 @@ wlossyes[, year := tstrsplit(winter, "-", keep = 2)]
 wlossyes[, year := as.numeric(year)]
 wlossyes[, yearfactor := as.factor(year)]
 
+
+#wlossyes[, yearshort := substr(yearfactor, 3, 4)]
+
+forstan <- 
+  ggplot(wlossyes)+
+  geom_abline(intercept = 0, slope = 0, linetype = 2, color = "grey30")+
+  geom_boxplot(aes(x = yearfactor, y = weight.c.resid))+
+  ylim(-350, 350)+
+  labs(x = "Spring Year", y = "Weight change residual (g)")+
+  themepoints
+
+
 #remove 2015
 wlossyes <- wlossyes[year > 2015]
 
@@ -183,3 +195,4 @@ saveRDS(ind, "Output/Data/individual_info.rds")
 
 # #save figure
 # ggsave("Output/Figures/hodges_figure.jpeg", hodges, width = 6, height = 4, unit = "in")
+# ggsave("Output/Figures/forstan.jpeg", width = 12, height = 6, unit = "in")
