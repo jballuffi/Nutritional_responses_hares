@@ -172,14 +172,14 @@ sdata <- wlossyes[!is.na(weight.s)]
 
 # save prepped data and figures -------------------------------------------------------
 
-#save weight change data
-saveRDS(wdata, "Output/Data/weight_change.rds")
-
-#save spring weight data
-saveRDS(sdata, "Output/Data/spring_weights.rds")
+# #save weight change data
+# saveRDS(wdata, "Output/Data/weight_change.rds")
+# 
+# #save spring weight data
+# saveRDS(sdata, "Output/Data/spring_weights.rds")
 
 #save individual sex and grid
 saveRDS(ind, "Output/Data/individual_info.rds")
 
-#save figure
-ggsave("Output/Figures/hodges_figure.jpeg", hodges, width = 6, height = 4, unit = "in")
+# #save figure
+# ggsave("Output/Figures/hodges_figure.jpeg", hodges, width = 6, height = 4, unit = "in")
