@@ -91,7 +91,7 @@ datweek <- dat[, .(haredensity = mean(haredensity),
                    quality = mean(quality),
                    percap = mean(percap),
                    temp = mean(tempmean, na.rm = TRUE)),
-               by = .(year, week)]
+               by = .(year, yearfactor, week)]
 
 
 # Figures and save --------------------------------------------------------
