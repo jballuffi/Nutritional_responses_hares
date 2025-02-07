@@ -98,6 +98,5 @@ datweek <- dat[, .(haredensity = mean(haredensity),
 
 setorder(dat, date)
 
-saveRDS(annual, "Output/Data/full_data_annual.rds")
 saveRDS(dat, "Output/Data/full_data_daily.rds")
 saveRDS(datweek, "Output/Data/full_data_weekly.rds")
