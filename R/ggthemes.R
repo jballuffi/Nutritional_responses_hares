@@ -19,7 +19,7 @@ themepoints <- theme(text = element_text(family = "serif"),
 
 themepoints_small <- theme(text = element_text(family = "serif"),
                      title = element_text(family = "serif"),
-                     axis.title = element_text(size=12, family = "serif"),
+                     axis.title = element_text(size=13, family = "serif"),
                      axis.text = element_text(size=8, family = "serif"),
                      legend.position = "right",
                      legend.key = element_blank(),
