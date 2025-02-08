@@ -3,6 +3,7 @@
 
 #TO DO: mixed models for daily. 
 #To do: make a full AIC function to shorten script
+#To do: whats the deal with sex?
 
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
@@ -33,21 +34,21 @@ summary(lm(forage ~ sex, data = foragcon))
 # AIC to explain weekly foraging for controls only ------------------------
 
 #models for controls only
-n <- lm(forage ~ 1 + sex, foragcon)
+n <- lm(forage ~ 1, foragcon)
 
-b <- lm(forage ~ biomass + sex, foragcon)
-pc <- lm(forage ~ percap + sex, foragcon)
-q <- lm(forage ~ quality + sex, foragcon)
+b <- lm(forage ~ biomass + temp + sex, foragcon)
+pc <- lm(forage ~ percap + temp + sex, foragcon)
+q <- lm(forage ~ quality + temp + sex, foragcon)
 
-h <- lm(forage ~ haredensity + sex, foragcon)
-m <- lm(forage ~ mortrate + sex, foragcon)
-t <- lm(forage ~ temp +sex, foragcon)
+h <- lm(forage ~ haredensity + temp + sex, foragcon)
+m <- lm(forage ~ mortrate + temp + sex, foragcon)
+#t <- lm(forage ~ temp + sex, foragcon)
 
 #list models
-mods <- list(n, b, pc, q, h, m, t)
+mods <- list(n, b, pc, q, h, m)
 
 #name models
-Names <- c('Null', 'Biomass', 'PerCap', 'Quality', 'Hares', 'Mortality', 'Temp')
+Names <- c('Null', 'Biomass', 'PerCap', 'Quality', 'Hares', 'Mortality')
 
 #make AIC table
 AICcon <- as.data.table(aictab(REML = F, cand.set = mods, modnames = Names, sort = TRUE))
@@ -72,10 +73,7 @@ setorder(AICcon, "Delta_AICc")
 
 
 
-
-
-
-#most parsimonious model is the twig availability with hares and lynx
+#most parsimonious model is the percapita and biomass
 summary(pc)
 pc_pred <- as.data.table(ggpredict(pc, terms = "percap"))
 
@@ -87,36 +85,26 @@ pc_pred <- as.data.table(ggpredict(pc, terms = "percap"))
   labs(x = "Weekly twig availability (kg/hare)", y = "Weekly foraging effort (hr/day)")+
   themepoints)
 
-summary(tw)
-tw_pred <- as.data.table(ggpredict(tw, terms = "twig"))
 
-(tw_fig <- 
-    ggplot()+
-    geom_point(aes(x = twig, y = forage), alpha = .3, data = foragcon)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = tw_pred)+
-    geom_line(aes(x = x, y = predicted), data = tw_pred)+
-    labs(x = "Weekly twig availability (kg/hectare)", y = "Weekly foraging effort (hr/day)")+
-    themepoints)
 
 
 # AIC to explain weekly foraging in food add data set ------------------------------------------------
 
 foodn <- lm(forage ~ 1, foragfood)
-foodf <- lm(forage ~ food, foragfood)
-foods <- lm(forage ~ food*snow, foragfood)
-foodtw <- lm(forage ~ food*twig, foragfood)
-foodpc <- lm(forage ~ food*percap, foragfood)
-foodh <- lm(forage ~ food*haredensity, foragfood)
-foodm <- lm(forage ~ food*mortrate, foragfood)
-foodte <- lm(forage ~ food*temp, foragfood)
+foodf <- lm(forage ~ food + temp, foragfood)
+foodb <- lm(forage ~ food*biomass + temp, foragfood)
+foodpc <- lm(forage ~ food*percap + temp, foragfood)
+foodh <- lm(forage ~ food*haredensity + temp, foragfood)
+foodm <- lm(forage ~ food*mortrate + temp, foragfood)
+#foodte <- lm(forage ~ food*temp, foragfood)
 
 #list models
-modsfood <- list(foodn, foodf, foods, foodtw, foodpc, 
-                 foodh, foodm, foodte)
+modsfood <- list(foodn, foodf, foodb, foodpc, 
+                 foodh, foodm)
 
 #name models
-Namesfood <- c('Null', 'Food', 'Food*Snow', 'Food*Twigs', 'Food*PerCap',
-               'Food*Hares', 'Food*Mortality', 'Food*Temp')
+Namesfood <- c('Null', 'Food', 'Food*Biomass', 'Food*PerCap',
+               'Food*Hares', 'Food*Mortality')
 
 #make AIC table
 AICfood <- as.data.table(aictab(REML = F, cand.set = modsfood, modnames = Namesfood, sort = TRUE))
@@ -137,20 +125,6 @@ R2sfood$Modnames <- Namesfood
 #merge R2s with AIC table
 AICfood <- merge(AICfood, R2sfood, by = "Modnames")
 setorder(AICfood, "Delta_AICc")
-
-foodte_pred <- as.data.table(ggpredict(foodte, terms = c("temp", "food")))
-setnames(foodte_pred, "group", "food")
-
-#top model = temp
-(foodte_fig <-
-  ggplot(foragfood)+
-  geom_point(aes(x = temp, y = forage, color = food), alpha = .2, data = foragfood)+
-  geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = .5, data = foodte_pred)+
-  geom_line(aes(x = x, y = predicted, color = food), data = foodte_pred)+
-  scale_color_manual(values = foodcols)+
-  scale_fill_manual(values = foodcols)+
-  labs(x = "Weekly mean temperature (C))", y = "Weekly foraging effort (hr)")+
-  themepoints)
 
 #not far behind = per cap
 foodpc_pred <- as.data.table(ggpredict(foodpc, terms = c("percap", "food")))
