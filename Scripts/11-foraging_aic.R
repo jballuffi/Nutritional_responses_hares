@@ -14,7 +14,7 @@ datweek <- readRDS("Output/Data/full_data_weekly.rds")
 
 # merge info and make a control and food add dataset --------
 
-forag <- merge(forag, datweek, by = c("year", "week"), all.x = TRUE)
+forag <- merge(forag, datweek, by = c("year", "yearfactor", "week"), all.x = TRUE)
 
 #get controls only
 foragcon <- forag[food == 0]
@@ -28,28 +28,26 @@ foragfood <- forag[winter %in% foodyears]
 #difference between foraging effort of males and control females?
 summary(lm(forage ~ sex, data = foragcon))
 
-ggplot(datweek)+
-  geom_path(aes(x = week, y = snow))+
-  facet_wrap(~year)
-
 
 
 # AIC to explain weekly foraging for controls only ------------------------
 
 #models for controls only
 n <- lm(forage ~ 1 + sex, foragcon)
-s <- lm(forage ~ snow + sex, foragcon)
-tw <- lm(forage ~ twig + sex, foragcon)
+
+b <- lm(forage ~ biomass + sex, foragcon)
 pc <- lm(forage ~ percap + sex, foragcon)
+q <- lm(forage ~ quality + sex, foragcon)
+
 h <- lm(forage ~ haredensity + sex, foragcon)
 m <- lm(forage ~ mortrate + sex, foragcon)
-te <- lm(forage ~ temp +sex, foragcon)
+t <- lm(forage ~ temp +sex, foragcon)
 
 #list models
-mods <- list(n, s, tw, pc, h, m, te)
+mods <- list(n, b, pc, q, h, m, t)
 
 #name models
-Names <- c('Null', 'Snow', 'Twigs', 'PerCap', 'Hares', 'Mortality', 'Temp')
+Names <- c('Null', 'Biomass', 'PerCap', 'Quality', 'Hares', 'Mortality', 'Temp')
 
 #make AIC table
 AICcon <- as.data.table(aictab(REML = F, cand.set = mods, modnames = Names, sort = TRUE))
@@ -71,6 +69,11 @@ R2scon$Modnames <- Names
 #merge R2s with AIC table
 AICcon <- merge(AICcon, R2scon, by = "Modnames")
 setorder(AICcon, "Delta_AICc")
+
+
+
+
+
 
 #most parsimonious model is the twig availability with hares and lynx
 summary(pc)
