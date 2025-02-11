@@ -171,6 +171,9 @@ wlossyes[, yearfactor := as.factor(year)]
 
 # final data --------------------------------------------------------------
 
+#get trapping nights
+trapnights <- trap[year > 2015, .(id, date)]
+
 #remove 2015
 wlossyes <- wlossyes[year > 2015]
 
@@ -186,6 +189,9 @@ sdata <- wlossyes[!is.na(weight.s)]
 
 #save individual sex and grid
 saveRDS(ind, "Output/Data/individual_info.rds")
+
+#save all trap nights
+saveRDS(trapnights, "Output/Data/trap_nights.rds")
 
 # #save figure
 # ggsave("Output/Figures/hodges_figure.jpeg", hodges, width = 6, height = 4, unit = "in")
