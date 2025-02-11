@@ -1,11 +1,13 @@
 
 # script to explain fecal protein content on a monthly basis
 
+#look at fecal in relation to daily environmental conditions. 
+# As opposed to foraging rates, which I think are better as weekly values.
 
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
-datweek <- readRDS("Output/Data/full_data_weekly.rds")
+dat <- readRDS("Output/Data/full_data_daily.rds")
 fecal <- readRDS("Output/Data/fecal_protein.rds")
 
 
