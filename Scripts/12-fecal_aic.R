@@ -1,33 +1,31 @@
 
-# script to explain fecal protein content on a monthly basis
-
-#look at fecal in relation to daily environmental conditions. 
-# As opposed to foraging rates, which I think are better as weekly values.
+# script to explain fecal protein content
 
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
+#read in data
 dat <- readRDS("Output/Data/full_data_daily.rds")
 fecal <- readRDS("Output/Data/fecal_protein.rds")
 
+#merge env data with fecal data
+fecal <- merge(fecal, dat, by = c("date", "year", "yearfactor", "winter", "m", "week"), all.x = TRUE)
 
-fecal <- merge(fecal, datweek, by = c("year", "week"), all.x = TRUE)
 
 
-N    <- lm(CP_dm ~ 1, fecal)
-food <- lm(CP_dm ~ food, fecal)
-snow <- lm(CP_dm ~ snow*food, fecal)
-twig <- lm(CP_dm ~ twig*food, fecal)
-pcap <- lm(CP_dm ~ percap*food, fecal)
-hare <- lm(CP_dm ~ haredensity*food, fecal)
-pred <- lm(CP_dm ~ mortrate*food, fecal)
+# run AIC -----------------------------------------------------------------
 
-mods <- list(N, food, snow, twig, 
-             pcap, hare, pred)
+#make models
+null    <- lm(CP_dm ~ 1, fecal)
+base <- lm(CP_dm ~ food + tempmean + sex + mortrate, fecal)
+biomass <- lm(CP_dm ~ biomass*food + tempmean + sex + mortrate, fecal)
+quality <- lm(CP_dm ~ quality*food + tempmean + sex + mortrate, fecal)
+pcap <- lm(CP_dm ~ percap*food + tempmean + sex + mortrate, fecal)
+hare <- lm(CP_dm ~ haredensity*food + tempmean + sex + mortrate, fecal)
 
-names <- c("Null", "Food", "Snow*Food", "Twig*Food", 
-           "PerCap*Food", "Hares*Food", "Mortality*Food")
-
+#list models and name
+mods <- list(null, base, biomass, quality, pcap, hare)
+names <- c("Null", "Base", "Biomass", "Quality", "PerCapita", "Density")
 
 #make AIC table
 AICfood <- as.data.table(aictab(REML = F, cand.set = mods, modnames = names, sort = TRUE))
@@ -50,23 +48,38 @@ AICfood <- merge(AICfood, R2sfood, by = "Modnames")
 setorder(AICfood, "Delta_AICc")
 
 
-summary(snow)
 
-ggplot(fecal)+
+# Results of top models ---------------------------------------------------
+
+#top model is quality
+summary(quality)
+qualpred <- ggpredict(quality, terms = c("quality", "food"))
+setnames(qualpred, "group", "food")
+
+qualfig <- 
+  ggplot()+
   geom_abline(intercept = 10, slope = 0, linetype = 2)+
-  geom_point(aes(x = snow, y = CP_dm, color = food), alpha = .2)+
-  geom_smooth(aes(x = snow, y = CP_dm, color = food, fill = food), method = "lm")+
+  geom_point(aes(x = quality, y = CP_dm, color = food), alpha = .2, data = fecal)+
+  geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.5, data = qualpred)+
+  geom_line(aes(x = x, y = predicted, color = food), data = qualpred)+
   scale_color_manual(values = foodcols)+
   scale_fill_manual(values = foodcols)+
-  labs(x = "Average monthly snow depth (cm)", y = "Fecal protein (%)")+
+  labs(x = "Twig solubility (cm)", y = "Fecal protein (%)")+
   themepoints
 
-summary(twig)
 
-ggplot(fecal)+
+
+#second top model is biomass
+summary(biomass)
+biopred <- ggpredict(biomass, terms = c("biomass", "food"))
+setnames(biopred, "group", "food")
+
+biofig <- 
+  ggplot()+
   geom_abline(intercept = 10, slope = 0, linetype = 2)+
-  geom_point(aes(x = twig, y = CP_dm, color = food), alpha = .2)+
-  geom_smooth(aes(x = twig, y = CP_dm, color = food, fill = food), method = "lm")+
+  geom_point(aes(x = biomass, y = CP_dm, color = food), alpha = .2, data = fecal)+
+  geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.5, data = biopred)+
+  geom_line(aes(x = x, y = predicted, color = food), data = biopred)+
   scale_color_manual(values = foodcols)+
   scale_fill_manual(values = foodcols)+
   labs(x = "Average willow available (g/m2)", y = "Fecal protein (%)")+
@@ -75,3 +88,6 @@ ggplot(fecal)+
 
 
 write.csv(AICfood, "Output/Tables/AIC_fecal_protein.csv")
+ggsave("Output/Figures/fecal_quality.jpeg", qualfig, width = 6, height = 5, unit = "in")
+ggsave("Output/Figures/fecal_biomass.jpeg", biofig, width = 6, height = 5, unit = "in")
+
