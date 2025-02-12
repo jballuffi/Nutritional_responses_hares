@@ -36,7 +36,7 @@ summary(lm(forage ~ sex, data = foragcon))
 #correlations: biomass and quality
 #              hare density and per cap
 
-cor(dat$biomass, dat$mortrate)
+cor(dat$quality, dat$snow)
 
 plot(foragcon$percap ~ foragcon$mortrate)
 
@@ -56,7 +56,7 @@ h <- lmer(forage ~ haredensity + temp + sex + mortrate + (1|id), foragcon) #hare
 mods <- list(n, st, b, pc, q, h)
 
 #name models
-Names <- c('Null', 'Base', 'Biomass', 'PerCap', 'Quality', 'Hares')
+Names <- c('Null', 'Base', 'Biomass', 'Per Capita', 'Quality', 'Density')
 
 #make AIC table
 AICcon <- as.data.table(aictab(REML = F, cand.set = mods, modnames = Names, sort = TRUE))
@@ -79,10 +79,14 @@ setorder(AICcon, "Delta_AICc")
 
 
 
+# top models  -------------------------------------------------------------
+
+#quality is the top model
 summary(q)
 q_pred <- as.data.table(ggpredict(q, terms = "quality"))
 
-(q_fig <- 
+#
+(qualfig <- 
     ggplot()+
     geom_point(aes(x = quality, y = forage), alpha = .3, data = foragcon)+
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = q_pred)+
@@ -90,10 +94,11 @@ q_pred <- as.data.table(ggpredict(q, terms = "quality"))
     labs(x = "Twig solubility (%)", y = "Weekly foraging effort (hr/day)")+
     themepoints)
 
+#second model is biomass
 summary(b)
 b_pred <- as.data.table(ggpredict(b, terms = "biomass"))
 
-(q_fig <- 
+(biofig <- 
     ggplot()+
     geom_point(aes(x = biomass, y = forage), alpha = .3, data = foragcon)+
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = b_pred)+
@@ -108,7 +113,7 @@ b_pred <- as.data.table(ggpredict(b, terms = "biomass"))
 
 #models for controls only
 foodnull <- lmer(forage ~ 1 + (1|id), foragfood) #null model
-foodbase <- lmer(forage ~ mortrate*food + food + temp + sex + (1|id), foragfood) #base model: temp and sex and mortality
+foodbase <- lmer(forage ~ food + temp + sex + mortrate + (1|id), foragfood) #base model: temp and sex and mortality
 foodb <- lmer(forage ~ biomass*food + temp + sex + mortrate + (1|id), foragfood) #biomass food
 foodpc <- lmer(forage ~ percap*food + temp + sex + mortrate + (1|id), foragfood) #percapita food
 foodq <- lmer(forage ~ quality*food + temp + sex + mortrate + (1|id), foragfood) #quality food
@@ -118,7 +123,7 @@ foodh <- lmer(forage ~ haredensity*food + temp + sex + mortrate + (1|id), foragf
 modsfood <- list(foodnull, foodbase, foodb, foodpc, foodq, foodh)
 
 #name models
-Namesfood <- c('Null', 'Base', 'Food*Biomass', 'Food*PerCap', 'Food*Quality', 'Food*Hares')
+Namesfood <- c('Null', 'Base', 'Biomass', 'Per Capita', 'Quality', 'Density')
 
 #make AIC table
 AICfood <- as.data.table(aictab(REML = F, cand.set = modsfood, modnames = Namesfood, sort = TRUE))
@@ -139,6 +144,9 @@ R2sfood$Modnames <- Namesfood
 AICfood <- merge(AICfood, R2sfood, by = "Modnames")
 setorder(AICfood, "Delta_AICc")
 
+
+
+# Top models for food AIC -------------------------------------------------
 
 #not far behind = per cap
 foodh_pred <- as.data.table(ggpredict(foodh, terms = c("haredensity", "food")))
@@ -173,12 +181,14 @@ setnames(foodpc_pred, "group", "food")
 
 # save --------------------------------------------------------------------
 
+#save results from control only AIC
 write.csv(AICcon, "Output/Tables/AIC_foraging_winter_controls.csv")
+ggsave("Output/Figures/foraging_quality.jpeg", qualfig, width = 6, height = 5, unit = "in")
+ggsave("Output/Figures/foraging_biomass.jpeg", biofig, width = 6, height = 5, unit = "in")
+
+
 write.csv(AICfood, "Output/Tables/AIC_foraging_winter_foods.csv")
+ggsave("Output/Figures/foraging_food_density.jpeg", foodh_fig, width = 6, height = 5, unit = "in")
+ggsave("Output/Figures/foraging_food_percapita.jpeg", foodpc_fig, width = 6, height = 5, unit = "in")
 
-ggsave("Output/Figures/foraging_percap_control.jpeg", pc_fig, width = 6, height = 5, unit = "in")
-ggsave("Output/Figures/foraging_twig_control.jpeg", tw_fig, width = 6, height = 5, unit = "in")
-
-ggsave("Output/Figures/foraging_percap_food.jpeg", foodpc_fig, width = 6, height = 5, unit = "in")
-ggsave("Output/Figures/foraging_temp_food.jpeg", foodte_fig, width = 6, height = 5, unit = "in")
 
