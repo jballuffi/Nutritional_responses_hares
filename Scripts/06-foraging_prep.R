@@ -113,8 +113,6 @@ behweek[, yearfactor := as.factor(year)]
 
 
 
-
-
 # Save --------------------------------------------------------------------
 
 behweek <- behweek[year > 2015]
