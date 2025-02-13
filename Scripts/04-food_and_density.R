@@ -78,7 +78,7 @@ annual <- dat[, .(phase = getmode(phase),
                     
                     temp = mean(tempmean, na.rm = TRUE),
                     temp_sd = mean(tempmean)),
-                by = .(year, yearfactor)]
+                by = .(year, yearfactor, snowgrid)]
 
 
 #get weekly values from full env dat to merge with forag data
@@ -91,7 +91,7 @@ datweek <- dat[, .(date = min(date),
                    biomass = mean(biomass),
                    percap = mean(percap),
                    temp = mean(tempmean, na.rm = TRUE)),
-               by = .(year, yearfactor, week)]
+               by = .(year, yearfactor, week, snowgrid)]
 
 
 # Figures and save --------------------------------------------------------
