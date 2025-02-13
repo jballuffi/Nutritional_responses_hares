@@ -1,4 +1,8 @@
 
+
+
+###Show grids now. Cut out un-used variables.
+
 #script for one into figure showing annual trends of data
 
 #source the R folder to load any packages and functions
