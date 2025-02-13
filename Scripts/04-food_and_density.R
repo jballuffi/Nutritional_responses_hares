@@ -27,12 +27,15 @@ food <- merge(snow, pred[, .(snow, biomassavail, NDSavail_comp)], by = "snow")
 #convert to kg/hectare by multiplying by 10
 food[, biomassavail := biomassavail*10]
 
+#convert biomass into soluble biomass
+food[, digbiomass := biomassavail*(NDSavail_comp/100)]
+
 
 
 # Get snow and twig availability daily ------------------------------------------------
 
 #get mean snow depth and willow availability by winter averaged across grids
-dfood <- food[, .(snow = mean(snow), biomass = mean(biomassavail), quality = mean(NDSavail_comp)), by = .(date, m, year, winter)]
+dfood <- food[, .(snow = mean(snow), biomass = mean(digbiomass)), by = .(date, snowgrid, m, year, winter)]
 
 
 
@@ -64,9 +67,6 @@ annual <- dat[, .(phase = getmode(phase),
                     biomass = mean(biomass),
                     biomass_sd = sd(biomass),
                     
-                    quality = mean(quality),
-                    quality_sd = sd(quality),
-                    
                     haredensity = mean(haredensity),
                     haredensity_sd = sd(haredensity),
                     
@@ -89,7 +89,6 @@ datweek <- dat[, .(date = min(date),
                    mortrate = mean(mortrate),
                    snow = mean(snow),
                    biomass = mean(biomass),
-                   quality = mean(quality),
                    percap = mean(percap),
                    temp = mean(tempmean, na.rm = TRUE)),
                by = .(year, yearfactor, week)]

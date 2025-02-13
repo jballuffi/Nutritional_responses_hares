@@ -7,8 +7,6 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 #import hare densities
 hdensity <- fread("Input/Hare_density_monthly.csv")
 
-#hare densities are in hares/hectare
-
 
 
 # clean hare density ------------------------------------------------------
