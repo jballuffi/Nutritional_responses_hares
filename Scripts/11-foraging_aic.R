@@ -1,9 +1,7 @@
 
 #script to assess how environmental factors impact foraging rates on a winter and daily basis
 
-#TO DO: mixed models for daily.
 #To do: make a full AIC function to shorten script
-#To do: whats the deal with sex?
 
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
@@ -15,7 +13,7 @@ dat <- readRDS("Output/Data/full_data_weekly.rds")
 
 # merge info and make a control and food add dataset --------
 
-forag <- merge(forag, dat, by = c("year", "yearfactor", "week"), all.x = TRUE)
+forag <- merge(forag, dat, by = c("year", "yearfactor", "week", "snowgrid"), all.x = TRUE)
 
 #get controls only
 foragcon <- forag[food == 0]
@@ -24,7 +22,7 @@ foragcon <- forag[food == 0]
 foodyears <- forag[food == 1, unique(winter)]
 
 #take only females for food add comparisons
-foragfood <- forag[winter %in% foodyears]
+foragfood <- forag[winter %in% foodyears & sex == female]
 
 #difference between foraging effort of males and control females?
 summary(lm(forage ~ sex, data = foragcon))
