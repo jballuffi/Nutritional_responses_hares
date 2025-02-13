@@ -36,21 +36,21 @@ summary(lm(forage ~ sex, data = foragcon))
 #correlations: biomass and quality
 #              hare density and per cap
 
-cor(dat$quality, dat$snow)
+cor(dat$percap, dat$biomass)
 
-plot(foragcon$percap ~ foragcon$mortrate)
+plot(foragcon$percap ~ foragcon$biomass)
 
 
 
 # AIC to explain weekly foraging for controls only ------------------------
 
 #models for controls only
-n <- lmer(forage ~ 1 + (1|id), foragcon) #null model
-st <- lmer(forage ~ temp + sex + mortrate + (1|id), foragcon) #base model: temp and sex and mortality
-b <- lmer(forage ~ biomass + temp + sex + mortrate + (1|id), foragcon) #biomass food
-pc <- lmer(forage ~ percap + temp + sex + mortrate + (1|id), foragcon) #percapita food
-q <- lmer(forage ~ quality + temp + sex + mortrate + (1|id), foragcon) #quality food
-h <- lmer(forage ~ haredensity + temp + sex + mortrate + (1|id), foragcon) #hare density
+n <- lmer(forage ~ 1 + (1|id), foragfood[food == 0]) #null model
+st <- lmer(forage ~ temp + sex + mortrate + (1|id), foragfood[food == 0]) #base model: temp and sex and mortality
+b <- lmer(forage ~ biomass + temp + sex + mortrate + (1|id), foragfood[food == 0]) #biomass food
+pc <- lmer(forage ~ percap + temp + sex + mortrate + (1|id), foragfood[food == 0]) #percapita food
+q <- lmer(forage ~ quality + temp + sex + mortrate + (1|id), foragfood[food == 0]) #quality food
+h <- lmer(forage ~ haredensity + temp + sex + mortrate + (1|id), foragfood[food == 0]) #hare density
 
 #list models
 mods <- list(n, st, b, pc, q, h)
