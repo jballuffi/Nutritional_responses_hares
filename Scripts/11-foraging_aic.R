@@ -22,42 +22,53 @@ foragcon <- forag[food == 0]
 foodyears <- forag[food == 1, unique(winter)]
 
 #take only females for food add comparisons
-foragfood <- forag[winter %in% foodyears & sex == female]
-
-#difference between foraging effort of males and control females?
-summary(lm(forage ~ sex, data = foragcon))
+foragfood <- forag[winter %in% foodyears & sex == "female"]
 
 
 
 # look at potential correlations within data ------------------------------
 
-#correlations: biomass and quality
-#              hare density and per cap
-
 cor(dat$percap, dat$biomass)
+cor(dat$percap, dat$mortrate)
+cor(dat$percap, dat$temp)
 
-plot(foragcon$percap ~ foragcon$biomass)
+cor(dat$temp, dat$biomass)
+cor(dat$temp, dat$mortrate)
+
+cor(dat$biomass, dat$mortrate)
 
 
 
 # AIC to explain weekly foraging for controls only ------------------------
 
 #models for controls only
-n <- lmer(forage ~ 1 + (1|id), foragfood[food == 0]) #null model
-st <- lmer(forage ~ temp + sex + mortrate + (1|id), foragfood[food == 0]) #base model: temp and sex and mortality
-b <- lmer(forage ~ biomass + temp + sex + mortrate + (1|id), foragfood[food == 0]) #biomass food
-pc <- lmer(forage ~ percap + temp + sex + mortrate + (1|id), foragfood[food == 0]) #percapita food
-q <- lmer(forage ~ quality + temp + sex + mortrate + (1|id), foragfood[food == 0]) #quality food
-h <- lmer(forage ~ haredensity + temp + sex + mortrate + (1|id), foragfood[food == 0]) #hare density
+n <- lmer(forage ~ 1 + (1|id), foragcon) #null model
+
+b <- lmer(forage ~ biomass + sex + nightlength + (1|id), foragcon) #biomass food
+p <- lmer(forage ~ percap + sex + nightlength + (1|id), foragcon) #percapita food
+m <- lmer(forage ~ mortrate + sex + nightlength + (1|id), foragcon) #predation risk/mortality rate
+t <- lmer(forage ~ temp + sex + nightlength + (1|id), foragcon) #temperature
+
+bm <- lmer(forage ~ biomass + mortrate + sex + nightlength + (1|id), foragcon) #biomass and mortality
+bt <- lmer(forage ~ biomass + temp + sex + nightlength + (1|id), foragcon) #biomass and temp
+pm <- lmer(forage ~ percap + mortrate + sex + nightlength + (1|id), foragcon) #percap and mortality
+pt <- lmer(forage ~ percap + temp + sex + nightlength + (1|id), foragcon) #percap and temp
+mt <- lmer(forage ~ mortrate + temp + sex + nightlength + (1|id), foragcon) #mortality and temp
+
+#bmt <- lmer(forage ~ biomass + mortrate + temp + sex + nightlength + (1|id), foragcon)
+#pmt <- lmer(forage ~ percap + mortrate + temp + sex + nightlength + (1|id), foragcon)
+
 
 #list models
-mods <- list(n, st, b, pc, q, h)
+mods <- list(n, b, p, m, t,
+             bm, bt, pm, pt, mt)
 
 #name models
-Names <- c('Null', 'Base', 'Biomass', 'Per Capita', 'Quality', 'Density')
+Names <- c("Null", "SB", "PC", "M", "T",
+           "SB + M", "SB + T", "PC + M", "PC + T", "M + T")
 
 #make AIC table
-AICcon <- as.data.table(aictab(REML = F, cand.set = mods, modnames = Names, sort = TRUE))
+AICcon <- as.data.table(aictab(cand.set = mods, sort = TRUE, modnames = Names))
 
 #remove unwanted columns
 AICcon[, ModelLik := NULL]
@@ -77,33 +88,29 @@ setorder(AICcon, "Delta_AICc")
 
 
 
-# top models  -------------------------------------------------------------
+# top model  -------------------------------------------------------------
 
-#quality is the top model
-summary(q)
-q_pred <- as.data.table(ggpredict(q, terms = "quality"))
-
-#
-(qualfig <- 
-    ggplot()+
-    geom_point(aes(x = quality, y = forage), alpha = .3, data = foragcon)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = q_pred)+
-    geom_line(aes(x = x, y = predicted), data = q_pred)+
-    labs(x = "Twig solubility (%)", y = "Weekly foraging effort (hr/day)")+
-    themepoints)
-
-#second model is biomass
-summary(b)
-b_pred <- as.data.table(ggpredict(b, terms = "biomass"))
+#biomass and temperature
+summary(bt)
+b_pred <- as.data.table(ggpredict(bt, terms = c("biomass")))
 
 (biofig <- 
     ggplot()+
     geom_point(aes(x = biomass, y = forage), alpha = .3, data = foragcon)+
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = b_pred)+
     geom_line(aes(x = x, y = predicted), data = b_pred)+
-    labs(x = "Twig biomass (hare/ha)", y = "Weekly foraging effort (hr/day)")+
+    labs(x = "Soluble biomass (hare/ha)", y = "Weekly foraging effort (hr/day)")+
     themepoints)
 
+t_pred <- as.data.table(ggpredict(bt, terms = c("temp")))
+
+(biofig <- 
+    ggplot()+
+    geom_point(aes(x = temp, y = forage), alpha = .3, data = foragcon)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = t_pred)+
+    geom_line(aes(x = x, y = predicted), data = t_pred)+
+    labs(x = "Mean daily temperature (C)", y = "Weekly foraging effort (hr/day)")+
+    themepoints)
 
 
 
