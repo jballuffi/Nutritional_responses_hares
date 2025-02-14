@@ -5,27 +5,34 @@
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
 #read in data
-dat <- readRDS("Output/Data/full_data_daily.rds")
+dat <- readRDS("Output/Data/full_data_daily_nogrid.rds")
 fecal <- readRDS("Output/Data/fecal_protein.rds")
 
 #merge by date and snowgrid
-fecal <- merge(fecal, dat, by = c("date", "year", "yearfactor", "snowgrid"), all.x = TRUE)
+fecal <- merge(fecal, dat, by = c("date", "year", "yearfactor"), all.x = TRUE)
 
 
 
 # run AIC -----------------------------------------------------------------
 
 #make models
-null    <- lm(CP_dm ~ 1, fecal)
-base <- lm(CP_dm ~ food + tempmean + sex + mortrate, fecal)
-biomass <- lm(CP_dm ~ biomass*food + tempmean + sex + mortrate, fecal)
-quality <- lm(CP_dm ~ quality*food + tempmean + sex + mortrate, fecal)
-pcap <- lm(CP_dm ~ percap*food + tempmean + sex + mortrate, fecal)
-hare <- lm(CP_dm ~ haredensity*food + tempmean + sex + mortrate, fecal)
+null <- lm(CP_dm ~ 1, fecal)
+
+S1 <- lm(CP_dm ~ biomass*food, fecal)
+S2 <- lm(CP_dm ~ percap*food, fecal)
+S3 <- lm(CP_dm ~ mortrate*food, fecal)
+S4 <- lm(CP_dm ~ temp*food, fecal)
+
+D1 <- lm(CP_dm ~ biomass*food + mortrate*food, fecal)
+D2 <- lm(CP_dm ~ biomass*food + temp*food, fecal)
+D3 <- lm(CP_dm ~ percap*food + mortrate*food, fecal)
+D4 <- lm(CP_dm ~ percap*food + temp*food, fecal)
+D5 <- lm(CP_dm ~ mortrate*food + temp*food, fecal)
+
 
 #list models and name
-mods <- list(null, base, biomass, quality, pcap, hare)
-names <- c("Null", "Base", "Biomass", "Quality", "PerCapita", "Density")
+mods <- list(null, S1, S2, S3, S4, D1, D2, D3, D4, D5)
+names <- c("Null", "S1", "S2", "S3", "S4", "D1", "D2", "D3", "D4", "D5")
 
 #make AIC table
 AICfood <- as.data.table(aictab(REML = F, cand.set = mods, modnames = names, sort = TRUE))
@@ -51,43 +58,41 @@ setorder(AICfood, "Delta_AICc")
 
 # Results of top models ---------------------------------------------------
 
-#top model is quality
-summary(quality)
-qualpred <- ggpredict(quality, terms = c("quality", "food"))
-setnames(qualpred, "group", "food")
-
-qualfig <- 
-  ggplot()+
-  geom_abline(intercept = 10, slope = 0, linetype = 2)+
-  geom_point(aes(x = quality, y = CP_dm, color = food), alpha = .2, data = fecal)+
-  geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.5, data = qualpred)+
-  geom_line(aes(x = x, y = predicted, color = food), data = qualpred)+
-  scale_color_manual(values = foodcols)+
-  scale_fill_manual(values = foodcols)+
-  labs(x = "Twig solubility (cm)", y = "Fecal protein (%)")+
-  themepoints
-
-
-
-#second top model is biomass
-summary(biomass)
-biopred <- ggpredict(biomass, terms = c("biomass", "food"))
+summary(D2)
+biopred <- ggpredict(D2, terms = c("biomass", "food"))
 setnames(biopred, "group", "food")
 
-biofig <- 
+(biofig <- 
   ggplot()+
   geom_abline(intercept = 10, slope = 0, linetype = 2)+
   geom_point(aes(x = biomass, y = CP_dm, color = food), alpha = .2, data = fecal)+
   geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.5, data = biopred)+
   geom_line(aes(x = x, y = predicted, color = food), data = biopred)+
-  scale_color_manual(values = foodcols)+
-  scale_fill_manual(values = foodcols)+
-  labs(x = "Average willow available (g/m2)", y = "Fecal protein (%)")+
-  themepoints
+  scale_color_manual(values = foodcols, name = "Food treatment:")+
+  scale_fill_manual(values = foodcols, name = "Food treatment:")+
+  labs(x = "Soluble biomass (kg/ha)", y = "Fecal protein (%)")+
+  themepoints_top)
+
+temppred <- ggpredict(D2, terms = c("temp", "food"))
+setnames(temppred, "group", "food")
+
+(tempfig <- 
+    ggplot()+
+    geom_abline(intercept = 10, slope = 0, linetype = 2)+
+    geom_point(aes(x = temp, y = CP_dm, color = food), alpha = .2, data = fecal)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.5, data = temppred)+
+    geom_line(aes(x = x, y = predicted, color = food), data = temppred)+
+    scale_color_manual(values = foodcols, guide = NULL)+
+    scale_fill_manual(values = foodcols, guide = NULL)+
+    labs(x = "Daily temperature (C)", y = "Fecal protein (%)")+
+    themepoints_top)
+
+fecalfig <- ggarrange(biofig, tempfig, nrow = 2, ncol = 1)
 
 
+
+# save --------------------------------------------------------------------
 
 write.csv(AICfood, "Output/Tables/AIC_fecal_protein.csv")
-ggsave("Output/Figures/fecal_quality.jpeg", qualfig, width = 6, height = 5, unit = "in")
-ggsave("Output/Figures/fecal_biomass.jpeg", biofig, width = 6, height = 5, unit = "in")
+ggsave("Output/Figures/fecal_results.jpeg", fecalfig, width = 5, height = 8, unit = "in")
 
