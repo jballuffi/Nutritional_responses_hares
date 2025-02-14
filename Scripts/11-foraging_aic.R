@@ -133,7 +133,7 @@ setnames(foodt_pred, "group", "food")
     geom_line(aes(x = x, y = predicted, color = food), data = foodt_pred)+
     scale_color_manual(values = foodcols, guide = NULL)+
     scale_fill_manual(values = foodcols, guide = NULL)+
-    labs(x = "Mean daily temperatre (C)", y = "Foraging effort (hr)")+
+    labs(x = "Daily temperatre (C)", y = "Foraging effort (hr)")+
     themepoints_top)
 
 foodfig <- ggarrange(foodb_fig, foodt_fig, nrow = 2, ncol = 1)
