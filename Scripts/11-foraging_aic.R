@@ -139,33 +139,18 @@ setorder(AICfood, "Delta_AICc")
 # Top models for food AIC -------------------------------------------------
 
 #not far behind = per cap
-foodh_pred <- as.data.table(ggpredict(foodh, terms = c("haredensity", "food")))
-setnames(foodh_pred, "group", "food")
+foodt_pred <- as.data.table(ggpredict(foodt, terms = c("temp", "food")))
+setnames(foodt_pred, "group", "food")
 
 (foodh_fig <- 
     ggplot()+
-    geom_point(aes(x = haredensity, y = forage, color = food), alpha = .2, data = foragfood)+
-    geom_ribbon(aes(x = x, ymax = conf.high, ymin = conf.low, fill = food), alpha = .5, data = foodh_pred)+
-    geom_line(aes(x = x, y = predicted, color = food), data = foodh_pred)+
+    geom_point(aes(x = temp, y = forage, color = food), alpha = .2, data = foragfood)+
+    geom_ribbon(aes(x = x, ymax = conf.high, ymin = conf.low, fill = food), alpha = .5, data = foodt_pred)+
+    geom_line(aes(x = x, y = predicted, color = food), data = foodt_pred)+
     scale_color_manual(values = foodcols)+
     scale_fill_manual(values = foodcols)+
     labs(x = "Hare density (hare/ha)", y = "Weekly foraging effort (hr)")+
     themepoints)
-
-
-#not far behind = per cap
-foodpc_pred <- as.data.table(ggpredict(foodpc, terms = c("percap", "food")))
-setnames(foodpc_pred, "group", "food")
-
-(foodpc_fig <- 
-  ggplot()+
-  geom_point(aes(x = percap, y = forage, color = food), alpha = .2, data = foragfood)+
-  geom_ribbon(aes(x = x, ymax = conf.high, ymin = conf.low, fill = food), alpha = .5, data = foodpc_pred)+
-  geom_line(aes(x = x, y = predicted, color = food), data = foodpc_pred)+
-  scale_color_manual(values = foodcols)+
-  scale_fill_manual(values = foodcols)+
-  labs(x = "Weekly twig availability (kg/hare)", y = "Weekly foraging effort (hr)")+
-  themepoints)
 
 
 
