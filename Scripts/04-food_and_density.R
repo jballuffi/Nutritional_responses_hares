@@ -32,65 +32,41 @@ food[, digbiomass := biomassavail*(NDSavail_comp/100)]
 
 
 
-# Get snow and twig availability daily ------------------------------------------------
-
-#get mean snow depth and willow availability by winter averaged across grids
-dfood <- food[, .(snow = mean(snow), biomass = mean(digbiomass)), by = .(date, snowgrid, m, year, winter)]
-
-
-
 # merge with density and snow data ----------------------------------------------------
 
 #merge daily snow and food data with density
-daily <- merge(dfood, density[, 4:7], by = c("date"), all = TRUE)
+daily <- merge(food, density[, 4:7], by = c("date"), all = TRUE)
 
 #calculate the per capita twig availability
-daily[, twigpergrid := biomass*36 ] #kg/grid
+daily[, twigpergrid := digbiomass*36 ] #kg/grid
 daily[, harespergrid := haredensity*36] #hares/grid
 daily[, percap := twigpergrid/harespergrid] #kg/hare
 
 #merge with temp data
 daily <- merge(daily, temp[, 1:3], by = "date", all = TRUE)
 
-#cut out years without data
-dat <- daily[year > 2015 & !year == 2022]
+#make a week column
+daily[, week := week(date), year]
 
 #make a year factor col
-dat[, yearfactor := as.factor(year)]
-
-#get annual means for each value of interest
-annual <- dat[, .(phase = getmode(phase),
-                    
-                    snow = mean(snow),
-                    snow_sd = sd(snow),
-                    
-                    biomass = mean(biomass),
-                    biomass_sd = sd(biomass),
-                    
-                    haredensity = mean(haredensity),
-                    haredensity_sd = sd(haredensity),
-                    
-                    mortrate = mean(mortrate),
-                    mortrate_sd = sd(mortrate),
-                    
-                    percap = mean(percap),
-                    percap_sd = sd(percap),
-                    
-                    temp = mean(tempmean, na.rm = TRUE),
-                    temp_sd = mean(tempmean)),
-                by = .(year, yearfactor, snowgrid)]
+daily[, yearfactor := as.factor(year)]
 
 
-#get weekly values from full env dat to merge with forag data
-dat[, week := week(date), year]
+
+# make final data ---------------------------------------------------------
+
+#cut out years without data
+daily <- daily[year > 2015 & !year == 2022]
+
+#take variables of interest
+dat <- daily[, .(snowgrid, date, week, year, yearfactor, biomass = digbiomass, percap, mortrate, temp = tempmean)]
+
 
 datweek <- dat[, .(date = min(date),
-                   haredensity = mean(haredensity),
                    mortrate = mean(mortrate),
-                   snow = mean(snow),
                    biomass = mean(biomass),
                    percap = mean(percap),
-                   temp = mean(tempmean, na.rm = TRUE)),
+                   temp = mean(temp, na.rm = TRUE)),
                by = .(year, yearfactor, week, snowgrid)]
 
 
