@@ -13,7 +13,8 @@ dat <- readRDS("Output/Data/full_data_weekly.rds")
 
 # merge info and make a control and food add dataset --------
 
-forag <- merge(forag, dat, by = c("year", "yearfactor", "week", "snowgrid"), all.x = TRUE)
+#merge by week and snowgrid
+forag <- merge(forag, dat, by = c("week", "year", "yearfactor", "snowgrid"), all.x = TRUE)
 
 #get controls only
 foragcon <- forag[food == 0]
@@ -44,20 +45,18 @@ cor(dat$biomass, dat$mortrate)
 #models for controls only
 n <- lmer(forage ~ 1 + (1|id), foragcon) #null model
 
+#single terms 
 b <- lmer(forage ~ biomass + sex + nightlength + (1|id), foragcon) #biomass food
 p <- lmer(forage ~ percap + sex + nightlength + (1|id), foragcon) #percapita food
 m <- lmer(forage ~ mortrate + sex + nightlength + (1|id), foragcon) #predation risk/mortality rate
 t <- lmer(forage ~ temp + sex + nightlength + (1|id), foragcon) #temperature
 
+#double terms 
 bm <- lmer(forage ~ biomass + mortrate + sex + nightlength + (1|id), foragcon) #biomass and mortality
 bt <- lmer(forage ~ biomass + temp + sex + nightlength + (1|id), foragcon) #biomass and temp
 pm <- lmer(forage ~ percap + mortrate + sex + nightlength + (1|id), foragcon) #percap and mortality
 pt <- lmer(forage ~ percap + temp + sex + nightlength + (1|id), foragcon) #percap and temp
 mt <- lmer(forage ~ mortrate + temp + sex + nightlength + (1|id), foragcon) #mortality and temp
-
-#bmt <- lmer(forage ~ biomass + mortrate + temp + sex + nightlength + (1|id), foragcon)
-#pmt <- lmer(forage ~ percap + mortrate + temp + sex + nightlength + (1|id), foragcon)
-
 
 #list models
 mods <- list(n, b, p, m, t,
@@ -118,17 +117,16 @@ t_pred <- as.data.table(ggpredict(bt, terms = c("temp")))
 
 #models for controls only
 foodnull <- lmer(forage ~ 1 + (1|id), foragfood) #null model
-foodbase <- lmer(forage ~ food + temp + sex + mortrate + (1|id), foragfood) #base model: temp and sex and mortality
-foodb <- lmer(forage ~ biomass*food + temp + sex + mortrate + (1|id), foragfood) #biomass food
-foodpc <- lmer(forage ~ percap*food + temp + sex + mortrate + (1|id), foragfood) #percapita food
-foodq <- lmer(forage ~ quality*food + temp + sex + mortrate + (1|id), foragfood) #quality food
-foodh <- lmer(forage ~ haredensity*food + temp + sex + mortrate + (1|id), foragfood) #hare density
+foodb <- lmer(forage ~ biomass*food + nightlength + (1|id), foragfood) #biomass food
+foodp <- lmer(forage ~ percap*food + nightlength + (1|id), foragfood) #percapita food
+foodm <- lmer(forage ~ mortrate*food + nightlength + (1|id), foragfood) #quality food
+foodt <- lmer(forage ~ temp*food + nightlength + (1|id), foragfood) #hare density
 
 #list models
-modsfood <- list(foodnull, foodbase, foodb, foodpc, foodq, foodh)
+modsfood <- list(foodnull, foodb, foodp, foodm, foodt)
 
 #name models
-Namesfood <- c('Null', 'Base', 'Biomass', 'Per Capita', 'Quality', 'Density')
+Namesfood <- c('Null', 'Biomass', 'Per Capita', 'Predation', 'Temperature')
 
 #make AIC table
 AICfood <- as.data.table(aictab(REML = F, cand.set = modsfood, modnames = Namesfood, sort = TRUE))
