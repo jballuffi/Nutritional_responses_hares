@@ -8,7 +8,7 @@
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
-dat <- readRDS("Output/Data/full_data_weekly.rds")
+dat <- readRDS("Output/Data/full_data_weekly_nogrid.rds")
 fecal <- readRDS("Output/Data/fecal_protein.rds")
 forag <- readRDS("Output/Data/foraging_weekly.rds")
 
@@ -21,7 +21,7 @@ forag <- readRDS("Output/Data/foraging_weekly.rds")
     geom_abline(intercept = 10, slope = 0, linetype = 2)+
     geom_boxplot(aes(x = yearfactor, y = CP_dm, fill = food), alpha = .5, outlier.shape = NA)+
     labs(y = "Fecal crude protein (%)", x = "", title = "A)")+
-    scale_fill_manual(values = foodcols)+
+    scale_fill_manual(values = foodcols, name = "Food")+
     themepoints)
 
 (foraging <- 
@@ -55,8 +55,6 @@ sumdepfig <- ggarrange(feces, foraging, nrow = 2, ncol = 1)
     facet_wrap(~year, scales = "free_x")+
     themepoints_small)
 
-nonfood <- ggarrange(tweek, mweek, ncol = 1, nrow = 2)
-
 
 
 # Food variables ----------------------------------------------------------
@@ -65,8 +63,7 @@ nonfood <- ggarrange(tweek, mweek, ncol = 1, nrow = 2)
 (bweek <- 
     ggplot(dat)+
     geom_abline(intercept = median(dat$biomass, na.rm = TRUE), slope = 0, linetype = 2)+
-    geom_line(aes(x = date, y = biomass, color = snowgrid), linewidth = .8)+
-    scale_color_manual(values = gridcols, name = "Grid")+
+    geom_line(aes(x = date, y = biomass), linewidth = .8)+
     labs(y = "Soluble biomass (kg/ha)", x = "")+
     facet_wrap(~year, scales = "free_x")+
     themepoints_small)
@@ -75,20 +72,18 @@ nonfood <- ggarrange(tweek, mweek, ncol = 1, nrow = 2)
 (pcweek <- 
     ggplot(dat)+
     geom_abline(intercept = median(dat$percap, na.rm = TRUE), slope = 0, linetype = 2)+
-    geom_line(aes(x = date, y = percap, color = snowgrid), linewidth = .8)+
-    scale_color_manual(values = gridcols, name = "Grid")+
+    geom_line(aes(x = date, y = percap), linewidth = .8)+
     labs(y = "Per capita soluble biomass (kg/hare)", x = "")+
     facet_wrap(~year, scales = "free_x")+
     themepoints_small)
 
-food <- ggarrange(bweek, pcweek, ncol = 1, nrow = 2)
+sumindfig <- ggarrange(tweek, mweek, bweek, pcweek, ncol = 2, nrow = 2)
 
 
 
 # save -----------------------------------------
 
-ggsave("Output/Figures/food_weekly.jpeg", food, width = 6, height = 10, unit = "in")
-ggsave("Output/Figures/nonfood_weekly.jpeg", nonfood, width = 6, height = 10, unit = "in")
-ggsave("Output/Figures/dep_var_figure.jpeg", sumdepfig, width = 5, height = 8, unit = "in")
+ggsave("Output/Figures/vars_weekly.jpeg", sumindfig, width = 10, height = 10, unit = "in")
+ggsave("Output/Figures/dep_vars_.jpeg", sumdepfig, width = 5, height = 8, unit = "in")
 
 
