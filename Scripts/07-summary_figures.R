@@ -37,67 +37,58 @@ sumdepfig <- ggarrange(feces, foraging, nrow = 2, ncol = 1)
 
 # Non-food variables ------------------------------------------------------
 
-(dweek <- 
-    ggplot(dat)+
-    geom_abline(intercept = median(dat$haredensity, na.rm = TRUE), slope = 0, linetype = 2)+
-    geom_line(aes(x = date, y = haredensity))+
-    labs(y = "Hare density (hare/ha)", x = "")+
-    facet_wrap(~year, scales = "free_x")+
-    themepoints_small)
-
+#mortality rate
 (mweek <- 
     ggplot(dat)+
     geom_abline(intercept = median(dat$mortrate, na.rm = TRUE), slope = 0, linetype = 2)+
-    geom_line(aes(x = date, y = mortrate))+
+    geom_line(aes(x = date, y = mortrate), linewidth = .8)+
     labs(y = "Mortality rate", x = "")+
     facet_wrap(~year, scales = "free_x")+
     themepoints_small)
 
+#temperature
 (tweek <- 
     ggplot(dat)+
     geom_abline(intercept = median(dat$temp, na.rm = TRUE), slope = 0, linetype = 2)+
-    geom_line(aes(x = date, y = temp))+
+    geom_line(aes(x = date, y = temp), linewidth = .8)+
     labs(y = "Temperature (C)", x = "")+
     facet_wrap(~year, scales = "free_x")+
     themepoints_small)
 
+nonfood <- ggarrange(tweek, mweek, ncol = 1, nrow = 2)
 
 
-# Food variables ------------------------------------------------
 
-#biomass
+# Food variables ----------------------------------------------------------
+
+#soluble biomass per hectare
 (bweek <- 
     ggplot(dat)+
-   geom_abline(intercept = median(dat$biomass, na.rm = TRUE), slope = 0, linetype = 2)+
-    geom_line(aes(x = date, y = biomass))+
-    labs(y = "Biomass availability (kg/ha)", x = "")+
+    geom_abline(intercept = median(dat$biomass, na.rm = TRUE), slope = 0, linetype = 2)+
+    geom_line(aes(x = date, y = biomass, color = snowgrid), linewidth = .8)+
+    scale_color_manual(values = gridcols, name = "Grid")+
+    labs(y = "Soluble biomass (kg/ha)", x = "")+
     facet_wrap(~year, scales = "free_x")+
     themepoints_small)
 
+#soluble biomass per hare
 (pcweek <- 
     ggplot(dat)+
     geom_abline(intercept = median(dat$percap, na.rm = TRUE), slope = 0, linetype = 2)+
-    geom_line(aes(x = date, y = percap))+
-    labs(y = "Per capita availability (kg/hare)", x = "")+
+    geom_line(aes(x = date, y = percap, color = snowgrid), linewidth = .8)+
+    scale_color_manual(values = gridcols, name = "Grid")+
+    labs(y = "Per capita soluble biomass (kg/hare)", x = "")+
     facet_wrap(~year, scales = "free_x")+
     themepoints_small)
 
-(qweek <- 
-    ggplot(dat)+
-    geom_abline(intercept = median(dat$quality, na.rm = TRUE), slope = 0, linetype = 2)+
-    geom_line(aes(x = date, y = quality))+
-    labs(y = "Solubility (NDS; %)", x = "")+
-    facet_wrap(~year, scales = "free_x")+
-    themepoints_small)
-
-
-weeklyfig <- ggarrange(dweek, mweek, tweek, bweek, pcweek, qweek, ncol = 2, nrow = 3)
+food <- ggarrange(bweek, pcweek, ncol = 1, nrow = 2)
 
 
 
 # save -----------------------------------------
 
-ggsave("Output/Figures/food_weekly.jpeg", weeklyfig, width = 10, height = 12, unit = "in")
+ggsave("Output/Figures/food_weekly.jpeg", food, width = 6, height = 10, unit = "in")
+ggsave("Output/Figures/nonfood_weekly.jpeg", nonfood, width = 6, height = 10, unit = "in")
 ggsave("Output/Figures/dep_var_figure.jpeg", sumdepfig, width = 5, height = 8, unit = "in")
 
 

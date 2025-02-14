@@ -53,6 +53,8 @@ themepoints_top <- theme(text = element_text(family = "serif"),
 
 
 
+gridcols <- c("Agnes" = "grey30", "Kloo" = "blue3", "Jo" = "orange")
 
 foodcols <- c("0" = "grey40", "1" = "red3")
-phasecols <- c("increase" = "purple", "peak" = "green4", "decrease" = "orange", "low" = "black")
+
+#phasecols <- c("increase" = "purple", "peak" = "green4", "decrease" = "orange", "low" = "black")
