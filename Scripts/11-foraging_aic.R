@@ -27,19 +27,6 @@ foragfood <- forag[winter %in% foodyears & sex == "female"]
 
 
 
-# look at potential correlations within data ------------------------------
-
-cor(dat$percap, dat$biomass)
-cor(dat$percap, dat$mortrate)
-cor(dat$percap, dat$temp)
-
-cor(dat$temp, dat$biomass)
-cor(dat$temp, dat$mortrate)
-
-cor(dat$biomass, dat$mortrate)
-
-
-
 # AIC to explain weekly foraging for controls only ------------------------
 
 #models for controls only
