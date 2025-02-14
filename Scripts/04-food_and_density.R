@@ -61,6 +61,8 @@ daily <- daily[year > 2015 & !year == 2022]
 #take variables of interest
 dat <- daily[, .(snowgrid, date, week, year, yearfactor, biomass = digbiomass, percap, mortrate, temp = tempmean)]
 
+datnogrid <- dat[, .(biomass = mean(biomass), percap = mean(percap), mortrate = mean(mortrate), temp = mean(temp, na.rm = TRUE)),
+                 by = .(date, year, yearfactor)]
 
 datweek <- dat[, .(date = min(date),
                    mortrate = mean(mortrate),
@@ -69,11 +71,24 @@ datweek <- dat[, .(date = min(date),
                    temp = mean(temp, na.rm = TRUE)),
                by = .(year, yearfactor, week, snowgrid)]
 
+datweeknogrid <- dat[, .(date = min(date),
+                   mortrate = mean(mortrate),
+                   biomass = mean(biomass),
+                   percap = mean(percap),
+                   temp = mean(temp, na.rm = TRUE)),
+               by = .(year, yearfactor, week)]
+
+
 
 # Figures and save --------------------------------------------------------
 
 setorder(dat, date)
 setorder(datweek, date)
+setorder(datnogrid, date)
+setorder(datweeknogrid, date)
 
 saveRDS(dat, "Output/Data/full_data_daily.rds")
 saveRDS(datweek, "Output/Data/full_data_weekly.rds")
+
+saveRDS(datnogrid, "Output/Data/full_data_daily_nogrid.rds")
+saveRDS(datweeknogrid, "Output/Data/full_data_weekly_nogrid.rds")
