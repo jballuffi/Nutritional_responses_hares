@@ -53,7 +53,7 @@ themepoints_top <- theme(text = element_text(family = "serif"),
 
 
 
-gridcols <- c("Agnes" = "grey30", "Kloo" = "blue3", "Jo" = "orange")
+gridcols <- c("Agnes" = "grey20", "Kloo" = "skyblue3", "Jo" = "orange")
 
 foodcols <- c("0" = "grey40", "1" = "red3")
 
