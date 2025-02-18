@@ -59,12 +59,19 @@ daily[, yearfactor := as.factor(year)]
 daily <- daily[year > 2015 & !year == 2022]
 
 #take variables of interest
-dat <- daily[, .(snowgrid, date, week, year, yearfactor, biomass = digbiomass, percap, mortrate, temp = tempmean)]
+dat <- daily[, .(snowgrid, date, week, year, yearfactor, snow, haredensity, biomass = digbiomass, percap, mortrate, temp = tempmean)]
 
-datnogrid <- dat[, .(biomass = mean(biomass), percap = mean(percap), mortrate = mean(mortrate), temp = mean(temp, na.rm = TRUE)),
+datnogrid <- dat[, .(snow = mean(snow), 
+                     haredensity = mean(haredensity), 
+                     biomass = mean(biomass), 
+                     percap = mean(percap), 
+                     mortrate = mean(mortrate), 
+                     temp = mean(temp, na.rm = TRUE)),
                  by = .(date, year, yearfactor)]
 
 datweek <- dat[, .(date = min(date),
+                   snow = mean(snow),
+                   haredensity = mean(haredensity),
                    mortrate = mean(mortrate),
                    biomass = mean(biomass),
                    percap = mean(percap),
@@ -72,10 +79,12 @@ datweek <- dat[, .(date = min(date),
                by = .(year, yearfactor, week, snowgrid)]
 
 datweeknogrid <- dat[, .(date = min(date),
-                   mortrate = mean(mortrate),
-                   biomass = mean(biomass),
-                   percap = mean(percap),
-                   temp = mean(temp, na.rm = TRUE)),
+                         snow = mean(snow),
+                         haredensity = mean(haredensity),
+                         mortrate = mean(mortrate),
+                         biomass = mean(biomass),
+                         percap = mean(percap),
+                         temp = mean(temp, na.rm = TRUE)),
                by = .(year, yearfactor, week)]
 
 
