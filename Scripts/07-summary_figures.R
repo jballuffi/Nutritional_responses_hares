@@ -37,23 +37,42 @@ sumdepfig <- ggarrange(feces, foraging, nrow = 2, ncol = 1)
 
 # Non-food variables ------------------------------------------------------
 
+#temperature
+(tweek <- 
+   ggplot(dat)+
+   geom_abline(intercept = median(dat$temp, na.rm = TRUE), slope = 0, linetype = 2)+
+   geom_line(aes(x = date, y = temp), linewidth = .8)+
+   labs(y = "Temperature (C)", x = "", title = "A)")+
+   facet_wrap(~year, scales = "free_x")+
+   themepoints_small)
+
 #mortality rate
 (mweek <- 
+   ggplot(dat)+
+   geom_abline(intercept = median(dat$mortrate, na.rm = TRUE), slope = 0, linetype = 2)+
+   geom_line(aes(x = date, y = mortrate), linewidth = .8)+
+   labs(y = "Mortality rate", x = "", title = "B")+
+   facet_wrap(~year, scales = "free_x")+
+   themepoints_small)
+
+#snow depth 
+(sweek <- 
+   ggplot(dat)+
+   geom_abline(intercept = median(dat$snow, na.rm = TRUE), slope = 0, linetype = 2)+
+   geom_line(aes(x = date, y = snow), linewidth = .8)+
+   labs(y = "Snow depth (cm)", x = "", title = "C")+
+   facet_wrap(~year, scales = "free_x")+
+   themepoints_small)
+
+#hare density
+(dweek <- 
     ggplot(dat)+
-    geom_abline(intercept = median(dat$mortrate, na.rm = TRUE), slope = 0, linetype = 2)+
-    geom_line(aes(x = date, y = mortrate), linewidth = .8)+
-    labs(y = "Mortality rate", x = "")+
+    geom_abline(intercept = median(dat$haredensity, na.rm = TRUE), slope = 0, linetype = 2)+
+    geom_line(aes(x = date, y = haredensity), linewidth = .8)+
+    labs(y = "Hare Density (hares/ha)", x = "", title = "D")+
     facet_wrap(~year, scales = "free_x")+
     themepoints_small)
 
-#temperature
-(tweek <- 
-    ggplot(dat)+
-    geom_abline(intercept = median(dat$temp, na.rm = TRUE), slope = 0, linetype = 2)+
-    geom_line(aes(x = date, y = temp), linewidth = .8)+
-    labs(y = "Temperature (C)", x = "")+
-    facet_wrap(~year, scales = "free_x")+
-    themepoints_small)
 
 
 
@@ -64,7 +83,7 @@ sumdepfig <- ggarrange(feces, foraging, nrow = 2, ncol = 1)
     ggplot(dat)+
     geom_abline(intercept = median(dat$biomass, na.rm = TRUE), slope = 0, linetype = 2)+
     geom_line(aes(x = date, y = biomass), linewidth = .8)+
-    labs(y = "Soluble biomass (kg/ha)", x = "")+
+    labs(y = "Soluble biomass (kg/ha)", x = "", title = "E")+
     facet_wrap(~year, scales = "free_x")+
     themepoints_small)
 
@@ -73,17 +92,17 @@ sumdepfig <- ggarrange(feces, foraging, nrow = 2, ncol = 1)
     ggplot(dat)+
     geom_abline(intercept = median(dat$percap, na.rm = TRUE), slope = 0, linetype = 2)+
     geom_line(aes(x = date, y = percap), linewidth = .8)+
-    labs(y = "Per capita soluble biomass (kg/hare)", x = "")+
+    labs(y = "Per capita soluble biomass (kg/hare)", x = "", title = "F")+
     facet_wrap(~year, scales = "free_x")+
     themepoints_small)
 
-sumindfig <- ggarrange(tweek, mweek, bweek, pcweek, ncol = 2, nrow = 2)
+sumindfig <- ggarrange(tweek, mweek, sweek, dweek, bweek, pcweek, ncol = 2, nrow = 3)
 
 
 
 # save -----------------------------------------
 
-ggsave("Output/Figures/vars_weekly.jpeg", sumindfig, width = 10, height = 10, unit = "in")
+ggsave("Output/Figures/vars_weekly.jpeg", sumindfig, width = 10, height = 15, unit = "in")
 ggsave("Output/Figures/dep_vars_.jpeg", sumdepfig, width = 5, height = 8, unit = "in")
 
 
