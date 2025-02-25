@@ -1,0 +1,17 @@
+---
+title: "Results"
+author: "Juliana Balluffi-Fry"
+date: "2025-02-25"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r cars}
+source("Scripts/08-foraging_results.R")
+```
+
+
