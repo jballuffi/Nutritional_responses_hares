@@ -1,5 +1,5 @@
 ---
-title: "Results"
+title: "Descriptive Results"
 author: "Juliana Balluffi-Fry"
 date: "2025-02-25"
 output: word_document
@@ -7,11 +7,20 @@ output: word_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(data.table)
+
+dat <- readRDS("Output/Data/full_data_weekly_nogrid.rds")
+fecal <- readRDS("Output/Data/fecal_protein.rds")
+forag <- readRDS("Output/Data/foraging_weekly.rds")
+
+
 ```
 
 
-```{r cars}
-source("Scripts/08-foraging_results.R")
-```
 
+##General results
 
+Snowshoe hare densities decreased over each winter, because they were always predated, with the greatest overwinter declines occurring from 2016 to 2018, after which hare densities were mostly below the median of `r dat[, round(median(haredensity), 2)]` hares per hectare (Figure 1A). Across all winters, hares experienced a median `r dat[, round(median(mortrate), 2)]*100`% chance of being predated, with 2020 showing the highest mortality rate (`r dat[year == 2020, round(median(mortrate), 2)]*100`%) and 2017 showing the lowest (`r dat[year == 2017, round(median(mortrate), 2)]*100`%; Figure 1B). The median daily temperature across all years was `r dat[, round(median(temp), 2)]` C; temperatures fluctuated week to week, going above and below the median temperature, except during 2016 when all weeks were warmer than the median (Figure 1C). The median snow depth across all winters was `r dat[, round(median(snow), 2)]` cm. Snow increased over every winter, reaching a maximum of `r dat[, round(max(snow), 2)]` cm in 2021 (Figure 1D). The pattern of accumulation differed between winters; some winters experienced gradual increases (e.g., 2018 and 2019) while others experienced dramatic increases over short periods of time (e.g., 2017 and 2020; Figure 1D). After converting snow depth to food availability, we found there to be a median of `r dat[, round(median(biomass), 2)]` kg per hectare of soluble willow twigs available to hares (Figure 1E). On a per capita basis, after account for hare densities, this equated to `r dat[, round(median(percap), 2)]` kg of soluble willow per hare (Figure 1F).
+
+Response variables
