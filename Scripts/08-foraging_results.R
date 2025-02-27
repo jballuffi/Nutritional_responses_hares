@@ -76,6 +76,11 @@ setorder(AICcon, "Delta_AICc")
 #biomass and temperature
 summary(D2)
 b_pred <- as.data.table(ggpredict(D2, terms = c("biomass")))
+D2anova <- anova(D2)
+fstatSB <- round(D2anova$`F value`[1], 2)
+fstattemp <- round(D2anova$`F value`[2], 2)
+
+
 
 (bfig <- 
     ggplot()+

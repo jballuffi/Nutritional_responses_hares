@@ -1,0 +1,16 @@
+---
+title: "Foraging results"
+author: "Juliana Balluffi-Fry"
+date: "27/02/2025"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+source("Scripts/08-foraging_results.R")
+
+```
+
+The most parsimonious models for explaining foraging efforts of control hares were the models that included soluble biomass and temperature. 
+
