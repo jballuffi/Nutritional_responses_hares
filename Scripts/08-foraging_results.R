@@ -51,25 +51,22 @@ T2 <- lmer(forage ~ percap + mortrate + temp + sex + nightlength + (1|id), forag
 
 #list models
 mods <- list(S1, S2, S3, S4, D1, D2, D3, D4, D5, T1, T2)
-names <- c("S1", "S2", "S3", "S4", "D1", "D2", "D3", "D4", "D5", "T1", "T2")
+codes <- c("S1", "S2", "S3", "S4", "D1", "D2", "D3", "D4", "D5", "T1", "T2")
+vars <- c("SB", "PCSB", "Mortality", "Temperature",
+              "SB + Mortality", "SB + Temperature", "PCSB + Mortality", "PCSB + Temperature", "Mortality + Temperature",
+              "SB + Mortality + Temperature", "PCSB + Mortality + Temperature")
 
-#make AIC table
-AICcon <- as.data.table(aictab(cand.set = mods, sort = TRUE, modnames = names))
+#use function from R/ folder to make an AIC table comparing all models.
+#function also extracts R2s
+AICcon <- make_aic_lmer(modlist = mods, modnames = codes)
 
-#remove unwanted columns
-AICcon[, ModelLik := NULL]
-AICcon[, Cum.Wt := NULL]
+#make a dataframe with model codes and their designs
+moddesign <- data.table(
+  Modnames = codes,
+  Variables = vars
+)
 
-#round whole table to 3 dec places
-AICcon <- AICcon %>% mutate_if(is.numeric, round, digits = 3)
-
-#run function and get R2s for all models
-R2scon <- lapply(mods, collectR2_mixed)
-R2scon <- rbindlist(R2scon, fill = TRUE)
-R2scon$Modnames <- names
-
-#merge R2s with AIC table
-AICcon <- merge(AICcon, R2scon, by = "Modnames")
+AICcon <- merge(moddesign, AICcon, by = "Modnames")
 setorder(AICcon, "Delta_AICc")
 
 
