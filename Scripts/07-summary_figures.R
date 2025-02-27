@@ -16,22 +16,22 @@ forag <- readRDS("Output/Data/foraging_weekly.rds")
 
 # Dependent variables ---------------------------
 
-(feces <- 
-    ggplot(fecal)+
-    geom_abline(intercept = 10, slope = 0, linetype = 2)+
-    geom_boxplot(aes(x = yearfactor, y = CP_dm, fill = food), alpha = .5, outlier.shape = NA)+
-    labs(y = "Fecal crude protein (%)", x = "", title = "A)")+
-    scale_fill_manual(values = foodcols, name = "Food")+
-    themepoints)
-
 (foraging <- 
     ggplot(forag)+
     geom_boxplot(aes(x = yearfactor, y = forage, fill = food), alpha = .5)+
     scale_fill_manual(values = foodcols, guide = NULL)+
-    labs(y = "Weekly foraging effort (hr/day)", x = "", title = "B)")+
+    labs(y = "Weekly foraging effort (hr/day)", x = "", title = "A)")+
     themepoints)
 
-sumdepfig <- ggarrange(feces, foraging, nrow = 2, ncol = 1)
+(feces <- 
+    ggplot(fecal)+
+    geom_abline(intercept = 10, slope = 0, linetype = 2)+
+    geom_boxplot(aes(x = yearfactor, y = CP_dm, fill = food), alpha = .5, outlier.shape = NA)+
+    labs(y = "Fecal crude protein (%)", x = "", title = "B)")+
+    scale_fill_manual(values = foodcols, name = "Food")+
+    themepoints)
+
+sumdepfig <- ggarrange(foraging, feces, nrow = 2, ncol = 1)
 
 
 
