@@ -75,23 +75,42 @@ setorder(AICcon, "Delta_AICc")
 
 #biomass and temperature
 summary(D2)
-b_pred <- as.data.table(ggpredict(D2, terms = c("biomass")))
+
+#make predictive tables
+sb_pred <- as.data.table(ggpredict(D2, terms = c("biomass"))) #soluble biomass (sb)
+t_pred <- as.data.table(ggpredict(D2, terms = c("temp"))) #temperature (t)
+
+#get f-values
 D2anova <- anova(D2)
-fstatSB <- round(D2anova$`F value`[1], 2)
-fstattemp <- round(D2anova$`F value`[2], 2)
+sb_f <- round(D2anova$`F value`[1], 2)
+temp_f <- round(D2anova$`F value`[2], 2)
+
+#get coefficients for soluble biomass
+sb_coef <- round(fixef(D2)[2], 3)
+sb_se <- round(se.fixef(D2)[2], 3)
+
+#get coefficients for temperature
+t_coef <- round(fixef(D2)[3], 3)
+t_se <- round(se.fixef(D2)[3], 3)
+
+
+#2nd model with mortality rate (not relevant)
+summary(T1)
+T1anova <- anova(T1)
+mort_f <- round(T1anova$`F value`[2], 3)
 
 
 
+#figure for foraging effort in response to soluble biomass
 (bfig <- 
     ggplot()+
     geom_point(aes(x = biomass, y = forage), alpha = .3, data = foragcon)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = b_pred)+
-    geom_line(aes(x = x, y = predicted), data = b_pred)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = sb_pred)+
+    geom_line(aes(x = x, y = predicted), data = sb_pred)+
     labs(x = "Soluble biomass (kg/ha)", y = "Foraging effort (hr/day)")+
     themepoints)
 
-t_pred <- as.data.table(ggpredict(D2, terms = c("temp")))
-
+#figures for foraging effort in response to temperature
 (tfig <- 
     ggplot()+
     geom_point(aes(x = temp, y = forage), alpha = .3, data = foragcon)+
