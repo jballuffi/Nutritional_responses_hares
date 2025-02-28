@@ -68,10 +68,10 @@ setnames(biopred, "group", "food")
   geom_point(aes(x = biomass, y = CP_dm, color = food), alpha = .2, data = fecal)+
   geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.5, data = biopred)+
   geom_line(aes(x = x, y = predicted, color = food), data = biopred)+
-  scale_color_manual(values = foodcols, name = "Food treatment:")+
-  scale_fill_manual(values = foodcols, name = "Food treatment:")+
-  labs(x = "Soluble biomass (kg/ha)", y = "Fecal protein (%)")+
-  themepoints_top)
+  scale_color_manual(values = foodcols, name = "Food")+
+  scale_fill_manual(values = foodcols, name = "Food")+
+  labs(x = "Soluble biomass (kg/ha)", y = "Fecal protein (%)", title = "A)")+
+  themepoints)
 
 temppred <- ggpredict(D2, terms = c("temp", "food"))
 setnames(temppred, "group", "food")
@@ -82,10 +82,10 @@ setnames(temppred, "group", "food")
     geom_point(aes(x = temp, y = CP_dm, color = food), alpha = .2, data = fecal)+
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.5, data = temppred)+
     geom_line(aes(x = x, y = predicted, color = food), data = temppred)+
-    scale_color_manual(values = foodcols, guide = NULL)+
-    scale_fill_manual(values = foodcols, guide = NULL)+
-    labs(x = "Daily temperature (C)", y = "Fecal protein (%)")+
-    themepoints_top)
+    scale_color_manual(values = foodcols, name = "Food")+
+    scale_fill_manual(values = foodcols, name = "Food")+
+    labs(x = "Daily temperature (C)", y = "Fecal protein (%)", title = "B)")+
+    themepoints)
 
 fecalfig <- ggarrange(biofig, tempfig, nrow = 2, ncol = 1)
 
