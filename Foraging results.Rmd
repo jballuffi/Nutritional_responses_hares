@@ -12,5 +12,4 @@ source("Scripts/08-foraging_results.R")
 
 ```
 
-The most parsimonious models for explaining foraging efforts of control hares were the models that included soluble biomass and temperature. 
-
+The most parsimonious models for explaining foraging efforts of control hares were the models that included both soluble biomass and temperature as fixed effects. We found that hares foraged `r sb_coef*10*60` (± `r sb_se*10*60`) minutes more per day for every 10 kg increase in available soluble willow biomass per hectare (f-value = `r sb_f`). For every 10 degree C increase in temperature, hares foraged `r t_coef*10*60` (± `r t_se*10*60`) minutes more per day (f-value = `r temp_f`). The second most parsimonious model also included mortality rate in addition to soluble biomass and temperature, but it did not have any effect on foraging (f-value = `r mort_f`).
