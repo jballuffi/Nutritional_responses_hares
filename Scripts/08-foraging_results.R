@@ -107,7 +107,7 @@ mort_f <- round(T1anova$`F value`[2], 3)
     geom_point(aes(x = biomass, y = forage), alpha = .3, data = foragcon)+
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = sb_pred)+
     geom_line(aes(x = x, y = predicted), data = sb_pred)+
-    labs(x = "Soluble biomass (kg/ha)", y = "Foraging effort (hr/day)")+
+    labs(x = "Soluble biomass (kg/ha)", y = "Foraging effort (hr/day)", title = "A)")+
     themepoints)
 
 #figures for foraging effort in response to temperature
@@ -116,7 +116,7 @@ mort_f <- round(T1anova$`F value`[2], 3)
     geom_point(aes(x = temp, y = forage), alpha = .3, data = foragcon)+
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = t_pred)+
     geom_line(aes(x = x, y = predicted), data = t_pred)+
-    labs(x = "Daily temperature (C)", y = "Foraging effort (hr/day)")+
+    labs(x = "Daily temperature (C)", y = "Foraging effort (hr/day)", title = "B)")+
     themepoints)
 
 
@@ -138,10 +138,10 @@ setnames(foodb_pred, "group", "food")
     geom_point(aes(x = biomass, y = forage, color = food), alpha = .2, data = foragfood)+
     geom_ribbon(aes(x = x, ymax = conf.high, ymin = conf.low, fill = food), alpha = .5, data = foodb_pred)+
     geom_line(aes(x = x, y = predicted, color = food), data = foodb_pred)+
-    scale_color_manual(values = foodcols, name = "Food Treatment:")+
-    scale_fill_manual(values = foodcols, name = "Food Treatment:")+
-    labs(x = "Soluble biomass (kg/ha)", y = "Foraging effort (hr)")+
-    themepoints_top)
+    scale_color_manual(values = foodcols, name = "Food")+
+    scale_fill_manual(values = foodcols, name = "Food")+
+    labs(x = "Soluble biomass (kg/ha)", y = "Foraging effort (hr)", title = "A)")+
+    themepoints)
 
 #show effect of temperature*food
 foodt_pred <- as.data.table(ggpredict(foodmod, terms = c("temp", "food")))
@@ -152,10 +152,10 @@ setnames(foodt_pred, "group", "food")
     geom_point(aes(x = temp, y = forage, color = food), alpha = .2, data = foragfood)+
     geom_ribbon(aes(x = x, ymax = conf.high, ymin = conf.low, fill = food), alpha = .5, data = foodt_pred)+
     geom_line(aes(x = x, y = predicted, color = food), data = foodt_pred)+
-    scale_color_manual(values = foodcols, guide = NULL)+
-    scale_fill_manual(values = foodcols, guide = NULL)+
-    labs(x = "Daily temperatre (C)", y = "Foraging effort (hr)")+
-    themepoints_top)
+    scale_color_manual(values = foodcols, name = "Food")+
+    scale_fill_manual(values = foodcols, name = "Food")+
+    labs(x = "Daily temperatre (C)", y = "Foraging effort (hr)", title = "B)")+
+    themepoints)
 
 foodfig <- ggarrange(foodb_fig, foodt_fig, nrow = 2, ncol = 1)
 
