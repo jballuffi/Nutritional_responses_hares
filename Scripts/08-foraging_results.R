@@ -80,26 +80,30 @@ summary(D2)
 sb_pred <- as.data.table(ggpredict(D2, terms = c("biomass"))) #soluble biomass (sb)
 t_pred <- as.data.table(ggpredict(D2, terms = c("temp"))) #temperature (t)
 
+#get t-values
+sb_t = round(coef(summary(D2))[,"t value"][2], 2)
+t_t = round(coef(summary(D2))[,"t value"][3], 2)
+
 #get f-values
 D2anova <- anova(D2)
 sb_f <- round(D2anova$`F value`[1], 2)
-temp_f <- round(D2anova$`F value`[2], 2)
+t_f <- round(D2anova$`F value`[2], 2)
 
-#get coefficients for soluble biomass
+#get coefficients
 sb_coef <- round(fixef(D2)[2], 3)
-sb_se <- round(se.fixef(D2)[2], 3)
-
-#get coefficients for temperature
 t_coef <- round(fixef(D2)[3], 3)
-t_se <- round(se.fixef(D2)[3], 3)
 
+#get standard errorts
+t_se <- round(se.fixef(D2)[3], 3)
+sb_se <- round(se.fixef(D2)[2], 3)
 
 #2nd model with mortality rate (not relevant)
 summary(T1)
-T1anova <- anova(T1)
-mort_f <- round(T1anova$`F value`[2], 3)
+mort_t = round(coef(summary(T1))[,"t value"][3], 2)
 
 
+
+# Figure for control top models -------------------------------------------
 
 #figure for foraging effort in response to soluble biomass
 (bfig <- 
@@ -119,7 +123,6 @@ mort_f <- round(T1anova$`F value`[2], 3)
     labs(x = "Daily temperature (C)", y = "Foraging effort (hr/day)", title = "B)")+
     themepoints)
 
-
 config <- ggarrange(bfig, tfig, nrow = 2, ncol = 1)
 
 
@@ -128,6 +131,23 @@ config <- ggarrange(bfig, tfig, nrow = 2, ncol = 1)
 
 foodmod <- lmer(forage ~ biomass*food + temp*food + nightlength + (1|id), foragfood) 
 summary(foodmod)
+
+#get t-values
+foodsb_t = round(coef(summary(foodmod))[,"t value"][2], 2)
+foodt_t = round(coef(summary(foodmod))[,"t value"][4], 2)
+food_t = round(coef(summary(foodmod))[,"t value"][3], 2)
+
+#get coefficients
+foodt_coef <- round(fixef(foodmod)[4], 3)
+food_coef <- round(fixef(foodmod)[3], 2)
+
+#get standard errorts
+foodt_se <- round(se.fixef(foodmod)[4], 3)
+food_se <- round(se.fixef(foodmod)[3], 2)
+
+
+
+
 
 #show effect of biomass*food
 foodb_pred <- as.data.table(ggpredict(foodmod, terms = c("biomass", "food")))
