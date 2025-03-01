@@ -50,9 +50,9 @@ T1 <- lmer(forage ~ biomass + mortrate + temp + sex + nightlength + (1|id), fora
 T2 <- lmer(forage ~ percap + mortrate + temp + sex + nightlength + (1|id), foragcon)
 
 #list models
-mods <- list(S1, S2, S3, S4, D1, D2, D3, D4, D5, T1, T2)
-codes <- c("S1", "S2", "S3", "S4", "D1", "D2", "D3", "D4", "D5", "T1", "T2")
-vars <- c("SB", "PCSB", "Mortality", "Temperature",
+mods <- list(n, S1, S2, S3, S4, D1, D2, D3, D4, D5, T1, T2)
+codes <- c("Null", "S1", "S2", "S3", "S4", "D1", "D2", "D3", "D4", "D5", "T1", "T2")
+vars <- c("None", "SB", "PCSB", "Mortality", "Temperature",
               "SB + Mortality", "SB + Temperature", "PCSB + Mortality", "PCSB + Temperature", "Mortality + Temperature",
               "SB + Mortality + Temperature", "PCSB + Mortality + Temperature")
 
