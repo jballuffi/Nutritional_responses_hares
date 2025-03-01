@@ -17,7 +17,6 @@ fecal <- merge(fecal, dat, by = c("date", "year", "yearfactor"), all.x = TRUE)
 
 #make models
 null <- lm(CP_dm ~ 1, fecal)
-
 S1 <- lm(CP_dm ~ biomass*food, fecal)
 S2 <- lm(CP_dm ~ percap*food, fecal)
 S3 <- lm(CP_dm ~ mortrate*food, fecal)
@@ -30,37 +29,67 @@ D4 <- lm(CP_dm ~ percap*food + temp*food, fecal)
 D5 <- lm(CP_dm ~ mortrate*food + temp*food, fecal)
 
 
-#list models and name
+#list models, names, and designs
 mods <- list(null, S1, S2, S3, S4, D1, D2, D3, D4, D5)
-names <- c("Null", "S1", "S2", "S3", "S4", "D1", "D2", "D3", "D4", "D5")
+codes <- c("Null", "S1", "S2", "S3", "S4", "D1", "D2", "D3", "D4", "D5")
 
-#make AIC table
-AICfood <- as.data.table(aictab(REML = F, cand.set = mods, modnames = names, sort = TRUE))
+vars <- c("None", "SB*Food", "PCSB*Food", "Mortality*Food", "Temperature*Food",
+          "SB*Food + Mortality*Food", 
+          "SB*Food + Temperature*Food", 
+          "PCSB*Food + Mortality*Food", 
+          "PCSB*Food + Temperature*Food", 
+          "Mortality*Food + Temperature*Food")
 
-#remove unwanted columns
-AICfood[, ModelLik := NULL]
-AICfood[, Cum.Wt := NULL]
+AICfood <- make_aic_lm(modlist = mods, modnames = codes)
 
-#round whole table to 3 dec places
-AICfood <- AICfood %>% mutate_if(is.numeric, round, digits = 3)
+#make a dataframe with model codes and their designs
+moddesign <- data.table(
+  Modnames = codes,
+  Variables = vars
+)
 
-#run function and get R2s for all models
-R2sfood <- lapply(mods, collectR2)
-R2sfood <- rbindlist(R2sfood, fill = TRUE)
-setnames(R2sfood, "V1", "R2")
-R2sfood$Modnames <- names
-
-#merge R2s with AIC table
-AICfood <- merge(AICfood, R2sfood, by = "Modnames")
+AICfood <- merge(moddesign, AICfood, by = "Modnames")
 setorder(AICfood, "Delta_AICc")
+
 
 
 
 # Results of top models ---------------------------------------------------
 
 summary(D2)
-biopred <- ggpredict(D2, terms = c("biomass", "food"))
+
+#make predictive table
+biopred <- as.data.table(ggpredict(D2, terms = c("biomass", "food")))
 setnames(biopred, "group", "food")
+
+temppred <- as.data.table(ggpredict(D2, terms = c("temp", "food")))
+setnames(temppred, "group", "food")
+
+#get t-values
+sb_t = round(coef(summary(D2))[,"t value"][2], 2)
+
+#get p-values
+D2anova <- anova(D2)
+sb_p <- round(D2anova$`Pr(>F)`[1], 2)
+food_p <- round(D2anova$`Pr(>F)`[2], 2)
+foodsb_p <- round(D2anova$`Pr(>F)`[4], 2)
+foodtemp_p <- round(D2anova$`Pr(>F)`[5], 2)
+
+#get coefficients
+sb_coef <- round(coef(summary(D2))[,"Estimate"][2], 2)
+food_coef <- round(coef(summary(D2))[,"Estimate"][3], 2)
+
+#get standard errors
+sb_se <- round(coef(summary(D2))[,"Std. Error"][2], 2)
+food_se <- round(coef(summary(D2))[,"Std. Error"][3], 2)
+
+
+
+
+
+# figures for top model ---------------------------------------------------
+
+
 
 (biofig <- 
   ggplot()+
@@ -73,8 +102,6 @@ setnames(biopred, "group", "food")
   labs(x = "Soluble biomass (kg/ha)", y = "Fecal protein (%)", title = "A)")+
   themepoints)
 
-temppred <- ggpredict(D2, terms = c("temp", "food"))
-setnames(temppred, "group", "food")
 
 (tempfig <- 
     ggplot()+
