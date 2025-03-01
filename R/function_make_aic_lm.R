@@ -24,5 +24,7 @@ make_aic_lm <- function(modlist, modnames){
   aic <- merge(aic, R2s, by = "Modnames")
   setorder(aic, "Delta_AICc")
   
+  setnames(aic, "V1", "R2")
+  
   return(aic)
 }
