@@ -1,0 +1,19 @@
+---
+title: "Fecal results"
+author: "Juliana Balluffi-Fry"
+date: "2025-02-28"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+source("Scripts/09-fecal_results.R")
+
+
+```
+
+Similar to the foraging analysis, the most parsimonious model for explaining fecal protein compositions was that model that included available soluble bioamss and temperature (Model D2, Table 2). This model found that food supplemented hares had `r food_coef` ± `r food_se`% higher fecal protein compositions than control hares (p = `r food_p`) and that with every 10 kg increase in available soluble biomass, fecal protein increased `r sb_coef*10` ± `r sb_se*10`%. There was no difference in how controls and food supplemented hares responded to increases in available soluble biomass (p = `r foodtemp_p`). There was an interaction between temperature and food treatment (p = `r foodtemp_p`). As weekly temperatures increased from `r min(temppred$x)` to `r max(temppred$x)`, food supplemented hares increased their fecal protein by `r round(temppred[food == 1 & x == max(x), predicted] - temppred[food == 1 & x == min(x), predicted], 2)`%, always staying above the 10% threshold, while control hare fecal protein decreased  by `r abs(round(temppred[food == 0 & x == max(x), predicted] - temppred[food == 0 & x == min(x), predicted], 2))`%, from `r round(temppred[food == 0 & x == min(x), predicted], 2)` to `r round(temppred[food == 0 & x == max(x), predicted], 2)`.
+
+
+
