@@ -30,7 +30,7 @@ foragfood <- forag[winter %in% foodyears & sex == "female"]
 # AIC to explain weekly foraging for controls only ------------------------
 
 #models for controls only
-n <- lmer(forage ~ 1 + (1|id), foragcon) #null model
+n <- lmer(forage ~ sex + nightlength + (1|id), foragcon) #null model
 
 #single terms 
 S1 <- lmer(forage ~ biomass + sex + nightlength + (1|id), foragcon) #biomass food
