@@ -71,14 +71,13 @@ beh3 <- merge(beh2, traps, by = c("id", "date"), all.x = TRUE)
 #remove trap nights from dataset
 beh3 <- beh3[is.na(trapnight)]
 
-#take only main cols and convert behaviours to hours
-beh4 <- beh3[, .(winter, id, m, year, date, jday, nightlength, 
-                 forage = Forage/3600, 
-                 hop = Hopping/3600, 
-                 sprint = Sprinting/3600, 
-                 rest = notmoving/3600)]
+#take only main cols and convert foraging and resting from seconds to hours
+#convert movement from seconds to minutes
 
-beh4[, move := hop + sprint]
+beh4 <- beh3[, .(winter, id, m, year, date, jday, nightlength, 
+                 forage = Forage/3600, #hours
+                 rest = notmoving/3600, #hours
+                 move = (Hopping + Sprinting)/60)] #minutes
 
 
 
@@ -97,14 +96,14 @@ fig <-
   themepoints
 
 
-#foraging vs resting
-ggplot(beh4[id == 22109 & year == 2018])+
-  geom_path(aes(x = date, y = move, group = 1), color = "blue", linewidth = 1)+
-  geom_path(aes(x = date, y = forage, group = 1), color = "black", linewidth = 1)+
-  theme_minimal()
+#minutes moving vs. hours foraging
+mod2 <- lm(move ~ forage + 0, beh4)
+mod2pred <- ggpredict(mod2, terms = "forage")
 
-ggplot(beh4)+
-  geom_point(aes(x = forage, y = move), color = "blue", linewidth = 1)+
+ggplot()+
+  geom_point(aes(x = forage, y = move), alpha = 0.1, beh4)+
+  geom_line(aes(x = x, y = predicted), color = "red", linewidth = 1, data = mod2pred)+
+  ylim(0, 75)+
   theme_minimal()
 
 
