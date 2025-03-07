@@ -38,7 +38,8 @@ beh[, id := gsub("B", "2", id)]
 days[, jday := as.numeric(Julian)]
 
 #separate daylight col into hours and minutes
-days[, tstrsplit(Daylight, ':', names = c("hours", "minutes"))]
+days[, c("hours", "minutes") := tstrsplit(Daylight, ':')]
+days[, hours := as.numeric(hours)][, minutes := as.numeric(minutes)]
 
 #calculate total night length, in hours based on hours and minutes of daylight
 days[, nightlength := round(24 - (hours + (minutes/60)), 2)]
@@ -70,20 +71,20 @@ beh3 <- merge(beh2, traps, by = c("id", "date"), all.x = TRUE)
 #remove trap nights from dataset
 beh3 <- beh3[is.na(trapnight)]
 
-#take only main cols and convert foraging to hours
-beh4 <- beh3[, .(winter, id, m, year, date, jday, nightlength, forage = Forage/3600)]
+#take only main cols and convert behaviours to hours
+beh4 <- beh3[, .(winter, id, m, year, date, jday, nightlength, 
+                 forage = Forage/3600, 
+                 hop = Hopping/3600, 
+                 sprint = Sprinting/3600, 
+                 rest = notmoving/3600)]
 
-beh4[, forageperhour := forage/nightlength]
+beh4[, move := hop + sprint]
 
 
 
 # figures -----------------------------------------------------------------
 
-#forage effort vs. forage per hour of night
-ggplot(beh4)+
-  geom_point(aes(x = forage, y = forageperhour))
-
-#test how foraging effort relates to night length
+#foraging vs night length
 mod <- lm(forage ~ nightlength, beh4)
 modpred <- ggpredict(mod, terms = "nightlength")
 
@@ -94,6 +95,17 @@ fig <-
   geom_line(aes(x = x, y = predicted), color = "red4", data = modpred)+
   labs(x = "Night length (hr)", y = "Forage effort (hr)")+
   themepoints
+
+
+#foraging vs resting
+ggplot(beh4[id == 22109 & year == 2018])+
+  geom_path(aes(x = date, y = move, group = 1), color = "blue", linewidth = 1)+
+  geom_path(aes(x = date, y = forage, group = 1), color = "black", linewidth = 1)+
+  theme_minimal()
+
+ggplot(beh4)+
+  geom_point(aes(x = forage, y = move), color = "blue", linewidth = 1)+
+  theme_minimal()
 
 
 
