@@ -17,6 +17,19 @@ foragcon <- forag[food == 0]
 
 
 
+
+# for conceptual diagram --------------------------------------------------
+
+(concept <- ggplot(forag[year == 2018])+
+  geom_path(aes(x = date, y = forage, group = id))+
+  #geom_point(aes(x = date, y = forage), shape = 1, size = 2)+
+  labs(x = "Date", y = "Foraging effort (hr/day)")+
+  theme_minimal(base_size = 14))
+
+
+
+
+
 # Post hoc figure  --------------------------------------------------------
 
 #foraging and temperature
@@ -57,4 +70,5 @@ biomass <- ggplot(dat[year == 2017])+
 
 
 ggsave("Output/Figures/PostHoc_figure.jpeg", fullplot, width = 7, height = 7, unit = "in")
+ggsave("Output/Figures/conceptual_figure.jpeg", concept, width = 5, height = 5, unit = "in")
 
