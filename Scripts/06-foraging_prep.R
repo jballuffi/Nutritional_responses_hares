@@ -83,19 +83,6 @@ beh4 <- beh3[, .(winter, id, m, year, date, jday, nightlength,
 
 # figures -----------------------------------------------------------------
 
-#foraging vs night length
-mod <- lm(forage ~ nightlength, beh4)
-modpred <- ggpredict(mod, terms = "nightlength")
-
-fig <- 
-  ggplot()+
-  geom_point(aes(x = nightlength, y = forage), alpha = 0.2, color = "grey40", data = beh4)+
-  geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), fill = "red", alpha = 0.5, data = modpred)+
-  geom_line(aes(x = x, y = predicted), color = "red4", data = modpred)+
-  labs(x = "Night length (hr)", y = "Forage effort (hr)")+
-  themepoints
-
-
 #minutes moving vs. hours foraging
 mod2 <- lm(move ~ forage + 0, beh4)
 mod2pred <- ggpredict(mod2, terms = "forage")
@@ -129,6 +116,5 @@ behweek[, yearfactor := as.factor(year)]
 
 behweek <- behweek[year > 2015]
 
-ggsave("Output/Figures/nightlength.jpeg", fig, width = 6, height = 5, unit = "in")
 saveRDS(behweek, "Output/Data/foraging_weekly.rds")
 
