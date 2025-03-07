@@ -115,7 +115,7 @@ ggplot(beh4)+
 beh4[, week := week(date), year]
 
 #get mean foraging effort by week and individual
-behweek <- beh4[, .(forage = mean(forage), nightlength = mean(nightlength)), by = .(id, year, winter, week)]
+behweek <- beh4[, .(forage = mean(forage), move = mean(move), rest = mean(rest), nightlength = mean(nightlength)), by = .(id, year, winter, week)]
 
 #merge in individual data
 behweek <- merge(behweek, inds, by = c("id", "winter"), all.x = TRUE)
