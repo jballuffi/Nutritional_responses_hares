@@ -129,6 +129,6 @@ behweek[, yearfactor := as.factor(year)]
 
 behweek <- behweek[year > 2015]
 
-ggsave("Output/Figures/nightlength.jpeg", width = 6, height = 5, unit = "in")
+ggsave("Output/Figures/nightlength.jpeg", fig, width = 6, height = 5, unit = "in")
 saveRDS(behweek, "Output/Data/foraging_weekly.rds")
 
