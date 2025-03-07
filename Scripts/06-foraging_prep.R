@@ -103,8 +103,9 @@ mod2pred <- ggpredict(mod2, terms = "forage")
 ggplot()+
   geom_point(aes(x = forage, y = move), alpha = 0.1, beh4)+
   geom_line(aes(x = x, y = predicted), color = "red", linewidth = 1, data = mod2pred)+
+  labs(x = "Hours foraging", y = "Minutes hopping or sprinting")+
   ylim(0, 75)+
-  theme_minimal()
+  themepoints
 
 
 
