@@ -1,8 +1,6 @@
 
 #script to assess how environmental factors impact foraging rates on a winter and daily basis
 
-
-
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
@@ -71,7 +69,7 @@ setorder(AICcon, "Delta_AICc")
 
 
 
-# top model  -------------------------------------------------------------
+# top model results -------------------------------------------------------------
 
 #biomass and temperature
 summary(D2)
@@ -103,27 +101,44 @@ mort_t = round(coef(summary(T1))[,"t value"][3], 2)
 
 
 
-# top model on movement rates -------------------------------
+# take top model and test on food adds ------------------------------------
 
-movecon <- lmer(move ~ biomass + temp + sex + nightlength + (1|id), foragcon) #biomass and temp
-summary(movecon)
+foodmod <- lmer(forage ~ biomass*food + temp*food + nightlength + (1|id), foragfood) 
+summary(foodmod)
 
-#make predictive tables
-sbmove_pred <- as.data.table(ggpredict(movecon, terms = c("biomass"))) #soluble biomass (sb)
-tmove_pred <- as.data.table(ggpredict(movecon, terms = c("temp"))) #temperature (t)
+#get t-values
+foodsb_t = round(coef(summary(foodmod))[,"t value"][2], 2)
+foodt_t = round(coef(summary(foodmod))[,"t value"][4], 2)
+food_t = round(coef(summary(foodmod))[,"t value"][3], 2)
+
+#get coefficients
+foodt_coef <- round(fixef(foodmod)[4], 3)
+food_coef <- round(fixef(foodmod)[3], 2)
+
+#get standard errorts
+foodt_se <- round(se.fixef(foodmod)[4], 3)
+food_se <- round(se.fixef(foodmod)[3], 2)
+
+#show effect of biomass*food
+foodb_pred <- as.data.table(ggpredict(foodmod, terms = c("biomass", "food")))
+setnames(foodb_pred, "group", "food")
+
+#show effect of temperature*food
+foodt_pred <- as.data.table(ggpredict(foodmod, terms = c("temp", "food")))
+setnames(foodt_pred, "group", "food")
 
 
 
-# Figure for control top models -------------------------------------------
+# Figure for controls and food add test -------------------------------------------
 
 #figure for foraging effort in response to soluble biomass
 (bfig <- 
-    ggplot()+
-    geom_point(aes(x = biomass, y = forage), alpha = .3, data = foragcon)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = sb_pred)+
-    geom_line(aes(x = x, y = predicted), data = sb_pred)+
-    labs(x = "Soluble biomass (kg/ha)", y = "Foraging effort (hr/day)", subtitle = "A)")+
-    themepoints)
+   ggplot()+
+   geom_point(aes(x = biomass, y = forage), alpha = .3, data = foragcon)+
+   geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = sb_pred)+
+   geom_line(aes(x = x, y = predicted), data = sb_pred)+
+   labs(x = NULL, y = "Foraging effort (hr/day)", subtitle = "A)")+
+   themepoints)
 
 #figures for foraging effort in response to temperature
 (tfig <- 
@@ -131,8 +146,46 @@ tmove_pred <- as.data.table(ggpredict(movecon, terms = c("temp"))) #temperature 
     geom_point(aes(x = temp, y = forage), alpha = .3, data = foragcon)+
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = t_pred)+
     geom_line(aes(x = x, y = predicted), data = t_pred)+
-    labs(x = "Daily temperature (C)", y = "Foraging effort (hr/day)", subtitle = "C)")+
+    labs(x = NULL, y = NULL, subtitle = "B)")+
     themepoints)
+
+#foraging rate of controls and food adds in response to food biomass
+(foodb_fig <- 
+    ggplot()+
+    geom_point(aes(x = biomass, y = forage, color = food), alpha = .2, data = foragfood)+
+    geom_ribbon(aes(x = x, ymax = conf.high, ymin = conf.low, fill = food), alpha = .5, data = foodb_pred)+
+    geom_line(aes(x = x, y = predicted, color = food), data = foodb_pred)+
+    scale_color_manual(values = foodcols, guide = NULL)+
+    scale_fill_manual(values = foodcols, guide = NULL)+
+    labs(x = "Soluble biomass (kg/ha)", y = "Foraging effort (hr/day)", subtitle = "C)")+
+    themepoints)
+
+#foraging rate of food adds and controls in response to temp
+(foodt_fig <- 
+    ggplot()+
+    geom_point(aes(x = temp, y = forage, color = food), alpha = .2, data = foragfood)+
+    geom_ribbon(aes(x = x, ymax = conf.high, ymin = conf.low, fill = food), alpha = .5, data = foodt_pred)+
+    geom_line(aes(x = x, y = predicted, color = food), data = foodt_pred)+
+    scale_color_manual(values = foodcols, guide = NULL)+
+    scale_fill_manual(values = foodcols, guide = NULL)+
+    labs(x = "Daily temperature (C)", y = NULL, subtitle = "D)")+
+    themepoints)
+
+#make full paneled figure
+fullfig <- ggarrange(bfig, tfig, foodb_fig, foodt_fig, nrow = 2, ncol = 2)
+
+
+
+# movement rates in relation to the same model ----------------------------
+
+#apply top model to movement rates
+movecon <- lmer(move ~ biomass + temp + sex + nightlength + (1|id), foragcon) #biomass and temp
+summary(movecon)
+
+#make predictive tables
+sbmove_pred <- as.data.table(ggpredict(movecon, terms = c("biomass"))) #soluble biomass (sb)
+tmove_pred <- as.data.table(ggpredict(movecon, terms = c("temp"))) #temperature (t)
+
 
 #figure for foraging effort in response to soluble biomass
 (bmov <- 
@@ -152,57 +205,7 @@ tmove_pred <- as.data.table(ggpredict(movecon, terms = c("temp"))) #temperature 
     labs(x = "Daily temperature (C)", y = "Traveling (min/day)", subtitle = "D)")+
     themepoints)
 
-config <- ggarrange(bfig, bmov, tfig, tmov, nrow = 2, ncol = 2)
-
-
-# take top model and test on food adds ------------------------------------
-
-foodmod <- lmer(forage ~ biomass*food + temp*food + nightlength + (1|id), foragfood) 
-summary(foodmod)
-
-#get t-values
-foodsb_t = round(coef(summary(foodmod))[,"t value"][2], 2)
-foodt_t = round(coef(summary(foodmod))[,"t value"][4], 2)
-food_t = round(coef(summary(foodmod))[,"t value"][3], 2)
-
-#get coefficients
-foodt_coef <- round(fixef(foodmod)[4], 3)
-food_coef <- round(fixef(foodmod)[3], 2)
-
-#get standard errorts
-foodt_se <- round(se.fixef(foodmod)[4], 3)
-food_se <- round(se.fixef(foodmod)[3], 2)
-
-
-#show effect of biomass*food
-foodb_pred <- as.data.table(ggpredict(foodmod, terms = c("biomass", "food")))
-setnames(foodb_pred, "group", "food")
-
-(foodb_fig <- 
-    ggplot()+
-    geom_point(aes(x = biomass, y = forage, color = food), alpha = .2, data = foragfood)+
-    geom_ribbon(aes(x = x, ymax = conf.high, ymin = conf.low, fill = food), alpha = .5, data = foodb_pred)+
-    geom_line(aes(x = x, y = predicted, color = food), data = foodb_pred)+
-    scale_color_manual(values = foodcols, name = "Food")+
-    scale_fill_manual(values = foodcols, name = "Food")+
-    labs(x = "Soluble biomass (kg/ha)", y = "Foraging effort (hr)", subtitle = "A)")+
-    themepoints)
-
-#show effect of temperature*food
-foodt_pred <- as.data.table(ggpredict(foodmod, terms = c("temp", "food")))
-setnames(foodt_pred, "group", "food")
-
-(foodt_fig <- 
-    ggplot()+
-    geom_point(aes(x = temp, y = forage, color = food), alpha = .2, data = foragfood)+
-    geom_ribbon(aes(x = x, ymax = conf.high, ymin = conf.low, fill = food), alpha = .5, data = foodt_pred)+
-    geom_line(aes(x = x, y = predicted, color = food), data = foodt_pred)+
-    scale_color_manual(values = foodcols, name = "Food")+
-    scale_fill_manual(values = foodcols, name = "Food")+
-    labs(x = "Daily temperature (C)", y = "Foraging effort (hr)", subtitle = "B)")+
-    themepoints)
-
-foodfig <- ggarrange(foodb_fig, foodt_fig, nrow = 2, ncol = 1)
+movfig <- ggarrange(bmov, tmov, ncol = 1, nrow = 2)
 
 
 
@@ -211,6 +214,6 @@ foodfig <- ggarrange(foodb_fig, foodt_fig, nrow = 2, ncol = 1)
 #save results from control only AIC
 write.csv(AICcon, "Output/Tables/AIC_foraging_winter_controls.csv")
 
-ggsave("Output/Figures/Control_results.jpeg", config, width = 10, height = 8, unit = "in")
-ggsave("Output/Figures/foodadd_results.jpeg", foodfig, width = 5, height = 8, unit = "in")
+ggsave("Output/Figures/foraging_results.jpeg", fullfig, width = 10, height = 8, unit = "in")
+ggsave("Output/Figures/movement_results.jpeg", movfig, width = 5, height = 8, unit = "in")
 
