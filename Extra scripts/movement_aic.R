@@ -72,18 +72,7 @@ summary(D5)
 # make predictive tables and extract coefficients -------------------------
 
 #make predictive tables
-m_pred <- as.data.table(ggpredict(D5, terms = c("mortrate"))) #soluble biomass (sb)
-t_pred <- as.data.table(ggpredict(T1, terms = c("temp"))) #temperature (t)
-
-
-#figure for foraging effort in response to soluble biomass
-(mfig <- 
-    ggplot()+
-    geom_point(aes(x = mortrate, y = moveresid), alpha = .3, data = foragcon)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = m_pred)+
-    geom_line(aes(x = x, y = predicted), data = m_pred)+
-    labs(x = "Probility of mortality", y = "Movement residual (min)", title = "A)")+
-    themepoints)
+t_pred <- as.data.table(ggpredict(D5, terms = c("temp"))) #temperature (t)
 
 #figures for foraging effort in response to temperature
 (tfig <- 
@@ -93,9 +82,5 @@ t_pred <- as.data.table(ggpredict(T1, terms = c("temp"))) #temperature (t)
     geom_line(aes(x = x, y = predicted), data = t_pred)+
     labs(x = "Daily temperature (C)", y = "Movement residual (min)", title = "B)")+
     themepoints)
-
-config <- ggarrange(bfig, tfig, nrow = 2, ncol = 1)
-
-
 
 
