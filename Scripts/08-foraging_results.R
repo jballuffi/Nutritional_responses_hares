@@ -214,6 +214,6 @@ movfig <- ggarrange(bmov, tmov, ncol = 1, nrow = 2)
 #save results from control only AIC
 write.csv(AICcon, "Output/Tables/AIC_foraging_winter_controls.csv")
 
-ggsave("Output/Figures/foraging_results.jpeg", fullfig, width = 10, height = 8, unit = "in")
+ggsave("Output/Figures/foraging_results.jpeg", fullfig, width = 8, height = 8, unit = "in")
 ggsave("Output/Figures/movement_results.jpeg", movfig, width = 5, height = 8, unit = "in")
 
