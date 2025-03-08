@@ -90,19 +90,33 @@ mod2pred <- ggpredict(mod2, terms = "forage")
 ggplot()+
   geom_point(aes(x = forage, y = move), alpha = 0.1, beh4)+
   geom_line(aes(x = x, y = predicted), color = "red", linewidth = 1, data = mod2pred)+
-  labs(x = "Hours foraging", y = "Minutes hopping or sprinting")+
+  labs(x = "Hours foraging", y = "Minutes moving")+
   ylim(0, 75)+
   themepoints
+
+#pull slope from this model
+slope <- mod2$coefficients
 
 
 
 # get weekly foraging rate --------------------------------------
 
+#predict movement rate based on foraging
+beh4[, movepred := 0 + forage*slope]
+
+#get resid, or difference between predicted and measured
+beh4[, moveresid := move - movepred]
+
 #categorize dates into weeks
 beh4[, week := week(date), year]
 
 #get mean foraging effort by week and individual
-behweek <- beh4[, .(forage = mean(forage), move = mean(move), rest = mean(rest), nightlength = mean(nightlength)), by = .(id, year, winter, week)]
+behweek <- beh4[, .(forage = mean(forage), 
+                    move = mean(move), 
+                    moveresid = mean(moveresid), 
+                    rest = mean(rest), 
+                    nightlength = mean(nightlength)), 
+                by = .(id, year, winter, week)]
 
 #merge in individual data
 behweek <- merge(behweek, inds, by = c("id", "winter"), all.x = TRUE)
