@@ -95,15 +95,17 @@ biomass <- ggplot(dat[year == 2017])+
 
 # look at fecal protein vs foraging rate --------------------------
 
+#get average CP per individual and week. Most of the time only one sample per id and week
 fecal <- fecal[, .(CP = mean(CP_dm)), by = .(id, year, week)]
 
+#merge shortened fecal data with foraging rates
 fecfor <- merge(forag1, fecal, by = c("id", "year", "week"))
 
-ggplot(fecfor)+
-  geom_point(aes(x = forage, y = CP))+
-  geom_smooth(aes(x = forage, y = CP), method = "lm")
+#slight negative correlaton between weekly foraging rate and fecal protein
+modfec <- lm(CP ~ forage, fecfor)
+summary(modfec)
+cor(fecfor$CP, fecfor$forage)
 
-summary(lm(CP ~ forage, fecfor))
 
 
 ggsave("Output/Figures/PostHoc_figure.jpeg", fullplot, width = 7, height = 7, unit = "in")
