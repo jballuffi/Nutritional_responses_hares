@@ -26,24 +26,24 @@ foragfood <- forag[winter %in% foodyears & sex == "female"]
 # AIC to explain weekly foraging for controls only ------------------------
 
 #models for controls only
-n <- lmer(moveresid ~ sex + (1|id), foragcon) #null model
+n <- lmer(moveresid ~ sex + nightlength + (1|id), foragcon) #null model
 
 #single terms 
-S1 <- lmer(moveresid ~ biomass + sex + (1|id), foragcon) #biomass food
-S2 <- lmer(moveresid ~ percap + sex + (1|id), foragcon) #percapita food
-S3 <- lmer(moveresid ~ mortrate + sex + (1|id), foragcon) #predation risk/mortality rate
-S4 <- lmer(moveresid ~ temp + sex + (1|id), foragcon) #temperature
+S1 <- lmer(moveresid ~ biomass + sex + nightlength + (1|id), foragcon) #biomass food
+S2 <- lmer(moveresid ~ percap + sex + nightlength + (1|id), foragcon) #percapita food
+S3 <- lmer(moveresid ~ mortrate + sex + nightlength + (1|id), foragcon) #predation risk/mortality rate
+S4 <- lmer(moveresid ~ temp + sex + nightlength + (1|id), foragcon) #temperature
 
 #double terms 
-D1 <- lmer(moveresid ~ biomass + mortrate + sex + (1|id), foragcon) #biomass and mortality
-D2 <- lmer(moveresid ~ biomass + temp + sex + (1|id), foragcon) #biomass and temp
-D3 <- lmer(moveresid ~ percap + mortrate + sex + (1|id), foragcon) #percap and mortality
-D4 <- lmer(moveresid ~ percap + temp + sex + (1|id), foragcon) #percap and temp
-D5 <- lmer(moveresid ~ mortrate + temp + sex + (1|id), foragcon) #mortality and temp
+D1 <- lmer(moveresid ~ biomass + mortrate + sex + nightlength + (1|id), foragcon) #biomass and mortality
+D2 <- lmer(moveresid ~ biomass + temp + sex + nightlength + (1|id), foragcon) #biomass and temp
+D3 <- lmer(moveresid ~ percap + mortrate + sex + nightlength + (1|id), foragcon) #percap and mortality
+D4 <- lmer(moveresid ~ percap + temp + sex + nightlength + (1|id), foragcon) #percap and temp
+D5 <- lmer(moveresid ~ mortrate + temp + sex + nightlength + (1|id), foragcon) #mortality and temp
 
 #triple terms
-T1 <- lmer(moveresid ~ biomass + mortrate + temp + sex + (1|id), foragcon)
-T2 <- lmer(moveresid ~ percap + mortrate + temp + sex + (1|id), foragcon)
+T1 <- lmer(moveresid ~ biomass + mortrate + temp + sex + nightlength + (1|id), foragcon)
+T2 <- lmer(moveresid ~ percap + mortrate + temp + sex + nightlength + (1|id), foragcon)
 
 #list models
 mods <- list(n, S1, S2, S3, S4, D1, D2, D3, D4, D5, T1, T2)
@@ -65,14 +65,14 @@ moddesign <- data.table(
 AICcon <- merge(moddesign, AICcon, by = "Modnames")
 setorder(AICcon, "Delta_AICc")
 
-summary(D5)
+summary(S4)
 
 
 
 # make predictive tables and extract coefficients -------------------------
 
 #make predictive tables
-t_pred <- as.data.table(ggpredict(D5, terms = c("temp"))) #temperature (t)
+t_pred <- as.data.table(ggpredict(S4, terms = c("temp"))) #temperature (t)
 
 #figures for foraging effort in response to temperature
 (tfig <- 
