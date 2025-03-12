@@ -1,13 +1,10 @@
 
-
-
-###Show grids now. Cut out un-used variables.
-
-#script for one into figure showing annual trends of data
+#script for figure showing annual trends of data
 
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
+#read in data
 dat <- readRDS("Output/Data/full_data_weekly_nogrid.rds")
 fecal <- readRDS("Output/Data/fecal_protein.rds")
 forag <- readRDS("Output/Data/foraging_weekly.rds")
@@ -16,6 +13,7 @@ forag <- readRDS("Output/Data/foraging_weekly.rds")
 
 # Dependent variables ---------------------------
 
+#foraging effort by year
 (foraging <- 
     ggplot(forag)+
     geom_boxplot(aes(x = yearfactor, y = forage, fill = food), alpha = .5)+
@@ -23,6 +21,7 @@ forag <- readRDS("Output/Data/foraging_weekly.rds")
     labs(y = "Weekly foraging effort (hr/day)", x = "", title = "A)")+
     themepoints)
 
+#fecal protein by year
 (feces <- 
     ggplot(fecal)+
     geom_abline(intercept = 10, slope = 0, linetype = 2)+
@@ -63,7 +62,6 @@ sumdepfig <- ggarrange(foraging, feces, nrow = 2, ncol = 1)
    labs(y = "Temperature (C)", x = "", title = "C)")+
    facet_wrap(~year, scales = "free_x")+
    themepoints_small)
-
 
 #snow depth 
 (sweek <- 
