@@ -196,8 +196,8 @@ movesb_f <- round(moveanova$`F value`[1], 2)
 movet_f <- round(moveanova$`F value`[2], 2)
 
 #get coefficients
-movesb_coef <- round(fixef(move)[2], 3)
-movet_coef <- round(fixef(move)[3], 3)
+movesb_coef <- round(fixef(move)[2], 4)
+movet_coef <- round(fixef(move)[3], 4)
 
 #get standard errorts
 movet_se <- round(se.fixef(move)[3], 3)
