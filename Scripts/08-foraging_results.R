@@ -179,20 +179,37 @@ fullfig <- ggarrange(bfig, tfig, foodb_fig, foodt_fig, nrow = 2, ncol = 2)
 # movement rates in relation to the same model ----------------------------
 
 #apply top model to movement rates
-movecon <- lmer(move ~ biomass + temp + sex + nightlength + (1|id), foragcon) #biomass and temp
-summary(movecon)
+move <- lmer(move ~ biomass + temp + sex + nightlength + (1|id), foragcon) #biomass and temp
+summary(move)
 
 #make predictive tables
-sbmove_pred <- as.data.table(ggpredict(movecon, terms = c("biomass"))) #soluble biomass (sb)
-tmove_pred <- as.data.table(ggpredict(movecon, terms = c("temp"))) #temperature (t)
+sbmove_pred <- as.data.table(ggpredict(move, terms = c("biomass"))) #soluble biomass (sb)
+tmove_pred <- as.data.table(ggpredict(move, terms = c("temp"))) #temperature (t)
+
+#get t-values
+movesb_t = round(coef(summary(move))[,"t value"][2], 2)
+movet_t = round(coef(summary(move))[,"t value"][3], 2)
+
+#get f-values
+moveanova <- anova(move)
+movesb_f <- round(moveanova$`F value`[1], 2)
+movet_f <- round(moveanova$`F value`[2], 2)
+
+#get coefficients
+movesb_coef <- round(fixef(move)[2], 3)
+movet_coef <- round(fixef(move)[3], 3)
+
+#get standard errorts
+movet_se <- round(se.fixef(move)[3], 3)
+movesb_se <- round(se.fixef(move)[2], 3)
 
 
 #figure for foraging effort in response to soluble biomass
 (bmov <- 
     ggplot()+
     geom_point(aes(x = biomass, y = move), alpha = .3, data = foragcon)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = sb_pred)+
-    geom_line(aes(x = x, y = predicted), data = sb_pred)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = sbmove_pred)+
+    geom_line(aes(x = x, y = predicted), data = sbmove_pred)+
     labs(x = "Soluble biomass (kg/ha)", y = "Traveling (min/day)", subtitle = "B)")+
     themepoints)
 
@@ -200,8 +217,8 @@ tmove_pred <- as.data.table(ggpredict(movecon, terms = c("temp"))) #temperature 
 (tmov <- 
     ggplot()+
     geom_point(aes(x = temp, y = move), alpha = .3, data = foragcon)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = t_pred)+
-    geom_line(aes(x = x, y = predicted), data = t_pred)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = tmove_pred)+
+    geom_line(aes(x = x, y = predicted), data = tmove_pred)+
     labs(x = "Daily temperature (C)", y = "Traveling (min/day)", subtitle = "D)")+
     themepoints)
 
