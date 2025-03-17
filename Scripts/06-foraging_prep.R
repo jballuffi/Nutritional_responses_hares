@@ -7,7 +7,7 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 beh <- fread("Input/allHareDailyValues2015_2021.csv")
 inds <- readRDS("Output/Data/individual_info.rds")
 traps <- readRDS("Output/Data/trap_nights.rds")
-days <- fread("Input/daylength .csv")
+days <- fread("Input/daylength.csv")
 
 
 
@@ -52,6 +52,9 @@ beh[, start := dmy(paste0(01, "-", 01, "-", year)), year]
 
 #calculate julian day from jan 1st
 beh[, jday := date - start + 1, year][, jday := as.numeric(jday)]
+
+#issue with leap years, any day thats julian 91, make 90 to match
+beh[jday == 91, jday := 90]
 
 #merge in day length with behaviour data
 beh2 <- merge(beh, days, by = "jday", all.x = TRUE)
