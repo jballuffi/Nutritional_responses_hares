@@ -43,7 +43,7 @@ daily[, harespergrid := haredensity*36] #hares/grid
 daily[, percap := twigpergrid/harespergrid] #kg/hare
 
 #merge with temp data
-daily <- merge(daily, temp, by = "date", all = TRUE)
+daily <- merge(daily, temp[, 2:4], by = "date", all = TRUE)
 
 #make a week column
 daily[, week := week(date), year]
@@ -67,7 +67,7 @@ datnogrid <- dat[, .(snow = mean(snow),
                      percap = mean(percap), 
                      mortrate = mean(mortrate), 
                      temp = mean(temp, na.rm = TRUE),
-                     VO = mean(VO)),
+                     VO = mean(VO, na.rm = TRUE)),
                  by = .(date, year, yearfactor)]
 
 datweek <- dat[, .(date = min(date),
@@ -77,7 +77,7 @@ datweek <- dat[, .(date = min(date),
                    biomass = mean(biomass),
                    percap = mean(percap),
                    temp = mean(temp, na.rm = TRUE),
-                   VO = mean(VO)),
+                   VO = mean(VO, na.rm = TRUE)),
                by = .(year, yearfactor, week, snowgrid)]
 
 datweeknogrid <- dat[, .(date = min(date),
@@ -87,7 +87,7 @@ datweeknogrid <- dat[, .(date = min(date),
                          biomass = mean(biomass),
                          percap = mean(percap),
                          temp = mean(temp, na.rm = TRUE),
-                         VO = mean(VO)),
+                         VO = mean(VO, na.rm = TRUE)),
                by = .(year, yearfactor, week)]
 
 
