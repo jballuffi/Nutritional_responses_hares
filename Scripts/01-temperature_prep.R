@@ -32,8 +32,10 @@ weather[, m := month(date)]
 #cut to just january to march
 winter <- weather[m == 1|m == 2|m == 3]
 
+winter[, temp := round(temp, 1)]
+
 #take just the date and mean temp
-winter <- winter[, .(date, temp)]
+winter2 <- winter[, .(date, temp)]
 
 
 
@@ -59,7 +61,7 @@ ggplot(metab)+
 # final data and save -----------------------------------------------------
 
 #merge metabolic prediction with real temp data
-dat <- merge(winter, metab, by = "temp", all.x = TRUE)
+dat <- merge(winter2, metab, by = "temp", all.x = TRUE)
 
 saveRDS(dat, "Output/Data/temperature_prepped.rds")
 
