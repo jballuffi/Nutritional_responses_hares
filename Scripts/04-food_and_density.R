@@ -43,7 +43,7 @@ daily[, harespergrid := haredensity*36] #hares/grid
 daily[, percap := twigpergrid/harespergrid] #kg/hare
 
 #merge with temp data
-daily <- merge(daily, temp[, 1:3], by = "date", all = TRUE)
+daily <- merge(daily, temp, by = "date", all = TRUE)
 
 #make a week column
 daily[, week := week(date), year]
@@ -59,14 +59,15 @@ daily[, yearfactor := as.factor(year)]
 daily <- daily[year > 2015 & !year == 2022]
 
 #take variables of interest
-dat <- daily[, .(snowgrid, date, week, year, yearfactor, snow, haredensity, biomass = digbiomass, percap, mortrate, temp = tempmean)]
+dat <- daily[, .(snowgrid, date, week, year, yearfactor, snow, haredensity, biomass = digbiomass, percap, mortrate, temp, VO)]
 
 datnogrid <- dat[, .(snow = mean(snow), 
                      haredensity = mean(haredensity), 
                      biomass = mean(biomass), 
                      percap = mean(percap), 
                      mortrate = mean(mortrate), 
-                     temp = mean(temp, na.rm = TRUE)),
+                     temp = mean(temp, na.rm = TRUE),
+                     VO = mean(VO)),
                  by = .(date, year, yearfactor)]
 
 datweek <- dat[, .(date = min(date),
@@ -75,7 +76,8 @@ datweek <- dat[, .(date = min(date),
                    mortrate = mean(mortrate),
                    biomass = mean(biomass),
                    percap = mean(percap),
-                   temp = mean(temp, na.rm = TRUE)),
+                   temp = mean(temp, na.rm = TRUE),
+                   VO = mean(VO)),
                by = .(year, yearfactor, week, snowgrid)]
 
 datweeknogrid <- dat[, .(date = min(date),
@@ -84,7 +86,8 @@ datweeknogrid <- dat[, .(date = min(date),
                          mortrate = mean(mortrate),
                          biomass = mean(biomass),
                          percap = mean(percap),
-                         temp = mean(temp, na.rm = TRUE)),
+                         temp = mean(temp, na.rm = TRUE),
+                         VO = mean(VO)),
                by = .(year, yearfactor, week)]
 
 
