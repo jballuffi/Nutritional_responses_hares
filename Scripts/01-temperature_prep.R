@@ -62,8 +62,7 @@ ggplot(metab)+
 
 #merge metabolic prediction with real temp data
 dat <- merge(winter2, metab, by = "Ta", all.x = TRUE)
-dat[is.na(VO)]
+dat <- dat[!is.na(VO)]
 
 saveRDS(dat, "Output/Data/temperature_prepped.rds")
-
 
