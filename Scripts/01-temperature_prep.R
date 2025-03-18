@@ -32,10 +32,10 @@ weather[, m := month(date)]
 #cut to just january to march
 winter <- weather[m == 1|m == 2|m == 3]
 
-winter[, temp := round(temp, 1)]
+winter[, Ta := round(temp)]
 
 #take just the date and mean temp
-winter2 <- winter[, .(date, temp)]
+winter2 <- winter[, .(date, temp, Ta)]
 
 
 
@@ -43,16 +43,16 @@ winter2 <- winter[, .(date, temp)]
 
 #make a sequence of temperatures
 metab <- data.table(
-  temp = seq(-40, 15, 0.1)
+  Ta = seq(-45, 15)
 )
 
 #based on sheriff's paper, calculate metabolism based on ambient temp
-metab[temp > -10, VO := 976.68] #resting metabolic rate in the thermal neutral zone
-metab[temp <= -10, VO := 686.14 - 30.897*temp] #the increase in metabolic rate below thermal neutral zone
+metab[Ta > -10, VO := 976.68] #resting metabolic rate in the thermal neutral zone
+metab[Ta <= -10, VO := 686.14 - 30.897*Ta] #the increase in metabolic rate below thermal neutral zone
 
 #make a figure showing the relationship between temp and metabolism
 ggplot(metab)+
-  geom_line(aes(x = temp, y = VO), linewidth = 1)+
+  geom_line(aes(x = Ta, y = VO), linewidth = 1)+
   labs(x = "Ambient temperature (C)", y = "Oxygen consumption (ml/hr)")+
   themepoints
 
@@ -61,7 +61,8 @@ ggplot(metab)+
 # final data and save -----------------------------------------------------
 
 #merge metabolic prediction with real temp data
-dat <- merge(winter2, metab, by = "temp", all.x = TRUE)
+dat <- merge(winter2, metab, by = "Ta", all.x = TRUE)
+dat[is.na(VO)]
 
 saveRDS(dat, "Output/Data/temperature_prepped.rds")
 
