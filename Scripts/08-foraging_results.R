@@ -32,20 +32,20 @@ n <- lmer(forage ~ sex + nightlength + (1|id), foragcon) #null model
 
 #single terms 
 S1 <- lmer(forage ~ biomass + sex + nightlength + (1|id), foragcon) #biomass food
-S2 <- lmer(forage ~ percap + sex + nightlength + (1|id), foragcon) #percapita food
+S2 <- lmer(forage ~ haredensity + sex + nightlength + (1|id), foragcon) #percapita food
 S3 <- lmer(forage ~ mortrate + sex + nightlength + (1|id), foragcon) #predation risk/mortality rate
 S4 <- lmer(forage ~ temp + sex + nightlength + (1|id), foragcon) #temperature
 
 #double terms 
 D1 <- lmer(forage ~ biomass + mortrate + sex + nightlength + (1|id), foragcon) #biomass and mortality
 D2 <- lmer(forage ~ biomass + temp + sex + nightlength + (1|id), foragcon) #biomass and temp
-D3 <- lmer(forage ~ percap + mortrate + sex + nightlength + (1|id), foragcon) #percap and mortality
-D4 <- lmer(forage ~ percap + temp + sex + nightlength + (1|id), foragcon) #percap and temp
+D3 <- lmer(forage ~ haredensity + mortrate + sex + nightlength + (1|id), foragcon) #percap and mortality
+D4 <- lmer(forage ~ haredensity + temp + sex + nightlength + (1|id), foragcon) #percap and temp
 D5 <- lmer(forage ~ mortrate + temp + sex + nightlength + (1|id), foragcon) #mortality and temp
 
 #triple terms
 T1 <- lmer(forage ~ biomass + mortrate + temp + sex + nightlength + (1|id), foragcon)
-T2 <- lmer(forage ~ percap + mortrate + temp + sex + nightlength + (1|id), foragcon)
+T2 <- lmer(forage ~ haredensity + mortrate + temp + sex + nightlength + (1|id), foragcon)
 
 #list models
 mods <- list(n, S1, S2, S3, S4, D1, D2, D3, D4, D5, T1, T2)
@@ -173,6 +173,34 @@ setnames(foodt_pred, "group", "food")
 
 #make full paneled figure
 fullfig <- ggarrange(bfig, tfig, foodb_fig, foodt_fig, nrow = 2, ncol = 2)
+
+
+
+
+
+# look at hare density instead --------------------------------------------
+
+summary(lmer(forage ~ haredensity + nightlength + sex + (1|id), foragcon))
+
+ggplot(foragcon)+
+  geom_point(aes(x = haredensity, y = forage), alpha = 0.2)+
+  geom_abline(intercept = 7.17, slope = -0.78, linewidth = 1)+
+  labs(x = "Hare density (hares/ha)", y = "Foraging effort (hr/day)")+
+  themepoints
+
+test <- lmer(forage ~ haredensity*food + nightlength + (1|id), foragfood)
+testdt <- as.data.table(ggpredict(test, terms = c("haredensity", "food")))
+setnames(testdt, "group", "food")
+
+ggplot(foragfood)+
+  geom_point(aes(x = haredensity, y = forage, color = food), alpha = .2, data = foragfood)+
+  geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.5, data = testdt)+
+  geom_line(aes(x = x, y = predicted, color = food), data = testdt)+
+  scale_color_manual(values = foodcols, guide = NULL)+
+  scale_fill_manual(values = foodcols, guide = NULL)+
+  labs(x = "Hare density (hares/ha)", y = "Foraging effort (hr/day)")+
+  themepoints
+
 
 
 
