@@ -50,7 +50,7 @@ sumdepfig <- ggarrange(foraging, feces, nrow = 2, ncol = 1)
     ggplot(dat)+
     geom_abline(intercept = median(dat$mortrate, na.rm = TRUE), slope = 0, linetype = 2)+
     geom_line(aes(x = date, y = mortrate), linewidth = .8)+
-    labs(y = "Mortality rate", x = "", title = "B)")+
+    labs(y = "Mortality rate (%)", x = "", title = "B)")+
     facet_wrap(~year, scales = "free_x")+
     themepoints_small)
 
