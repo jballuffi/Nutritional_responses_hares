@@ -186,11 +186,11 @@ fullfig <- ggarrange(bfig, tfig, foodb_fig, foodt_fig, nrow = 2, ncol = 2)
 
 # look at hare density instead --------------------------------------------
 
-summary(lmer(forage ~ haredensity + nightlength + sex + (1|id), foragcon))
+summary(lmer(forage ~ haredensity + nightlength + (1|id), foragcon))
 
 ggplot(foragcon)+
   geom_point(aes(x = haredensity, y = forage), alpha = 0.2)+
-  geom_abline(intercept = 7.17, slope = -0.78, linewidth = 1)+
+  geom_abline(intercept = 7.55, slope = -1.08, linewidth = 1)+
   labs(x = "Hare density (hares/ha)", y = "Foraging effort (hr/day)")+
   themepoints
 
@@ -213,7 +213,7 @@ ggplot(foragfood)+
 # movement rates in relation to the same model ----------------------------
 
 #apply top model to movement rates
-move <- lmer(move ~ biomass + temp + sex + nightlength + (1|id), foragcon) #biomass and temp
+move <- lmer(move ~ biomass + temp + nightlength + (1|id), foragcon) #biomass and temp
 summary(move)
 
 #make predictive tables
