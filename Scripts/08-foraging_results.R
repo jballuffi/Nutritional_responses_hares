@@ -28,6 +28,7 @@ foragfood <- forag[winter %in% foodyears & sex == "female"]
 # correlation tests -------------------------------------------------------
 
 cor(forag$nightlength, forag$haredensity)
+cor(forag$nightlength, forag$biomass)
 cor(forag$biomass, forag$temp)
 cor(forag$biomass, forag$percap)
 cor(forag$biomass, forag$haredensity)
@@ -41,20 +42,20 @@ n <- lmer(forage ~ sex + nightlength + (1|id), foragcon) #null model
 
 #single terms 
 S1 <- lmer(forage ~ biomass + sex + nightlength + (1|id), foragcon) #biomass food
-S2 <- lmer(forage ~ haredensity + sex + nightlength + (1|id), foragcon) #percapita food
+S2 <- lmer(forage ~ percap + sex + nightlength + (1|id), foragcon) #percapita food
 S3 <- lmer(forage ~ mortrate + sex + nightlength + (1|id), foragcon) #predation risk/mortality rate
 S4 <- lmer(forage ~ temp + sex + nightlength + (1|id), foragcon) #temperature
 
 #double terms 
 D1 <- lmer(forage ~ biomass + mortrate + sex + nightlength + (1|id), foragcon) #biomass and mortality
 D2 <- lmer(forage ~ biomass + temp + sex + nightlength + (1|id), foragcon) #biomass and temp
-D3 <- lmer(forage ~ haredensity + mortrate + sex + nightlength + (1|id), foragcon) #percap and mortality
-D4 <- lmer(forage ~ haredensity + temp + sex + nightlength + (1|id), foragcon) #percap and temp
+D3 <- lmer(forage ~ percap + mortrate + sex + nightlength + (1|id), foragcon) #percap and mortality
+D4 <- lmer(forage ~ percap + temp + sex + nightlength + (1|id), foragcon) #percap and temp
 D5 <- lmer(forage ~ mortrate + temp + sex + nightlength + (1|id), foragcon) #mortality and temp
 
 #triple terms
 T1 <- lmer(forage ~ biomass + mortrate + temp + sex + nightlength + (1|id), foragcon)
-T2 <- lmer(forage ~ haredensity + mortrate + temp + sex + nightlength + (1|id), foragcon)
+T2 <- lmer(forage ~ percap + mortrate + temp + sex + nightlength + (1|id), foragcon)
 
 #list models
 mods <- list(n, S1, S2, S3, S4, D1, D2, D3, D4, D5, T1, T2)
@@ -103,10 +104,6 @@ t_coef <- round(fixef(D2)[3], 3)
 #get standard errorts
 t_se <- round(se.fixef(D2)[3], 3)
 sb_se <- round(se.fixef(D2)[2], 3)
-
-#2nd model with mortality rate (not relevant)
-summary(T1)
-mort_t = round(coef(summary(T1))[,"t value"][3], 2)
 
 
 
