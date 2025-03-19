@@ -63,14 +63,14 @@ sumdepfig <- ggarrange(foraging, feces, nrow = 2, ncol = 1)
    facet_wrap(~year, scales = "free_x")+
    themepoints_small)
 
-#snow depth 
-(sweek <- 
-   ggplot(dat)+
-   geom_abline(intercept = median(dat$snow, na.rm = TRUE), slope = 0, linetype = 2)+
-   geom_line(aes(x = date, y = snow), linewidth = .8)+
-   labs(y = "Snow depth (cm)", x = "", title = "D)")+
-   facet_wrap(~year, scales = "free_x")+
-   themepoints_small)
+# #snow depth 
+# (sweek <- 
+#    ggplot(dat)+
+#    geom_abline(intercept = median(dat$snow, na.rm = TRUE), slope = 0, linetype = 2)+
+#    geom_line(aes(x = date, y = snow), linewidth = .8)+
+#    labs(y = "Snow depth (cm)", x = "", title = "D)")+
+#    facet_wrap(~year, scales = "free_x")+
+#    themepoints_small)
 
 
 
@@ -81,26 +81,26 @@ sumdepfig <- ggarrange(foraging, feces, nrow = 2, ncol = 1)
     ggplot(dat)+
     geom_abline(intercept = median(dat$biomass, na.rm = TRUE), slope = 0, linetype = 2)+
     geom_line(aes(x = date, y = biomass), linewidth = .8)+
-    labs(y = "Soluble biomass (kg/ha)", x = "", title = "E)")+
+    labs(y = "Soluble biomass (kg/ha)", x = "", title = "D)")+
     facet_wrap(~year, scales = "free_x")+
     themepoints_small)
 
-#soluble biomass per hare
-(pcweek <- 
-    ggplot(dat)+
-    geom_abline(intercept = median(dat$percap, na.rm = TRUE), slope = 0, linetype = 2)+
-    geom_line(aes(x = date, y = percap), linewidth = .8)+
-    labs(y = "Per capita soluble biomass (kg/hare)", x = "", title = "F)")+
-    facet_wrap(~year, scales = "free_x")+
-    themepoints_small)
+# #soluble biomass per hare
+# (pcweek <- 
+#     ggplot(dat)+
+#     geom_abline(intercept = median(dat$percap, na.rm = TRUE), slope = 0, linetype = 2)+
+#     geom_line(aes(x = date, y = percap), linewidth = .8)+
+#     labs(y = "Per capita soluble biomass (kg/hare)", x = "", title = "F)")+
+#     facet_wrap(~year, scales = "free_x")+
+#     themepoints_small)
 
-sumindfig <- ggarrange(dweek, mweek, tweek, sweek, bweek, pcweek, ncol = 2, nrow = 3)
+sumindfig <- ggarrange(dweek, mweek, tweek, bweek, ncol = 2, nrow = 2)
 
 
 
 # save -----------------------------------------
 
-ggsave("Output/Figures/vars_weekly.jpeg", sumindfig, width = 10, height = 15, unit = "in")
+ggsave("Output/Figures/vars_weekly.jpeg", sumindfig, width = 10, height = 10, unit = "in")
 ggsave("Output/Figures/dep_vars_.jpeg", sumdepfig, width = 5, height = 8, unit = "in")
 
 
