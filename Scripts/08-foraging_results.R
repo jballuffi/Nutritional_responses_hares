@@ -38,24 +38,24 @@ cor(forag$biomass, forag$haredensity)
 # AIC to explain weekly foraging for controls only ------------------------
 
 #models for controls only
-n <- lmer(forage ~ sex + nightlength + (1|id), foragcon) #null model
+n <- lmer(forage ~ nightlength + (1|id), foragcon) #null model
 
 #single terms 
-S1 <- lmer(forage ~ biomass + sex + nightlength + (1|id), foragcon) #biomass food
-S2 <- lmer(forage ~ percap + sex + nightlength + (1|id), foragcon) #percapita food
-S3 <- lmer(forage ~ mortrate + sex + nightlength + (1|id), foragcon) #predation risk/mortality rate
-S4 <- lmer(forage ~ temp + sex + nightlength + (1|id), foragcon) #temperature
+S1 <- lmer(forage ~ biomass + nightlength + (1|id), foragcon) #biomass food
+S2 <- lmer(forage ~ percap + nightlength + (1|id), foragcon) #percapita food
+S3 <- lmer(forage ~ mortrate + nightlength + (1|id), foragcon) #predation risk/mortality rate
+S4 <- lmer(forage ~ temp + nightlength + (1|id), foragcon) #temperature
 
 #double terms 
-D1 <- lmer(forage ~ biomass + mortrate + sex + nightlength + (1|id), foragcon) #biomass and mortality
-D2 <- lmer(forage ~ biomass + temp + sex + nightlength + (1|id), foragcon) #biomass and temp
-D3 <- lmer(forage ~ percap + mortrate + sex + nightlength + (1|id), foragcon) #percap and mortality
-D4 <- lmer(forage ~ percap + temp + sex + nightlength + (1|id), foragcon) #percap and temp
-D5 <- lmer(forage ~ mortrate + temp + sex + nightlength + (1|id), foragcon) #mortality and temp
+D1 <- lmer(forage ~ biomass + mortrate + nightlength + (1|id), foragcon) #biomass and mortality
+D2 <- lmer(forage ~ biomass + temp + nightlength + (1|id), foragcon) #biomass and temp
+D3 <- lmer(forage ~ percap + mortrate + nightlength + (1|id), foragcon) #percap and mortality
+D4 <- lmer(forage ~ percap + temp + nightlength + (1|id), foragcon) #percap and temp
+D5 <- lmer(forage ~ mortrate + temp + nightlength + (1|id), foragcon) #mortality and temp
 
 #triple terms
-T1 <- lmer(forage ~ biomass + mortrate + temp + sex + nightlength + (1|id), foragcon)
-T2 <- lmer(forage ~ percap + mortrate + temp + sex + nightlength + (1|id), foragcon)
+T1 <- lmer(forage ~ biomass + mortrate + temp + nightlength + (1|id), foragcon)
+T2 <- lmer(forage ~ percap + mortrate + temp + nightlength + (1|id), foragcon)
 
 #list models
 mods <- list(n, S1, S2, S3, S4, D1, D2, D3, D4, D5, T1, T2)
@@ -244,7 +244,7 @@ movesb_se <- round(se.fixef(move)[2], 3)
     geom_point(aes(x = biomass, y = move), alpha = .3, data = foragcon)+
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = sbmove_pred)+
     geom_line(aes(x = x, y = predicted), data = sbmove_pred)+
-    labs(x = "Soluble biomass (kg/ha)", y = "Traveling (min/day)", subtitle = "B)")+
+    labs(x = "Soluble biomass (kg/ha)", y = "Traveling (min/day)", subtitle = "A)")+
     themepoints)
 
 #figures for foraging effort in response to temperature
@@ -253,7 +253,7 @@ movesb_se <- round(se.fixef(move)[2], 3)
     geom_point(aes(x = temp, y = move), alpha = .3, data = foragcon)+
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = tmove_pred)+
     geom_line(aes(x = x, y = predicted), data = tmove_pred)+
-    labs(x = "Daily temperature (C)", y = "Traveling (min/day)", subtitle = "D)")+
+    labs(x = "Daily temperature (C)", y = "Traveling (min/day)", subtitle = "B)")+
     themepoints)
 
 movfig <- ggarrange(bmov, tmov, ncol = 1, nrow = 2)
