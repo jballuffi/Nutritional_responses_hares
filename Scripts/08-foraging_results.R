@@ -28,7 +28,10 @@ foragfood <- forag[winter %in% foodyears & sex == "female"]
 # correlation tests -------------------------------------------------------
 
 cor(forag$nightlength, forag$haredensity)
-cor(forag$VO, forag$temp)
+cor(forag$biomass, forag$temp)
+cor(forag$biomass, forag$percap)
+cor(forag$biomass, forag$haredensity)
+
 
 
 # AIC to explain weekly foraging for controls only ------------------------
