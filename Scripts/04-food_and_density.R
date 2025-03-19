@@ -34,6 +34,9 @@ food[, digbiomass := biomassavail*(NDSavail_comp/100)]
 
 # merge with density and snow data ----------------------------------------------------
 
+#convert mort rate from proportion to a percentage
+density[, mortrate := mortrate*100]
+
 #merge daily snow and food data with density
 daily <- merge(food, density[, 4:7], by = c("date"), all = TRUE)
 
