@@ -18,14 +18,14 @@ fecal <- merge(fecal, dat, by = c("date", "year", "yearfactor"), all.x = TRUE)
 #make models
 null <- lm(CP_dm ~ 1, fecal)
 S1 <- lm(CP_dm ~ biomass*food, fecal)
-S2 <- lm(CP_dm ~ percap*food, fecal)
+S2 <- lm(CP_dm ~ haredensity*food, fecal)
 S3 <- lm(CP_dm ~ mortrate*food, fecal)
 S4 <- lm(CP_dm ~ temp*food, fecal)
 
 D1 <- lm(CP_dm ~ biomass*food + mortrate*food, fecal)
 D2 <- lm(CP_dm ~ biomass*food + temp*food, fecal)
-D3 <- lm(CP_dm ~ percap*food + mortrate*food, fecal)
-D4 <- lm(CP_dm ~ percap*food + temp*food, fecal)
+D3 <- lm(CP_dm ~ haredensity*food + mortrate*food, fecal)
+D4 <- lm(CP_dm ~ haredensity*food + temp*food, fecal)
 D5 <- lm(CP_dm ~ mortrate*food + temp*food, fecal)
 
 
@@ -33,11 +33,11 @@ D5 <- lm(CP_dm ~ mortrate*food + temp*food, fecal)
 mods <- list(null, S1, S2, S3, S4, D1, D2, D3, D4, D5)
 codes <- c("Null", "S1", "S2", "S3", "S4", "D1", "D2", "D3", "D4", "D5")
 
-vars <- c("None", "SB*Food", "PCSB*Food", "Mortality*Food", "Temperature*Food",
-          "SB*Food + Mortality*Food", 
-          "SB*Food + Temperature*Food", 
-          "PCSB*Food + Mortality*Food", 
-          "PCSB*Food + Temperature*Food", 
+vars <- c("None", "Biomass*Food", "Density*Food", "Mortality*Food", "Temperature*Food",
+          "Biomass*Food + Mortality*Food", 
+          "Biomass*Food + Temperature*Food", 
+          "Density*Food + Mortality*Food", 
+          "Density*Food + Temperature*Food", 
           "Mortality*Food + Temperature*Food")
 
 AICfood <- make_aic_lm(modlist = mods, modnames = codes)
@@ -99,7 +99,7 @@ food_se <- round(coef(summary(D2))[,"Std. Error"][3], 2)
   geom_line(aes(x = x, y = predicted, color = food), data = biopred)+
   scale_color_manual(values = foodcols, name = "Food")+
   scale_fill_manual(values = foodcols, name = "Food")+
-  labs(x = "Soluble biomass (kg/ha)", y = "Fecal protein (%)", title = "A)")+
+  labs(x = "Twig biomass (kg/ha)", y = "Fecal protein (%)", title = "A)")+
   themepoints)
 
 
@@ -111,7 +111,7 @@ food_se <- round(coef(summary(D2))[,"Std. Error"][3], 2)
     geom_line(aes(x = x, y = predicted, color = food), data = temppred)+
     scale_color_manual(values = foodcols, name = "Food")+
     scale_fill_manual(values = foodcols, name = "Food")+
-    labs(x = "Daily temperature (C)", y = "Fecal protein (%)", title = "B)")+
+    labs(x = "Temperature (C)", y = "Fecal protein (%)", title = "B)")+
     themepoints)
 
 fecalfig <- ggarrange(biofig, tempfig, nrow = 2, ncol = 1)
