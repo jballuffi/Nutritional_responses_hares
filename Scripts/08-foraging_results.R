@@ -4,12 +4,13 @@
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
-forag <- readRDS("Output/Data/foraging_weekly.rds")
-dat <- readRDS("Output/Data/full_data_weekly_nogrid.rds")
-
 
 
 # merge info and make a control and food add dataset --------
+
+#read data
+forag <- readRDS("Output/Data/foraging_weekly.rds")
+dat <- readRDS("Output/Data/full_data_weekly_nogrid.rds")
 
 #merge by week and snow grid
 forag <- merge(forag, dat, by = c("week", "year", "yearfactor"), all.x = TRUE)
@@ -21,7 +22,7 @@ foragcon <- forag[food == 0]
 foodyears <- forag[food == 1, unique(winter)]
 
 #take only females for food add comparisons
-foragfood <- forag[winter %in% foodyears & sex == "female"]
+foragfood <- forag[winter %in% foodyears]
 
 
 
@@ -37,43 +38,68 @@ cor(forag$biomass, forag$haredensity)
 
 # AIC to explain weekly foraging for controls only ------------------------
 
+#get combos for triple terms
+combn(c("biomass", "temp", "haredensity", "mortrate"), 3)
+
+   #MODELS
 #models for controls only
 n <- lmer(forage ~ nightlength + (1|id), foragcon) #null model
 
 #single terms 
 S1 <- lmer(forage ~ biomass + nightlength + (1|id), foragcon) #biomass food
-S2 <- lmer(forage ~ percap + nightlength + (1|id), foragcon) #percapita food
+S2 <- lmer(forage ~ haredensity + nightlength + (1|id), foragcon) #percapita food
 S3 <- lmer(forage ~ mortrate + nightlength + (1|id), foragcon) #predation risk/mortality rate
 S4 <- lmer(forage ~ temp + nightlength + (1|id), foragcon) #temperature
 
 #double terms 
 D1 <- lmer(forage ~ biomass + mortrate + nightlength + (1|id), foragcon) #biomass and mortality
 D2 <- lmer(forage ~ biomass + temp + nightlength + (1|id), foragcon) #biomass and temp
-D3 <- lmer(forage ~ percap + mortrate + nightlength + (1|id), foragcon) #percap and mortality
-D4 <- lmer(forage ~ percap + temp + nightlength + (1|id), foragcon) #percap and temp
+D3 <- lmer(forage ~ haredensity + mortrate + nightlength + (1|id), foragcon) #percap and mortality
+D4 <- lmer(forage ~ haredensity + temp + nightlength + (1|id), foragcon) #percap and temp
 D5 <- lmer(forage ~ mortrate + temp + nightlength + (1|id), foragcon) #mortality and temp
+D6 <- lmer(forage ~ haredensity + biomass + nightlength + (1|id), foragcon)
 
 #triple terms
-T1 <- lmer(forage ~ biomass + mortrate + temp + nightlength + (1|id), foragcon)
-T2 <- lmer(forage ~ percap + mortrate + temp + nightlength + (1|id), foragcon)
+T1 <- lmer(forage ~ biomass + temp + haredensity + nightlength + (1|id), foragcon)
+T2 <- lmer(forage ~ biomass + mortrate + temp + nightlength + (1|id), foragcon)
+T3 <- lmer(forage ~ biomass + haredensity + mortrate + nightlength + (1|id), foragcon)
+T4 <- lmer(forage ~ haredensity + temp + mortrate + nightlength + (1|id), foragcon)
+
+Q1 <- lmer(forage ~ haredensity + biomass + mortrate + temp + nightlength + (1|id), foragcon)
+
 
 #list models
-mods <- list(n, S1, S2, S3, S4, D1, D2, D3, D4, D5, T1, T2)
-codes <- c("Null", "S1", "S2", "S3", "S4", "D1", "D2", "D3", "D4", "D5", "T1", "T2")
-vars <- c("None", "SB", "PCSB", "Mortality", "Temperature",
-              "SB + Mortality", "SB + Temperature", "PCSB + Mortality", "PCSB + Temperature", "Mortality + Temperature",
-              "SB + Mortality + Temperature", "PCSB + Mortality + Temperature")
+mods <- list(n, 
+             S1, S2, S3, S4, 
+             D1, D2, D3, D4, D5, D6, 
+             T1, T2, T3, T4, 
+             Q1)
+
+codes <- c("Null", 
+           "S1", "S2", "S3", "S4", 
+           "D1", "D2", "D3", "D4", "D5", "D6", 
+           "T1", "T2", "T3", "T4", 
+           "Q1")
 
 #use function from R/ folder to make an AIC table comparing all models.
 #function also extracts R2s
 AICcon <- make_aic_lmer(modlist = mods, modnames = codes)
 
-#make a dataframe with model codes and their designs
+
+#print formulas from list of models
+getform <- function(x){
+  as.character(formula(x)[3])
+}
+formulas <- lapply(mods, getform)
+formulas <- unlist(formulas)
+
+#make data table with model names and formulas
 moddesign <- data.table(
   Modnames = codes,
-  Variables = vars
+  Variables = formulas
 )
 
+#merge model designs with AIC table
 AICcon <- merge(moddesign, AICcon, by = "Modnames")
 setorder(AICcon, "Delta_AICc")
 
@@ -179,34 +205,6 @@ setnames(foodt_pred, "group", "food")
 
 #make full paneled figure
 fullfig <- ggarrange(bfig, tfig, foodb_fig, foodt_fig, nrow = 2, ncol = 2)
-
-
-
-
-
-# look at hare density instead --------------------------------------------
-
-summary(lmer(forage ~ haredensity + nightlength + (1|id), foragcon))
-
-ggplot(foragcon)+
-  geom_point(aes(x = haredensity, y = forage), alpha = 0.2)+
-  geom_abline(intercept = 7.55, slope = -1.08, linewidth = 1)+
-  labs(x = "Hare density (hares/ha)", y = "Foraging effort (hr/day)")+
-  themepoints
-
-test <- lmer(forage ~ haredensity*food + nightlength + (1|id), foragfood)
-testdt <- as.data.table(ggpredict(test, terms = c("haredensity", "food")))
-setnames(testdt, "group", "food")
-
-ggplot(foragfood)+
-  geom_point(aes(x = haredensity, y = forage, color = food), alpha = .2, data = foragfood)+
-  geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.5, data = testdt)+
-  geom_line(aes(x = x, y = predicted, color = food), data = testdt)+
-  scale_color_manual(values = foodcols, guide = NULL)+
-  scale_fill_manual(values = foodcols, guide = NULL)+
-  labs(x = "Hare density (hares/ha)", y = "Foraging effort (hr/day)")+
-  themepoints
-
 
 
 
