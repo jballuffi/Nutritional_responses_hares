@@ -21,6 +21,13 @@ forag <- readRDS("Output/Data/foraging_weekly.rds")
     labs(y = "Weekly foraging effort (hr/day)", x = "", title = "A)")+
     themepoints)
 
+(foraging2 <- 
+    ggplot(forag)+
+    geom_boxplot(aes(x = yearfactor, y = foragehr, fill = food), alpha = .5)+
+    scale_fill_manual(values = foodcols, guide = NULL)+
+    labs(y = "Weekly foraging effort (min/hr)", x = "", title = "A)")+
+    themepoints)
+
 #fecal protein by year
 (feces <- 
     ggplot(fecal)+
