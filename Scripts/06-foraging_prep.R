@@ -78,9 +78,13 @@ beh3 <- beh3[is.na(trapnight)]
 #convert movement from seconds to minutes
 
 beh4 <- beh3[, .(winter, id, m, year, date, jday, nightlength, 
-                 forage = Forage/3600, #hours
+                 forage = Forage/3600, #hour
                  rest = notmoving/3600, #hours
                  move = (Hopping + Sprinting)/60)] #minutes
+
+beh4[, foragehr := (forage*60)/nightlength]
+
+plot(beh4$foragehr ~ beh4$forage)
 
 
 
@@ -114,7 +118,8 @@ beh4[, moveresid := move - movepred]
 beh4[, week := week(date), year]
 
 #get mean foraging effort by week and individual
-behweek <- beh4[, .(forage = mean(forage), 
+behweek <- beh4[, .(forage = mean(forage),
+                    foragehr = mean(foragehr),
                     move = mean(move), 
                     moveresid = mean(moveresid), 
                     rest = mean(rest), 
