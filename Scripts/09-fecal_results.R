@@ -83,12 +83,14 @@ food_coef <- round(coef(summary(D2))[,"Estimate"][3], 2)
 sb_se <- round(coef(summary(D2))[,"Std. Error"][2], 2)
 food_se <- round(coef(summary(D2))[,"Std. Error"][3], 2)
 
-
+#second top model had hare density included
+summary(D4)
+denspred <- as.data.table(ggpredict(D4, terms = c("haredensity", "food")))
+setnames(denspred, "group", "food")
 
 
 
 # figures for top model ---------------------------------------------------
-
 
 
 (biofig <- 
@@ -99,7 +101,7 @@ food_se <- round(coef(summary(D2))[,"Std. Error"][3], 2)
   geom_line(aes(x = x, y = predicted, color = food), data = biopred)+
   scale_color_manual(values = foodcols, name = "Food")+
   scale_fill_manual(values = foodcols, name = "Food")+
-  labs(x = "Twig biomass (kg/ha)", y = "Fecal protein (%)", title = "A)")+
+  labs(x = "Twig biomass (kg/ha)", y = "Fecal protein (%)", subtitle = "A)")+
   themepoints)
 
 
@@ -111,15 +113,28 @@ food_se <- round(coef(summary(D2))[,"Std. Error"][3], 2)
     geom_line(aes(x = x, y = predicted, color = food), data = temppred)+
     scale_color_manual(values = foodcols, name = "Food")+
     scale_fill_manual(values = foodcols, name = "Food")+
-    labs(x = "Temperature (C)", y = "Fecal protein (%)", title = "B)")+
+    labs(x = "Temperature (C)", y = "Fecal protein (%)", subtitle = "B)")+
     themepoints)
 
-fecalfig <- ggarrange(biofig, tempfig, nrow = 2, ncol = 1)
+(densfig <- 
+    ggplot()+
+    geom_abline(intercept = 10, slope = 0, linetype = 2)+
+    geom_point(aes(x = haredensity, y = CP_dm, color = food), alpha = .2, data = fecal)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.5, data = denspred)+
+    geom_line(aes(x = x, y = predicted, color = food), data = denspred)+
+    scale_color_manual(values = foodcols, name = "Food")+
+    scale_fill_manual(values = foodcols, name = "Food")+
+    labs(x = "Hare density (hares/ha)", y = "Fecal protein (%)", subtitle = "C)")+
+    themepoints)
+
+
+
+fecalfig <- ggarrange(biofig, tempfig, densfig, nrow = 3, ncol = 1)
 
 
 
 # save --------------------------------------------------------------------
 
 write.csv(AICfood, "Output/Tables/AIC_fecal_protein.csv")
-ggsave("Output/Figures/fecal_results.jpeg", fecalfig, width = 5, height = 8, unit = "in")
+ggsave("Output/Figures/fecal_results.jpeg", fecalfig, width = 5, height = 10, unit = "in")
 
