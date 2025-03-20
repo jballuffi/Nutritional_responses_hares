@@ -41,7 +41,7 @@ sumdepfig <- ggarrange(foraging, feces, nrow = 2, ncol = 1)
    ggplot(dat)+
    geom_abline(intercept = median(dat$haredensity, na.rm = TRUE), slope = 0, linetype = 2)+
    geom_line(aes(x = date, y = haredensity), linewidth = .8)+
-   labs(y = "Hare Density (hares/ha)", x = "", title = "A)")+
+   labs(y = "Hare density (hares/ha)", x = "", title = "A)")+
    facet_wrap(~year, scales = "free_x")+
    themepoints_small)
 
@@ -81,7 +81,7 @@ sumdepfig <- ggarrange(foraging, feces, nrow = 2, ncol = 1)
     ggplot(dat)+
     geom_abline(intercept = median(dat$biomass, na.rm = TRUE), slope = 0, linetype = 2)+
     geom_line(aes(x = date, y = biomass), linewidth = .8)+
-    labs(y = "Soluble biomass (kg/ha)", x = "", title = "D)")+
+    labs(y = "Twig biomass (kg/ha)", x = "", title = "D)")+
     facet_wrap(~year, scales = "free_x")+
     themepoints_small)
 
