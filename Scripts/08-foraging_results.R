@@ -189,7 +189,7 @@ setnames(foodt_pred, "group", "food")
     geom_line(aes(x = x, y = predicted, color = food), data = foodb_pred)+
     scale_color_manual(values = foodcols, guide = NULL)+
     scale_fill_manual(values = foodcols, guide = NULL)+
-    labs(x = "Soluble biomass (kg/ha)", y = "Foraging effort (hr/day)", subtitle = "C)")+
+    labs(x = "Twig biomass (kg/ha)", y = "Foraging effort (hr/day)", subtitle = "C)")+
     themepoints)
 
 #foraging rate of food adds and controls in response to temp
@@ -200,7 +200,7 @@ setnames(foodt_pred, "group", "food")
     geom_line(aes(x = x, y = predicted, color = food), data = foodt_pred)+
     scale_color_manual(values = foodcols, guide = NULL)+
     scale_fill_manual(values = foodcols, guide = NULL)+
-    labs(x = "Daily temperature (C)", y = NULL, subtitle = "D)")+
+    labs(x = "Temperature (C)", y = NULL, subtitle = "D)")+
     themepoints)
 
 #make full paneled figure
@@ -242,7 +242,7 @@ movesb_se <- round(se.fixef(move)[2], 3)
     geom_point(aes(x = biomass, y = move), alpha = .3, data = foragcon)+
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = sbmove_pred)+
     geom_line(aes(x = x, y = predicted), data = sbmove_pred)+
-    labs(x = "Soluble biomass (kg/ha)", y = "Traveling (min/day)", subtitle = "A)")+
+    labs(x = "Twig biomass (kg/ha)", y = "Traveling (min/day)", subtitle = "A)")+
     themepoints)
 
 #figures for foraging effort in response to temperature
@@ -251,7 +251,7 @@ movesb_se <- round(se.fixef(move)[2], 3)
     geom_point(aes(x = temp, y = move), alpha = .3, data = foragcon)+
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = tmove_pred)+
     geom_line(aes(x = x, y = predicted), data = tmove_pred)+
-    labs(x = "Daily temperature (C)", y = "Traveling (min/day)", subtitle = "B)")+
+    labs(x = "Temperature (C)", y = "Traveling (min/day)", subtitle = "B)")+
     themepoints)
 
 movfig <- ggarrange(bmov, tmov, ncol = 1, nrow = 2)
