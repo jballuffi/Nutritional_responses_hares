@@ -9,9 +9,6 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 forag <- readRDS("Output/Data/foraging_weekly.rds")
 dat <- readRDS("Output/Data/full_data_weekly_nogrid.rds")
 
-#make forage per hour of night
-forag[, foragehr := forage*60/nightlength] #minutes/hour
-
 #make travel per hour of night
 forag[, travelhr := move/nightlength] #minute/hour
 
@@ -44,9 +41,18 @@ ggplot(forag)+
   theme_bw()
 
 ggplot(forag)+
-  geom_point(aes(x = forage, y = foragehr), alpha = 0.5)+
-  geom_smooth(aes(x = forage, y = foragehr), method = "lm", color = "black")+
+  geom_point(aes(x = forage, y = foragehr, color = week), alpha = 0.5)+
   labs(y = "Foraging effort (min/hr)", x = "Foraging effort (hr/day)")+
+  theme_bw()
+
+ggplot(forag)+
+  geom_point(aes(x = week, y = forage), alpha = 0.5)+
+  labs(y = "Foraging effort (hr/day)", x = "Week from Jan 1")+
+  theme_bw()
+
+ggplot(forag)+
+  geom_point(aes(x = week, y = foragehr), alpha = 0.5)+
+  labs(y = "Foraging effort (min/hr)", x = "Week from Jan 1")+
   theme_bw()
 
 
