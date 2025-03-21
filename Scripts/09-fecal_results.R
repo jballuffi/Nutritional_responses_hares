@@ -27,18 +27,20 @@ D2 <- lm(CP_dm ~ biomass*food + temp*food, fecal)
 D3 <- lm(CP_dm ~ haredensity*food + mortrate*food, fecal)
 D4 <- lm(CP_dm ~ haredensity*food + temp*food, fecal)
 D5 <- lm(CP_dm ~ mortrate*food + temp*food, fecal)
+D6 <- lm(CP_dm ~ haredensity*food + biomass*food, fecal)
 
 
 #list models, names, and designs
-mods <- list(null, S1, S2, S3, S4, D1, D2, D3, D4, D5)
-codes <- c("Null", "S1", "S2", "S3", "S4", "D1", "D2", "D3", "D4", "D5")
+mods <- list(null, S1, S2, S3, S4, D1, D2, D3, D4, D5, D6)
+codes <- c("Null", "S1", "S2", "S3", "S4", "D1", "D2", "D3", "D4", "D5", "D6")
 
 vars <- c("None", "Biomass*Food", "Density*Food", "Mortality*Food", "Temperature*Food",
           "Biomass*Food + Mortality*Food", 
           "Biomass*Food + Temperature*Food", 
           "Density*Food + Mortality*Food", 
           "Density*Food + Temperature*Food", 
-          "Mortality*Food + Temperature*Food")
+          "Mortality*Food + Temperature*Food",
+          "Density*Food + Biomass*Food")
 
 AICfood <- make_aic_lm(modlist = mods, modnames = codes)
 
