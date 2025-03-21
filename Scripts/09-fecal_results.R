@@ -55,7 +55,6 @@ setorder(AICfood, "Delta_AICc")
 
 
 
-
 # Results of top models ---------------------------------------------------
 
 summary(D2)
@@ -85,11 +84,18 @@ food_coef <- round(coef(summary(D2))[,"Estimate"][3], 2)
 sb_se <- round(coef(summary(D2))[,"Std. Error"][2], 2)
 food_se <- round(coef(summary(D2))[,"Std. Error"][3], 2)
 
-#second top model had hare density included
+
+### second top model for hare density result
+
 summary(D4)
 denspred <- as.data.table(ggpredict(D4, terms = c("haredensity", "food")))
 setnames(denspred, "group", "food")
 
+D4anova <- anova(D4)
+dens_p <- round(D4anova$`Pr(>F)`[1], 2)
+dens_coef <- round(coef(summary(D4))[,"Estimate"][2], 2)
+dens_se <- round(coef(summary(D4))[,"Std. Error"][2], 2)
+fooddens_p <- round(D4anova$`Pr(>F)`[4], 2)
 
 
 # figures for top model ---------------------------------------------------

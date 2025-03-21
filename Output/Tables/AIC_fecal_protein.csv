@@ -1,12 +1,12 @@
-,Modnames,Variables,K,AICc,Delta_AICc,AICcWt,LL,R2
-1,D2,Biomass*Food + Temperature*Food,7,989.216,0,0.523,-487.378,0.14
-2,D4,Density*Food + Temperature*Food,7,990.578,1.362,0.265,-488.059,0.13
-3,S1,Biomass*Food,5,992.207,2.991,0.117,-490.981,0.11
-4,D5,Mortality*Food + Temperature*Food,7,995.216,6,0.026,-490.379,0.12
-5,S4,Temperature*Food,5,995.477,6.261,0.023,-492.617,0.1
-6,D1,Biomass*Food + Mortality*Food,7,995.573,6.357,0.022,-490.557,0.11
-7,D6,Density*Food + Biomass*Food,7,995.658,6.442,0.021,-490.599,0.11
-8,S2,Density*Food,5,1001.004,11.788,0.001,-495.38,0.08
-9,S3,Mortality*Food,5,1001.584,12.368,0.001,-495.67,0.08
-10,D3,Density*Food + Mortality*Food,7,1004.246,15.03,0,-494.893,0.08
-11,Null,None,2,1015.735,26.519,0,-505.844,0
+"","Modnames","Variables","K","AICc","Delta_AICc","AICcWt","LL","R2"
+"1","D2","Biomass*Food + Temperature*Food",7,989.216,0,0.523,-487.378,0.14
+"2","D4","Density*Food + Temperature*Food",7,990.578,1.362,0.265,-488.059,0.13
+"3","S1","Biomass*Food",5,992.207,2.991,0.117,-490.981,0.11
+"4","D5","Mortality*Food + Temperature*Food",7,995.216,6,0.026,-490.379,0.12
+"5","S4","Temperature*Food",5,995.477,6.261,0.023,-492.617,0.1
+"6","D1","Biomass*Food + Mortality*Food",7,995.573,6.357,0.022,-490.557,0.11
+"7","D6","Density*Food + Biomass*Food",7,995.658,6.442,0.021,-490.599,0.11
+"8","S2","Density*Food",5,1001.004,11.788,0.001,-495.38,0.08
+"9","S3","Mortality*Food",5,1001.584,12.368,0.001,-495.67,0.08
+"10","D3","Density*Food + Mortality*Food",7,1004.246,15.03,0,-494.893,0.08
+"11","Null","None",2,1015.735,26.519,0,-505.844,0
