@@ -7,6 +7,8 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 #read in data
 dat <- readRDS("Output/Data/full_data_daily_nogrid.rds")
 fecal <- readRDS("Output/Data/fecal_protein.rds")
+forag <- readRDS("Output/Data/foraging_weekly.rds")
+
 
 #merge by date and snowgrid
 fecal <- merge(fecal, dat, by = c("date", "year", "yearfactor"), all.x = TRUE)
