@@ -12,6 +12,8 @@ source("Scripts/08-foraging_results.R")
 
 ```
 
+Averaged by week, snowshoe hare foraging rate was very flexible (`r forag[, round(median(forage), 2)]` ± `r forag[, round(sd(forage), 2)]`), ranging from a minimum of `r forag[, round(min(forage), 2)]` to `r forag[, round(max(forage), 2)]` hours per day (Figure 2A). Food supplementation reduced female foraging effort by `r round(foragfood[food == 0, mean(forage)] - foragfood[food == 1, mean(forage)], 2)` hours (p = `r pfood`; Figure 2A). As day length increased over winter from January to March, hares decreased their foraging rate by `r nightcoef` ± `r nightse` minutes per hour decrease in night length (p = `r pnight`).
+
 The most parsimonious model for explaining foraging efforts of control hares (dela AIC < 2) was that which included twig biomass and temperature as fixed effects (Table 1, model D2). We found that hares foraged `r sb_coef*10*60` ± `r sb_se*10*60` minutes more per day for every 10 kg per hectare increase in available twig biomass (t = `r sb_t`; Figure 3A). For every 10 degree C increase in temperature, hares foraged `r t_coef*10*60` ± `r t_se*10*60` minutes more per day (t = `r t_t`; Figure 3B).
 
 After testing this model (D2) on the food treatment data set, we found no effect of available twig biomass on foraging effort for either controls or food supplemented females (t = `r foodsb_t`; Figure 3C). Similar to the control model, we did find that foraging effort increased `r foodt_coef*10*60` ± `r foodt_se*10*60` minutes per day for every 10 C increase in temperature (t = `r foodt_t`; Figure 3D). Overall, food supplemented individuals foraged `r abs(food_coef*60)` ± `r food_se*60` minutes less than controls, but this effect was not significant (t = `r food_t`).
