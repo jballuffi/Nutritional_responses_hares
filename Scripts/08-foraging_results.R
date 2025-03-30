@@ -40,8 +40,8 @@ psex <- round(sexmod$`Pr(>F)`[1], 3)
 nightmod <- lm(forage ~ nightlength, forag) #make model
 nightsum <- summary(nightmod) #sum of model
 nightanova <- anova(nightmod) #anova of model
-nightcoef <- round(nightsum$coefficients[, 1][2]*60, 2) #coefficient
-nightse <- round(nightsum$coefficients[, 2][2]*60, 2) #standard error
+nightcoef <- round(nightsum$coefficients[, 1][2]*60, 1) #coefficient
+nightse <- round(nightsum$coefficients[, 2][2]*60, 1) #standard error
 pnight <- round(nightanova$`Pr(>F)`[1], 3) #p-value
 
 
