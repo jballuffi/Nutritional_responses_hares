@@ -26,6 +26,26 @@ foragfood <- forag[winter %in% foodyears]
 
 
 
+# descriptive results --------------------------------------------------
+
+#effect of food on food add dataset
+foodmod <- anova(lm(forage ~ food, foragfood))
+pfood <- round(foodmod$`Pr(>F)`[1], 3)
+
+#effect of sex on controls
+sexmod <- anova(lm(forage ~ sex, foragcon))
+psex <- round(sexmod$`Pr(>F)`[1], 3)
+
+#effect of night length on foraging rate
+nightmod <- lm(forage ~ nightlength, forag) #make model
+nightsum <- summary(nightmod) #sum of model
+nightanova <- anova(nightmod) #anova of model
+nightcoef <- round(nightsum$coefficients[, 1][2]*60, 2) #coefficient
+nightse <- round(nightsum$coefficients[, 2][2]*60, 2) #standard error
+pnight <- round(nightanova$`Pr(>F)`[1], 3) #p-value
+
+
+
 # correlation tests -------------------------------------------------------
 
 cor(forag$nightlength, forag$haredensity)

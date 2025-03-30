@@ -12,49 +12,6 @@ library(data.table)
 library(ggplot2)
 
 dat <- readRDS("Output/Data/full_data_weekly_nogrid.rds")
-fecal <- readRDS("Output/Data/fecal_protein.rds")
-forag <- readRDS("Output/Data/foraging_weekly.rds")
-
-#get controls only
-foragcon <- forag[food == 0]
-
-#take only the years where there was food add
-foodyears <- forag[food == 1, unique(winter)]
-
-#take only females for food add comparisons
-foragfood <- forag[winter %in% foodyears]
-
-#effect of food on food add dataset
-foodmod <- anova(lm(forage ~ food, foragfood))
-pfood <- round(foodmod$`Pr(>F)`[1], 3)
-
-#effect of sex on controls
-sexmod <- anova(lm(forage ~ sex, foragcon))
-psex <- round(sexmod$`Pr(>F)`[1], 3)
-
-#effect of night length on foraging rate
-nightmod <- lm(forage ~ nightlength, forag) #make model
-nightsum <- summary(nightmod) #sum of model
-nightanova <- anova(nightmod) #anova of model
-nightcoef <- round(nightsum$coefficients[, 1][2]*60, 2) #coefficient
-nightse <- round(nightsum$coefficients[, 2][2]*60, 2) #standard error
-pnight <- round(nightanova$`Pr(>F)`[1], 3) #p-value
-
-#effect of month on fecal protein
-fecmod <- anova(lm(CP_dm ~ m, fecal)) #get anova
-pfec <- round(fecmod$`Pr(>F)`[1], 3) #pull p value
-
-#get avg fecal by week. only a few cases that had multiple fecal in 1 week
-fecal2 <- fecal[, .(CP = mean(CP_dm)), by = .(id, year, week)]
-
-#merge shortened fecal with foraging rates
-fecfor <- merge(forag, fecal2, by = c("id", "year", "week"))
-
-#slight negative correlation between weekly foraging rate and fecal protein
-fecformod <- lm(CP ~ forage, fecfor)
-fecforanova <- anova(fecformod)
-fecforp <- round(fecforanova$`Pr(>F)`[1], 3)
-fecforslope <- round(fecformod$coefficients[2], 2)
 
 
 ```
