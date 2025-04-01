@@ -17,20 +17,35 @@ fecal <- merge(fecal, dat, by = c("date", "year", "yearfactor"), all.x = TRUE)
 
 # descriptive results ----------------------------------------------
 
-#effect of month on fecal protein
-fecmod <- anova(lm(CP_dm ~ m, fecal)) #get anova
-pfec <- round(fecmod$`Pr(>F)`[1], 3) #pull p value
+### fecal vs food add
+foodmod <- lm(CP_dm ~ food, fecal)
+foodanova <- anova(foodmod)
+foodsum <- summary(foodmod)
+pfood <- round(foodanova$`Pr(>F)`[1], 3)
+tfood <- round(foodsum$coefficients[, 3][2], 2) #t-value
+dffood <- foodanova$Df[2]
 
+### fecal vs month
+fecmod <- lm(CP_dm ~ m, fecal) #make model
+fecanova <- anova(fecmod) #get anova
+fecsum <- summary(fecmod) #summary
+pfec <- round(fecanova$`Pr(>F)`[1], 3) #pull p value
+tfec <- round(fecsum$coefficients[, 3][2], 2) #t-value
+dffec <- fecanova$Df[2]
+
+
+### fecal vs foraging rate
 #get avg fecal by week. only a few cases that had multiple fecal in 1 week
 fecal2 <- fecal[, .(CP = mean(CP_dm)), by = .(id, year, week)]
-
 #merge shortened fecal with foraging rates
 fecfor <- merge(forag, fecal2, by = c("id", "year", "week"))
-
 #slight negative correlation between weekly foraging rate and fecal protein
 fecformod <- lm(CP ~ forage, fecfor)
 fecforanova <- anova(fecformod)
-fecforp <- round(fecforanova$`Pr(>F)`[1], 3)
+fecforsum <- summary(fecformod)
+pfecfor <- round(fecforanova$`Pr(>F)`[1], 3)
+tfecfor <- round(fecforsum$coefficients[, 3][2], 2)
+dffecfor <- fecforanova$Df[2]
 fecforslope <- round(fecformod$coefficients[2], 2)
 
 
