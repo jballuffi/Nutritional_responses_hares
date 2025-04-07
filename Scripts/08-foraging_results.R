@@ -16,10 +16,10 @@ dat <- readRDS("Output/Data/full_data_weekly_nogrid.rds")
 forag <- merge(forag, dat, by = c("week", "year", "yearfactor"), all.x = TRUE)
 
 #get controls only
-foragcon <- forag[food == 0]
+foragcon <- forag[food == "Control"]
 
 #take only the years where there was food add
-foodyears <- forag[food == 1, unique(winter)]
+foodyears <- forag[food == "Suppl.", unique(winter)]
 
 #take only females for food add comparisons
 foragfood <- forag[winter %in% foodyears]
@@ -203,7 +203,7 @@ setnames(foodt_pred, "group", "food")
    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = sb_pred)+
    geom_line(aes(x = x, y = predicted), data = sb_pred)+
    labs(x = NULL, y = "Foraging effort (hr/day)", subtitle = "A)")+
-   themepoints)
+   themethesisright)
 
 #figures for foraging effort in response to temperature
 (tfig <- 
@@ -212,7 +212,7 @@ setnames(foodt_pred, "group", "food")
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .5, data = t_pred)+
     geom_line(aes(x = x, y = predicted), data = t_pred)+
     labs(x = NULL, y = NULL, subtitle = "B)")+
-    themepoints)
+    themethesisright)
 
 #foraging rate of controls and food adds in response to food biomass
 (foodb_fig <- 
@@ -220,10 +220,11 @@ setnames(foodt_pred, "group", "food")
     geom_point(aes(x = biomass, y = forage, color = food), alpha = .2, data = foragfood)+
     geom_ribbon(aes(x = x, ymax = conf.high, ymin = conf.low, fill = food), alpha = .5, data = foodb_pred)+
     geom_line(aes(x = x, y = predicted, color = food), data = foodb_pred)+
-    scale_color_manual(values = foodcols, guide = NULL)+
-    scale_fill_manual(values = foodcols, guide = NULL)+
+    scale_color_manual(values = foodcols, name = "Food treatment")+
+    scale_fill_manual(values = foodcols, name = "Food treatment")+
     labs(x = "Twig biomass (kg/ha)", y = "Foraging effort (hr/day)", subtitle = "C)")+
-    themepoints)
+    themethesisright+
+    theme(legend.position = c(.2, .85)))
 
 #foraging rate of food adds and controls in response to temp
 (foodt_fig <- 
@@ -233,8 +234,8 @@ setnames(foodt_pred, "group", "food")
     geom_line(aes(x = x, y = predicted, color = food), data = foodt_pred)+
     scale_color_manual(values = foodcols, guide = NULL)+
     scale_fill_manual(values = foodcols, guide = NULL)+
-    labs(x = "Temperature (C)", y = NULL, subtitle = "D)")+
-    themepoints)
+    labs(x = "Temperature (°C)", y = NULL, subtitle = "D)")+
+    themethesisright)
 
 #make full paneled figure
 fullfig <- ggarrange(bfig, tfig, foodb_fig, foodt_fig, nrow = 2, ncol = 2)
@@ -247,6 +248,6 @@ fullfig <- ggarrange(bfig, tfig, foodb_fig, foodt_fig, nrow = 2, ncol = 2)
 #save results from control only AIC
 write.csv(AICcon, "Output/Tables/AIC_foraging_winter_controls.csv")
 
-ggsave("Output/Figures/foraging_results.jpeg", fullfig, width = 8, height = 8, unit = "in")
+ggsave("Output/Figures/foraging_results.jpeg", fullfig, width = 9, height = 9, unit = "in")
 
 
