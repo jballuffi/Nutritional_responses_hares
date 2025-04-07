@@ -15,7 +15,7 @@ forag1 <- merge(forag, dat, by = c("week", "year", "yearfactor"), all.x = TRUE)
 setorder(forag1, id, date)
 
 #get controls only
-foragcon <- forag1[food == 0]
+foragcon <- forag1[food == "Control"]
 
 
 
@@ -65,28 +65,28 @@ fortemp <- ggplot(foragcon[year == 2017])+
   geom_point(aes(x = date, y = forage, color = temp), size = 2)+
   scale_color_gradient(low = "skyblue", high = "darkblue", guide = NULL)+
   labs(x = "Date", y = "Foraging effort (hr/day)", subtitle = "A)")+
-  themepoints
+  themethesisright
 
 forbio <- ggplot(foragcon[year == 2017])+
   geom_path(aes(x = date, y = forage, group = id), alpha = 0.3)+
   geom_point(aes(x = date, y = forage, color = biomass), size = 2)+
   scale_color_gradient(low = "lightgreen", high = "darkgreen", guide = NULL)+
   labs(x = "Date", y = "Foraging effort (hr/day)", subtitle = "B)")+
-  themepoints
+  themethesisright
 
 temp <- ggplot(dat[year == 2017])+
   geom_path(aes(x = date, y = temp, group = 1), alpha = 0.3)+
   geom_point(aes(x = date, y = temp, color = temp), size = 2)+
   scale_color_gradient(low = "skyblue", high = "darkblue", guide = NULL)+
-  labs(x = "Date", y = "Temperature (C)", subtitle = "C)")+
-  themepoints
+  labs(x = "Date", y = "Temperature (°C)", subtitle = "C)")+
+  themethesisright
 
 biomass <- ggplot(dat[year == 2017])+
   geom_path(aes(x = date, y = biomass, group = 1), alpha = 0.3)+
   geom_point(aes(x = date, y = biomass, color = biomass), size = 2)+
   scale_color_gradient(low = "lightgreen", high = "darkgreen", guide = NULL)+
   labs(x = "Date", y = "Soluble biomss (kg/ha)", subtitle = "D")+
-  themepoints
+  themethesisright
 
 
 (fullplot <- ggarrange(fortemp, forbio, temp, biomass, ncol = 2, nrow = 2))
