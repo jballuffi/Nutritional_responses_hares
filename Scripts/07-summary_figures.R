@@ -59,7 +59,7 @@ sumdepfig <- ggarrange(foraging, feces, nrow = 2, ncol = 1)
    ggplot(dat)+
    geom_abline(intercept = median(dat$temp, na.rm = TRUE), slope = 0, linetype = 2)+
    geom_line(aes(x = date, y = temp), linewidth = .8)+
-   labs(y = "Temperature (C)", x = "", title = "C)")+
+   labs(y = "Temperature (°C)", x = "", title = "C)")+
    facet_wrap(~year, scales = "free_x", nrow = 1, ncol = 6)+
    themepoints_small)
 
