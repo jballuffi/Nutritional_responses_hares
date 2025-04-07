@@ -93,6 +93,10 @@ dat2 <- dat2[!CP_dm > 25]
 #make week cat by year
 dat2[, week := week(date), year]
 
+#rename food treatments
+dat2[food == 0, food := "Control"]
+dat2[food == 1, food := "Suppl."]
+
 #get annual averages
 datannual <- dat2[, .(CP_dm = mean(CP_dm), ash = mean(ash), food = getmode(food), sex = getmode(sex)), by = .(winter, year, yearfactor, id)]
 

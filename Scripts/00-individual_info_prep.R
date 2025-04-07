@@ -63,8 +63,12 @@ trap[month(date) < 6, winter := paste0(year(date) - 1, "-", year(date))]
 #merge with food add individuals
 trap <- merge(trap, food, by = c("id", "winter"), all.x = TRUE)
 
-#fill in empty food column
+#Fill in empty food column
 trap[is.na(food), food := "0"]
+
+#rename food treatments
+trap[food == 0, food := "Control"]
+trap[food == 1, food := "Suppl."]
 
 
 
