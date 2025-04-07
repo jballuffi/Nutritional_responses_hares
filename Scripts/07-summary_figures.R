@@ -43,7 +43,7 @@ sumdepfig <- ggarrange(foraging, feces, nrow = 2, ncol = 1)
    geom_line(aes(x = date, y = haredensity), linewidth = .8)+
    labs(y = "Hare density (hares/ha)", x = "", title = "A)")+
    facet_wrap(~year, scales = "free_x", nrow = 1, ncol = 6)+
-   themepoints_small)
+   themethesisright)
 
 #mortality rate
 (mweek <- 
@@ -52,7 +52,7 @@ sumdepfig <- ggarrange(foraging, feces, nrow = 2, ncol = 1)
     geom_line(aes(x = date, y = mortrate), linewidth = .8)+
     labs(y = "Mortality rate (%)", x = "", title = "B)")+
     facet_wrap(~year, scales = "free_x", nrow = 1, ncol = 6)+
-    themepoints_small)
+    themethesisright)
 
 #temperature
 (tweek <- 
@@ -61,7 +61,7 @@ sumdepfig <- ggarrange(foraging, feces, nrow = 2, ncol = 1)
    geom_line(aes(x = date, y = temp), linewidth = .8)+
    labs(y = "Temperature (°C)", x = "", title = "C)")+
    facet_wrap(~year, scales = "free_x", nrow = 1, ncol = 6)+
-   themepoints_small)
+   themethesisright)
 
 #soluble biomass per hectare
 (bweek <- 
@@ -70,7 +70,7 @@ sumdepfig <- ggarrange(foraging, feces, nrow = 2, ncol = 1)
     geom_line(aes(x = date, y = biomass), linewidth = .8)+
     labs(y = "Twig biomass (kg/ha)", x = "", title = "D)")+
     facet_wrap(~year, scales = "free_x", nrow = 1, ncol = 6)+
-    themepoints_small)
+    themethesisright)
 
 
 sumindfig <- ggarrange(dweek, mweek, tweek, bweek, ncol = 1, nrow = 4)
