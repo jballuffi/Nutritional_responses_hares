@@ -47,7 +47,7 @@ pfecfor <- round(fecforanova$`Pr(>F)`[1], 3)
 tfecfor <- round(fecforsum$coefficients[, 3][2], 2)
 dffecfor <- fecforanova$Df[2]
 fecforslope <- round(fecformod$coefficients[2], 2)
-
+fecforR2 <- round(rsq(fecformod), 2)
 
 
 # run AIC -----------------------------------------------------------------
@@ -107,11 +107,11 @@ setnames(temppred, "group", "food")
 sb_t = round(coef(summary(D2))[,"t value"][2], 2)
 
 #get p-values
-D2anova <- anova(D2)
-sb_p <- round(D2anova$`Pr(>F)`[1], 2)
-food_p <- round(D2anova$`Pr(>F)`[2], 2)
-foodsb_p <- round(D2anova$`Pr(>F)`[4], 2)
-foodtemp_p <- round(D2anova$`Pr(>F)`[5], 2)
+sb_p <- round(coef(summary(D2))[,"Pr(>|t|)"][2], 2)
+food_p <- round(coef(summary(D2))[,"Pr(>|t|)"][3], 2)
+temp_p <- round(coef(summary(D2))[,"Pr(>|t|)"][4], 2)
+foodsb_p <- round(coef(summary(D2))[,"Pr(>|t|)"][5], 4)
+foodtemp_p <- round(coef(summary(D2))[,"Pr(>|t|)"][6], 4)
 
 #get coefficients
 sb_coef <- round(coef(summary(D2))[,"Estimate"][2], 2)
@@ -120,6 +120,7 @@ food_coef <- round(coef(summary(D2))[,"Estimate"][3], 2)
 #get standard errors
 sb_se <- round(coef(summary(D2))[,"Std. Error"][2], 2)
 food_se <- round(coef(summary(D2))[,"Std. Error"][3], 2)
+
 
 
 ### second top model for hare density result

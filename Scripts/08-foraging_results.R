@@ -137,6 +137,12 @@ setorder(AICcon, "Delta_AICc")
 #biomass and temperature
 summary(D2)
 
+confint(D2)
+
+#get R2s
+D2MR2 <- round(r.squaredGLMM(D2), 2)[1]
+D2CR2 <- round(r.squaredGLMM(D2), 2)[2]
+
 #make predictive tables
 sb_pred <- as.data.table(ggpredict(D2, terms = c("biomass"))) #soluble biomass (sb)
 t_pred <- as.data.table(ggpredict(D2, terms = c("temp"))) #temperature (t)
@@ -150,14 +156,11 @@ D2anova <- anova(D2)
 sb_f <- round(D2anova$`F value`[1], 2)
 t_f <- round(D2anova$`F value`[2], 2)
 
-#get df
-
-
 #get coefficients
 sb_coef <- round(fixef(D2)[2], 3)
 t_coef <- round(fixef(D2)[3], 3)
 
-#get standard errorts
+#get standard errors
 t_se <- round(se.fixef(D2)[3], 3)
 sb_se <- round(se.fixef(D2)[2], 3)
 
@@ -168,6 +171,11 @@ sb_se <- round(se.fixef(D2)[2], 3)
 foodmod <- lmer(forage ~ biomass*food + temp*food + nightlength + (1|id), foragfood) 
 summary(foodmod)
 
+#R2s
+foodMR2 <- round(r.squaredGLMM(foodmod), 2)[1]
+foodCR2 <- round(r.squaredGLMM(foodmod), 2)[2]
+
+
 #get t-values
 foodsb_t = round(coef(summary(foodmod))[,"t value"][2], 2)
 foodt_t = round(coef(summary(foodmod))[,"t value"][4], 2)
@@ -175,14 +183,18 @@ food_t = round(coef(summary(foodmod))[,"t value"][3], 2)
 intsb_t = round(coef(summary(foodmod))[,"t value"][6], 2 )
 intt_t = round(coef(summary(foodmod))[,"t value"][7], 2 )
 
-
 #get coefficients
 foodt_coef <- round(fixef(foodmod)[4], 3)
 food_coef <- round(fixef(foodmod)[3], 2)
+foodsbf_coef <- round(fixef(foodmod)[6], 2)
+foodtf_coef <- round(fixef(foodmod)[7], 2)
 
 #get standard errorts
 foodt_se <- round(se.fixef(foodmod)[4], 3)
 food_se <- round(se.fixef(foodmod)[3], 2)
+foodsbf_se <- round(se.fixef(foodmod)[6], 2)
+foodtf_se <- round(se.fixef(foodmod)[7], 2)
+
 
 #show effect of biomass*food
 foodb_pred <- as.data.table(ggpredict(foodmod, terms = c("biomass", "food")))
