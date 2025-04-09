@@ -171,6 +171,7 @@ sb_se <- round(se.fixef(D2)[2], 3)
 
 foodmod <- lmer(forage ~ biomass*food + temp*food + nightlength + (1|id), foragfood) 
 summary(foodmod)
+confint(foodmod)
 
 #R2s
 foodMR2 <- round(r.squaredGLMM(foodmod), 2)[1]
