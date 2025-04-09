@@ -29,12 +29,13 @@ foragfood <- forag[winter %in% foodyears]
 # descriptive results --------------------------------------------------
 
 #effect of food on food add dataset
-foodmod <- lm(forage ~ food, foragfood)
-foodanova <- anova(foodmod)
-foodsum <- summary(foodmod)
-pfood <- round(foodanova$`Pr(>F)`[1], 3)
-tfood <- round(foodsum$coefficients[, 3][2], 2) #t-value
-dffood <- foodanova$Df[2]
+suppmod <- lm(forage ~ food, foragfood)
+suppanova <- anova(suppmod)
+suppsum <- summary(suppmod)
+supp_p <- round(suppanova$`Pr(>F)`[1], 3)
+supp_t <- round(suppsum$coefficients[, 3][2], 2) #t-value
+supp_df <- suppanova$Df[2]
+rsq(suppmod)
 
 
 #effect of sex on controls
@@ -50,7 +51,7 @@ nightse <- round(nightsum$coefficients[, 2][2]*60, 1) #standard error
 pnight <- round(nightanova$`Pr(>F)`[1], 3) #p-value
 tnight <- round(nightsum$coefficients[, 3][2], 2) #t-value
 dfnight <- nightanova$Df[2]
-
+rsq(nightmod)
 
 
 # correlation tests -------------------------------------------------------
