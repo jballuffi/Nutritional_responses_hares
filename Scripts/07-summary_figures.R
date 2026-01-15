@@ -10,27 +10,29 @@ fecal <- readRDS("Output/Data/fecal_protein.rds")
 forag <- readRDS("Output/Data/foraging_weekly.rds")
 
 
+#get dates associated with weeks
+dates <- dat[, .(date, week, year)]
+
+#merge foraging rates with dates associated with weeks
+forag2 <- merge(forag, dates, by = c("week", "year"), all.y = TRUE)
+
+#get median foraging rate by week and food treatment, using dates of weeks, 
+foragesum <- forag2[, .(forage = median(forage)), by = .(date, food, year)]
+
+
 
 # Dependent variables ---------------------------
 
-#foraging effort by year
-(foraging <- 
-    ggplot(forag)+
-    geom_boxplot(aes(x = yearfactor, y = forage, fill = food), alpha = .5)+
-    scale_fill_manual(values = foodcols, guide = NULL)+
-    labs(y = "Weekly foraging effort (hr/day)", x = "", title = "A)")+
-    themethesisright)
 
 #fecal protein by year
-(feces <- 
+(feces <-
     ggplot(fecal)+
     geom_abline(intercept = 10, slope = 0, linetype = 2)+
     geom_boxplot(aes(x = yearfactor, y = CP_dm, fill = food), alpha = .5, outlier.shape = NA)+
-    labs(y = "Fecal crude protein (%)", x = "", title = "B)")+
+    labs(y = "Fecal crude protein (%)", x = "Year")+
     scale_fill_manual(values = foodcols, name = "Food treatment")+
     themethesisright)
 
-sumdepfig <- ggarrange(foraging, feces, nrow = 2, ncol = 1)
 
 
 
@@ -72,14 +74,22 @@ sumdepfig <- ggarrange(foraging, feces, nrow = 2, ncol = 1)
     facet_wrap(~year, scales = "free_x", nrow = 1, ncol = 6)+
     themethesisright)
 
+#foraging effort on a weekly basis
+(fweek <- ggplot(foragesum)+
+    geom_line(aes(x = date, y = forage, color = food), linewidth = .8)+
+    scale_color_manual(values = foodcols, guide = NULL)+
+    labs(y = "Weekly foraging (hr/day)", x = "", title = "E)")+
+    facet_wrap(~year, scales = "free_x", nrow = 1, ncol = 6)+
+    themethesisright)
 
-sumindfig <- ggarrange(dweek, mweek, tweek, bweek, ncol = 1, nrow = 4)
+
+sumindfig <- ggarrange(dweek, mweek, tweek, bweek, fweek, ncol = 1, nrow = 5)
 
 
 
 # save -----------------------------------------
 
-ggsave("Output/Figures/vars_weekly.jpeg", sumindfig, width = 10, height = 10, unit = "in")
-ggsave("Output/Figures/dep_vars_.jpeg", sumdepfig, width = 5, height = 8, unit = "in")
+ggsave("Output/Figures/vars_weekly.jpeg", sumindfig, width = 10, height = 12, unit = "in")
+ggsave("Output/Figures/fecal_data.jpeg", feces, width = 5, height = 4, unit = "in")
 
 
