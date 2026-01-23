@@ -19,6 +19,17 @@ foragcon <- forag1[food == "Control"]
 
 
 
+
+# temperature threshold for foraging rate ---------------------------------
+
+ggplot(foragcon)+
+  geom_point(aes(x = temp, y = forage))+
+  geom_smooth(aes(x = temp, y = forage))
+
+
+
+
+
 # prep foraging data for conceptual diagram -------------------------------
 
 #cut to just 2018

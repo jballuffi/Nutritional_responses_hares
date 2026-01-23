@@ -34,6 +34,20 @@ foragesum <- forag2[, .(forage = median(forage)), by = .(date, food, year)]
     themethesisright)
 
 
+sample <- fecal[, .(.N, mean = mean(CP_dm), sd = sd(CP_dm)), by = .(m, year, food)]
+
+lm(sd ~ N, sample)
+
+ggplot(sample)+
+  geom_point(aes(x = N, y = sd))+
+  geom_abline(aes(intercept = 1.97, slope = -0.0205))
+
+
+
+ggplot(fecal[food == "Control"])+
+  geom_boxplot(aes(x = yearfactor, y = CP_dm, fill = as.factor(m)))+
+  labs(fill = "Month", y = "CP (%)", x = "Year")
+
 
 
 # Independent variables ------------------------------------------------------
@@ -52,7 +66,7 @@ foragesum <- forag2[, .(forage = median(forage)), by = .(date, food, year)]
     ggplot(dat)+
     geom_abline(intercept = median(dat$mortrate, na.rm = TRUE), slope = 0, linetype = 2)+
     geom_line(aes(x = date, y = mortrate), linewidth = .8)+
-    labs(y = "Mortality rate (%)", x = "", title = "B)")+
+    labs(y = "Mortality rate", x = "", title = "B)")+
     facet_wrap(~year, scales = "free_x", nrow = 1, ncol = 6)+
     themethesisright)
 
