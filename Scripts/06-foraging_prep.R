@@ -132,11 +132,14 @@ behweek <- merge(behweek, inds, by = c("id", "winter"), all.x = TRUE)
 #make a year factor col
 behweek[, yearfactor := as.factor(year)]
 
+#redo food factor so it only has two levels
+behweek[, food := factor(food)]
+
 
 
 # Save --------------------------------------------------------------------
 
-behweek <- behweek[year > 2015]
+behweek <- behweek[year > 2015 & year < 2020]
 
 saveRDS(behweek, "Output/Data/foraging_weekly.rds")
 
