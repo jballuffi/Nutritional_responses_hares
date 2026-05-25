@@ -56,7 +56,7 @@ daily[, yearfactor := as.factor(year)]
 # make final data ---------------------------------------------------------
 
 #cut out years without data
-daily <- daily[year > 2015 & !year == 2022]
+daily <- daily[year > 2015 & year < 2020]
 
 #take variables of interest
 dat <- daily[, .(snowgrid, date, week, year, yearfactor, snow, haredensity, biomass = digbiomass, percap, mortrate, temp, VO)]
