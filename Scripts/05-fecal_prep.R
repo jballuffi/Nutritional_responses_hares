@@ -97,6 +97,9 @@ dat2[, week := week(date), year]
 dat2[food == 0, food := "Control"]
 dat2[food == 1, food := "Suppl."]
 
+#redo food factor
+dat2[, food := factor(food)]
+
 #get annual averages
 datannual <- dat2[, .(CP_dm = mean(CP_dm), ash = mean(ash), food = getmode(food), sex = getmode(sex)), by = .(winter, year, yearfactor, id)]
 
