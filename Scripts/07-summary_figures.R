@@ -19,34 +19,22 @@ forag2 <- merge(forag, dates, by = c("week", "year"), all.y = TRUE)
 #get median foraging rate by week and food treatment, using dates of weeks, 
 foragesum <- forag2[, .(forage = median(forage)), by = .(date, food, year)]
 
+#make a month factor col for fecal data
+fecal[m == 1, monthfactor := "Jan"][m == 3, monthfactor := "Mar"]
+
 
 
 # Dependent variables ---------------------------
 
 
-#fecal protein by year
-(feces <-
-    ggplot(fecal)+
-    geom_abline(intercept = 10, slope = 0, linetype = 2)+
-    geom_boxplot(aes(x = yearfactor, y = CP_dm, fill = food), alpha = .5, outlier.shape = NA)+
-    labs(y = "Fecal crude protein (%)", x = "Year")+
-    scale_fill_manual(values = foodcols, name = "Food treatment")+
-    themethesisright)
-
-
-sample <- fecal[, .(.N, mean = mean(CP_dm), sd = sd(CP_dm)), by = .(m, year, food)]
-
-lm(sd ~ N, sample)
-
-ggplot(sample)+
-  geom_point(aes(x = N, y = sd))+
-  geom_abline(aes(intercept = 1.97, slope = -0.0205))
-
-
-
-ggplot(fecal[food == "Control"])+
-  geom_boxplot(aes(x = yearfactor, y = CP_dm, fill = as.factor(m)))+
-  labs(fill = "Month", y = "CP (%)", x = "Year")
+# #fecal protein by year
+# (feces <-
+#     ggplot(fecal)+
+#     geom_abline(intercept = 10, slope = 0, linetype = 2)+
+#     geom_boxplot(aes(x = yearfactor, y = CP_dm, fill = food), alpha = .5, outlier.shape = NA)+
+#     labs(y = "Fecal crude protein (%)", x = "Year")+
+#     scale_fill_manual(values = foodcols, name = "Food treatment")+
+#     themethesisright)
 
 
 
@@ -96,14 +84,25 @@ ggplot(fecal[food == "Control"])+
     facet_wrap(~year, scales = "free_x", nrow = 1, ncol = 6)+
     themethesisright)
 
+(cpweek <-
+    ggplot(fecal)+
+    geom_abline(intercept = 10, slope = 0, linetype = 2)+
+    geom_boxplot(aes(x = monthfactor, y = CP_dm, fill = food), alpha = .5, outlier.shape = NA)+
+    scale_fill_manual(values = foodcols, guide = NULL)+
+    labs(y = "Fecal CP (%)", x = "", title = "F)")+
+    facet_wrap(~year, scales ="free_x",  nrow = 1, ncol = 4)+
+    themethesisright)
 
-sumindfig <- ggarrange(dweek, mweek, tweek, bweek, fweek, ncol = 1, nrow = 5)
+
+
+sumindfig <- ggarrange(dweek, mweek, tweek, bweek, fweek, cpweek,
+                       align = c("h"), ncol = 1, nrow = 6)
 
 
 
 # save -----------------------------------------
 
-ggsave("Output/Figures/vars_weekly.jpeg", sumindfig, width = 10, height = 12, unit = "in")
-ggsave("Output/Figures/fecal_data.jpeg", feces, width = 5, height = 4, unit = "in")
+ggsave("Output/Figures/vars_weekly.jpeg", sumindfig, width = 8, height = 14, unit = "in")
+#ggsave("Output/Figures/fecal_data.jpeg", feces, width = 5, height = 4, unit = "in")
 
 
