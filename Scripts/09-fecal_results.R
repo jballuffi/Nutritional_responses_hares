@@ -52,8 +52,10 @@ fecforR2 <- round(rsq(fecformod), 2)
 
 # run AIC -----------------------------------------------------------------
 
+
 #make models
-null <- lm(CP_dm ~ 1, fecal)
+n <- lm(CP_dm ~ 1, fecal)
+
 S1 <- lm(CP_dm ~ biomass*food, fecal)
 S2 <- lm(CP_dm ~ haredensity*food, fecal)
 S3 <- lm(CP_dm ~ mortrate*food, fecal)
@@ -66,10 +68,27 @@ D4 <- lm(CP_dm ~ haredensity*food + temp*food, fecal)
 D5 <- lm(CP_dm ~ mortrate*food + temp*food, fecal)
 D6 <- lm(CP_dm ~ haredensity*food + biomass*food, fecal)
 
+#triple terms
+T1 <- lm(CP_dm ~ biomass*food + temp*food + haredensity*food, fecal)
+T2 <- lm(CP_dm ~ biomass*food + mortrate*food + temp*food, fecal)
+T3 <- lm(CP_dm ~ biomass*food + haredensity*food + mortrate*food, fecal)
+T4 <- lm(CP_dm ~ haredensity*food + temp*food + mortrate*food, fecal)
 
-#list models, names, and designs
-mods <- list(null, S1, S2, S3, S4, D1, D2, D3, D4, D5, D6)
-codes <- c("Null", "S1", "S2", "S3", "S4", "D1", "D2", "D3", "D4", "D5", "D6")
+Q1 <- lm(CP_dm ~ biomass*food + temp*food + haredensity*food + mortrate*food, fecal)
+
+
+#list models
+mods <- list(n, 
+             S1, S2, S3, S4, 
+             D1, D2, D3, D4, D5, D6, 
+             T1, T2, T3, T4, 
+             Q1)
+
+codes <- c("Null", 
+           "S1", "S2", "S3", "S4", 
+           "D1", "D2", "D3", "D4", "D5", "D6", 
+           "T1", "T2", "T3", "T4", 
+           "Q1")
 
 vars <- c("None", "Biomass*Food", "Density*Food", "Mortality*Food", "Temperature*Food",
           "Biomass*Food + Mortality*Food", 
@@ -83,8 +102,8 @@ AICfood <- make_aic_lm(modlist = mods, modnames = codes)
 
 #make a dataframe with model codes and their designs
 moddesign <- data.table(
-  Modnames = codes,
-  Variables = vars
+  Modnames = codes
+  #Variables = vars
 )
 
 AICfood <- merge(moddesign, AICfood, by = "Modnames")

@@ -59,42 +59,112 @@ rsq(nightmod)
 cor(forag$nightlength, forag$haredensity)
 cor(forag$nightlength, forag$biomass)
 cor(forag$biomass, forag$temp)
-cor(forag$biomass, forag$percap)
 cor(forag$biomass, forag$haredensity)
+
+cor.test(dat[, .(haredensity, biomass, temp)])
 
 
 
 # AIC to explain weekly foraging for controls only ------------------------
 
+# #get combos for triple terms
+# combn(c("biomass", "temp", "haredensity", "mortrate"), 3)
+# 
+#    #MODELS
+# #models for controls only
+# n <- lmer(forage ~ nightlength + (1|id), foragcon) #null model
+# 
+# #single terms 
+# S1 <- lmer(forage ~ biomass + nightlength + (1|id), foragcon) #biomass food
+# S2 <- lmer(forage ~ haredensity + nightlength + (1|id), foragcon) #percapita food
+# S3 <- lmer(forage ~ mortrate + nightlength + (1|id), foragcon) #predation risk/mortality rate
+# S4 <- lmer(forage ~ temp + nightlength + (1|id), foragcon) #temperature
+# 
+# #double terms 
+# D1 <- lmer(forage ~ biomass + mortrate + nightlength + (1|id), foragcon) #biomass and mortality
+# D2 <- lmer(forage ~ biomass + temp + nightlength + (1|id), foragcon) #biomass and temp
+# D3 <- lmer(forage ~ haredensity + mortrate + nightlength + (1|id), foragcon) #percap and mortality
+# D4 <- lmer(forage ~ haredensity + temp + nightlength + (1|id), foragcon) #percap and temp
+# D5 <- lmer(forage ~ mortrate + temp + nightlength + (1|id), foragcon) #mortality and temp
+# D6 <- lmer(forage ~ haredensity + biomass + nightlength + (1|id), foragcon)
+# 
+# #triple terms
+# T1 <- lmer(forage ~ biomass + temp + haredensity + nightlength + (1|id), foragcon)
+# T2 <- lmer(forage ~ biomass + mortrate + temp + nightlength + (1|id), foragcon)
+# T3 <- lmer(forage ~ biomass + haredensity + mortrate + nightlength + (1|id), foragcon)
+# T4 <- lmer(forage ~ haredensity + temp + mortrate + nightlength + (1|id), foragcon)
+# 
+# Q1 <- lmer(forage ~ haredensity + biomass + mortrate + temp + nightlength + (1|id), foragcon)
+# 
+# 
+# #list models
+# mods <- list(n, 
+#              S1, S2, S3, S4, 
+#              D1, D2, D3, D4, D5, D6, 
+#              T1, T2, T3, T4, 
+#              Q1)
+# 
+# codes <- c("Null", 
+#            "S1", "S2", "S3", "S4", 
+#            "D1", "D2", "D3", "D4", "D5", "D6", 
+#            "T1", "T2", "T3", "T4", 
+#            "Q1")
+# 
+# #use function from R/ folder to make an AIC table comparing all models.
+# #function also extracts R2s
+# AICcon <- make_aic_lmer(modlist = mods, modnames = codes)
+# 
+# 
+# #print formulas from list of models
+# getform <- function(x){
+#   as.character(formula(x)[3])
+# }
+# formulas <- lapply(mods, getform)
+# formulas <- unlist(formulas)
+# 
+# #make data table with model names and formulas
+# moddesign <- data.table(
+#   Modnames = codes,
+#   Variables = formulas
+# )
+# 
+# #merge model designs with AIC table
+# AICcon <- merge(moddesign, AICcon, by = "Modnames")
+# setorder(AICcon, "Delta_AICc")
+# 
+# 
+
+
+# AIC for Food add years (up to and including 2019) ------------------------
+
 #get combos for triple terms
 combn(c("biomass", "temp", "haredensity", "mortrate"), 3)
 
-   #MODELS
-#models for controls only
-n <- lmer(forage ~ nightlength + (1|id), foragcon) #null model
+#MODELS
+n <- lmer(forage ~ food + nightlength + (1|id), forag) #null model
 
 #single terms 
-S1 <- lmer(forage ~ biomass + nightlength + (1|id), foragcon) #biomass food
-S2 <- lmer(forage ~ haredensity + nightlength + (1|id), foragcon) #percapita food
-S3 <- lmer(forage ~ mortrate + nightlength + (1|id), foragcon) #predation risk/mortality rate
-S4 <- lmer(forage ~ temp + nightlength + (1|id), foragcon) #temperature
+S1 <- lmer(forage ~ biomass*food + nightlength + (1|id), forag) #biomass food
+S2 <- lmer(forage ~ haredensity*food + nightlength + (1|id), forag) #percapita food
+S3 <- lmer(forage ~ mortrate*food + nightlength + (1|id), forag) #predation risk/mortality rate
+S4 <- lmer(forage ~ temp*food + nightlength + (1|id), forag) #temperature
 
 #double terms 
-D1 <- lmer(forage ~ biomass + mortrate + nightlength + (1|id), foragcon) #biomass and mortality
-D2 <- lmer(forage ~ biomass + temp + nightlength + (1|id), foragcon) #biomass and temp
-D3 <- lmer(forage ~ haredensity + mortrate + nightlength + (1|id), foragcon) #percap and mortality
-D4 <- lmer(forage ~ haredensity + temp + nightlength + (1|id), foragcon) #percap and temp
-D5 <- lmer(forage ~ mortrate + temp + nightlength + (1|id), foragcon) #mortality and temp
-D6 <- lmer(forage ~ haredensity + biomass + nightlength + (1|id), foragcon)
+D1 <- lmer(forage ~ biomass*food + mortrate*food + nightlength + (1|id), forag) #biomass and mortality
+D2 <- lmer(forage ~ biomass*food + temp*food + nightlength + (1|id), forag) #biomass and temp
+D3 <- lmer(forage ~ haredensity*food + mortrate*food + nightlength + (1|id), forag) #percap and mortality
+D4 <- lmer(forage ~ haredensity*food + temp*food + nightlength + (1|id), forag) #percap and temp
+D5 <- lmer(forage ~ mortrate*food + temp*food + nightlength + (1|id), forag) #mortality and temp
+D6 <- lmer(forage ~ haredensity*food + biomass*food + nightlength + (1|id), forag)
 
 #triple terms
-T1 <- lmer(forage ~ biomass + temp + haredensity + nightlength + (1|id), foragcon)
-T2 <- lmer(forage ~ biomass + mortrate + temp + nightlength + (1|id), foragcon)
-T3 <- lmer(forage ~ biomass + haredensity + mortrate + nightlength + (1|id), foragcon)
-T4 <- lmer(forage ~ haredensity + temp + mortrate + nightlength + (1|id), foragcon)
+T1 <- lmer(forage ~ biomass*food + temp*food + haredensity*food + nightlength + (1|id), forag)
+T2 <- lmer(forage ~ biomass*food + mortrate*food + temp*food + nightlength + (1|id), forag)
+T3 <- lmer(forage ~ biomass*food + haredensity*food + mortrate*food + nightlength + (1|id), forag)
+T4 <- lmer(forage ~ haredensity*food + temp*food + mortrate*food + nightlength + (1|id), forag)
 
-Q1 <- lmer(forage ~ haredensity + biomass + mortrate + temp + nightlength + (1|id), foragcon)
-
+#quadrupal terms
+Q1 <- lmer(forage ~ haredensity*food + biomass*food + mortrate*food + temp*food + nightlength + (1|id), forag)
 
 #list models
 mods <- list(n, 
@@ -131,6 +201,9 @@ moddesign <- data.table(
 AICcon <- merge(moddesign, AICcon, by = "Modnames")
 setorder(AICcon, "Delta_AICc")
 
+
+
+summary(T4)
 
 
 # top model results -------------------------------------------------------------
