@@ -4,12 +4,10 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 #read in data
 datD <- readRDS("Output/Data/full_data_daily_nogrid.rds") #daily data
 datW <- readRDS("Output/Data/full_data_weekly_nogrid.rds") #weekly data
-
 fecal <- readRDS("Output/Data/fecal_protein.rds")
 forag <- readRDS("Output/Data/foraging_weekly.rds")
 
-
-#merge by date and snowgrid
+#merge by date and snow grid
 fecal <- merge(fecal, datD, by = c("date", "year", "yearfactor"), all.x = TRUE)
 
 #merge by week and snow grid
@@ -17,14 +15,13 @@ forag <- merge(forag, datW, by = c("week", "year", "yearfactor"), all.x = TRUE)
 
 
 
-
 # Fecal Protein Analysis ------------------------------------------------------------
 
 #ADD A RANDOM EFFECT FOR THIS MODEL?
-
-Q1 <- lm(CP_dm ~ biomass*food + temp*food + haredensity*food + mortrate*food, fecal)
+Q1 <- lmer(CP_dm ~ biomass*food + temp*food + haredensity*food + mortrate*food + (1|snowgrid), fecal)
 summary(Q1)
 anova(Q1)
+round(r.squaredGLMM(Q1), 2)[1]
 
 #make predictive table
 biopred <- as.data.table(ggpredict(Q1, terms = c("biomass", "food")))
@@ -63,32 +60,26 @@ setnames(temppred, "group", "food")
     labs(x = "Temperature (°C)", y = "Fecal protein (%)", subtitle = "B)")+
     themethesisright)
 
-# (densfig <- 
-#     ggplot()+
-#     geom_abline(intercept = 10, slope = 0, linetype = 2)+
-#     geom_point(aes(x = haredensity, y = CP_dm, color = food), alpha = .2, data = fecal)+
-#     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.5, data = denspred)+
-#     geom_line(aes(x = x, y = predicted, color = food), data = denspred)+
-#     scale_color_manual(values = foodcols, guide = NULL)+
-#     scale_fill_manual(values = foodcols, guide = NULL)+
-#     labs(x = "Hare density (hares/ha)", y = "Fecal protein (%)", subtitle = "C)")+
-#     themethesisright)
-# 
-# (mortfig <- 
-#     ggplot()+
-#     geom_abline(intercept = 10, slope = 0, linetype = 2)+
-#     geom_point(aes(x = mortrate, y = CP_dm, color = food), alpha = .2, data = fecal)+
-#     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.5, data = mortpred)+
-#     geom_line(aes(x = x, y = predicted, color = food), data = mortpred)+
-#     scale_color_manual(values = foodcols, guide = NULL)+
-#     scale_fill_manual(values = foodcols, guide = NULL)+
-#     labs(x = "Mortality rate", y = "Fecal protein (%)", subtitle = "D)")+
-#     themethesisright)
+
+
+
+# Foraging Rate Analysis -------------------------------------------------------
+
+Q2 <- lmer(forage ~ haredensity*food + biomass*food + mortrate*food + temp*food + nightlength + (1|id) + (1|snowgrid), forag)
+summary(Q2)
+anova(Q2)
+round(r.squaredGLMM(Q2), 2)[1]
+
+#density
+#temperature
+#density*food
+#night length
 
 
 
 
-# Foraging analysis -------------------------------------------------------
 
-Q2 <- lmer(forage ~ haredensity*food + biomass*food + mortrate*food + temp*food + nightlength + (1|id), forag)
+
+
+
 
