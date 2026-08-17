@@ -17,6 +17,7 @@ forag <- merge(forag, datW, by = c("week", "year", "yearfactor"), all.x = TRUE)
 
 
 
+
 # Fecal Protein Analysis ------------------------------------------------------------
 
 #ADD A RANDOM EFFECT FOR THIS MODEL?
