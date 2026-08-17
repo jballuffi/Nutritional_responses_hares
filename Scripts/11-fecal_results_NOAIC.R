@@ -24,11 +24,11 @@ anova(Q1)
 round(r.squaredGLMM(Q1), 2)[1]
 
 #make predictive table
-biopred <- as.data.table(ggpredict(Q1, terms = c("biomass", "food")))
-setnames(biopred, "group", "food")
+biopred_fecal <- as.data.table(ggpredict(Q1, terms = c("biomass", "food")))
+setnames(biopred_fecal, "group", "food")
 
-temppred <- as.data.table(ggpredict(Q1, terms = c("temp", "food")))
-setnames(temppred, "group", "food")
+temppred_fecal <- as.data.table(ggpredict(Q1, terms = c("temp", "food")))
+setnames(temppred_fecal, "group", "food")
 
 # mortpred <- as.data.table(ggpredict(Q1, terms = c("mortrate", "food")))
 # setnames(mortpred, "group", "food")
@@ -36,12 +36,12 @@ setnames(temppred, "group", "food")
 # denspred <- as.data.table(ggpredict(Q1, terms = c("haredensity", "food")))
 # setnames(denspred, "group", "food")
 
-(biofig <- 
+(bio_fecal <- 
     ggplot()+
     geom_abline(intercept = 10, slope = 0, linetype = 2)+
     geom_point(aes(x = biomass, y = CP_dm, color = food), alpha = .2, data = fecal)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.5, data = biopred)+
-    geom_line(aes(x = x, y = predicted, color = food), data = biopred)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.4, data = biopred_fecal)+
+    geom_line(aes(x = x, y = predicted, color = food), linewidth = 0.7, data = biopred_fecal)+
     scale_color_manual(values = foodcols, name = "Food treatment")+
     scale_fill_manual(values = foodcols, name = "Food treatment")+
     labs(x = "Twig biomass (kg/ha)", y = "Fecal protein (%)", subtitle = "A)")+
@@ -49,12 +49,12 @@ setnames(temppred, "group", "food")
     theme(legend.position = c(.15, .85),
           legend.background = element_blank()))
 
-(tempfig <- 
+(temp_fecal <- 
     ggplot()+
     geom_abline(intercept = 10, slope = 0, linetype = 2)+
     geom_point(aes(x = temp, y = CP_dm, color = food), alpha = .2, data = fecal)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.5, data = temppred)+
-    geom_line(aes(x = x, y = predicted, color = food), data = temppred)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.4, data = temppred_fecal)+
+    geom_line(aes(x = x, y = predicted, color = food), linewidth = 0.7, data = temppred_fecal)+
     scale_color_manual(values = foodcols, guide = NULL)+
     scale_fill_manual(values = foodcols, guide = NULL)+
     labs(x = "Temperature (°C)", y = "Fecal protein (%)", subtitle = "B)")+
@@ -70,13 +70,47 @@ summary(Q2)
 anova(Q2)
 round(r.squaredGLMM(Q2), 2)[1]
 
-#density
-#temperature
-#density*food
-#night length
+#show effect of biomass*food
+densitypred_forage <- as.data.table(ggpredict(Q2, terms = c("haredensity", "food")))
+setnames(densitypred_forage, "group", "food")
+
+#show effect of temperature*food
+temppred_forage <- as.data.table(ggpredict(Q2, terms = c("temp", "food")))
+setnames(temppred_forage, "group", "food")
 
 
 
+(density_forage <- 
+    ggplot()+
+    geom_point(aes(x = haredensity, y = forage, color = food), alpha = .2, data = forag)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.4, data = densitypred_forage)+
+    geom_line(aes(x = x, y = predicted, color = food), linewidth = 0.7, data = densitypred_forage)+
+    scale_color_manual(values = foodcols, guide = NULL)+
+    scale_fill_manual(values = foodcols, guide = NULL)+
+    labs(x = "Hare density (hares/ha)", y = "Foraging rate (hr/day)", subtitle = "C)")+
+    themethesisright)
+
+(temp_forage <- 
+    ggplot()+
+    geom_point(aes(x = temp, y = forage, color = food), alpha = .2, data = forag)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.4, data = temppred_forage)+
+    geom_line(aes(x = x, y = predicted, color = food), linewidth = 0.7, data = temppred_forage)+
+    scale_color_manual(values = foodcols, guide = NULL)+
+    scale_fill_manual(values = foodcols, guide = NULL)+
+    labs(x = "Temperature (°C)", y = "Foraging rate (hr/day)", subtitle = "D)")+
+    themethesisright)
+
+
+
+
+# Create final figure and save --------------------------------------------
+
+# 4 panel figure
+fullfig <- ggarrange(bio_fecal, temp_fecal, density_forage, temp_forage, align = c("hv"))
+fullfig
+
+# save
+ggsave("Output/Figures/Full_Figure.jpeg", width = 8, height = 8, unit = "in")
 
 
 
