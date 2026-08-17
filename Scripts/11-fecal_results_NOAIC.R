@@ -62,7 +62,6 @@ setnames(temppred_fecal, "group", "food")
 
 
 
-
 # Foraging Rate Analysis -------------------------------------------------------
 
 Q2 <- lmer(forage ~ haredensity*food + biomass*food + mortrate*food + temp*food + nightlength + (1|id) + (1|snowgrid), forag)
@@ -79,6 +78,17 @@ temppred_forage <- as.data.table(ggpredict(Q2, terms = c("temp", "food")))
 setnames(temppred_forage, "group", "food")
 
 
+(temp_forage <- 
+    ggplot()+
+    geom_point(aes(x = temp, y = forage, color = food), alpha = .2, data = forag)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.4, data = temppred_forage)+
+    geom_line(aes(x = x, y = predicted, color = food), linewidth = 0.7, data = temppred_forage)+
+    scale_color_manual(values = foodcols, name = "Food treatment")+
+    scale_fill_manual(values = foodcols, name = "Food treatment")+
+    labs(x = "Temperature (°C)", y = "Foraging rate (hr/day)", subtitle = "A)")+
+    themethesisright + 
+    theme(legend.position = c(.15, .85),
+                          legend.background = element_blank()))
 
 (density_forage <- 
     ggplot()+
@@ -87,31 +97,22 @@ setnames(temppred_forage, "group", "food")
     geom_line(aes(x = x, y = predicted, color = food), linewidth = 0.7, data = densitypred_forage)+
     scale_color_manual(values = foodcols, guide = NULL)+
     scale_fill_manual(values = foodcols, guide = NULL)+
-    labs(x = "Hare density (hares/ha)", y = "Foraging rate (hr/day)", subtitle = "C)")+
+    labs(x = "Hare density (hares/ha)", y = "Foraging rate (hr/day)", subtitle = "B)")+
     themethesisright)
-
-(temp_forage <- 
-    ggplot()+
-    geom_point(aes(x = temp, y = forage, color = food), alpha = .2, data = forag)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.4, data = temppred_forage)+
-    geom_line(aes(x = x, y = predicted, color = food), linewidth = 0.7, data = temppred_forage)+
-    scale_color_manual(values = foodcols, guide = NULL)+
-    scale_fill_manual(values = foodcols, guide = NULL)+
-    labs(x = "Temperature (°C)", y = "Foraging rate (hr/day)", subtitle = "D)")+
-    themethesisright)
-
-
 
 
 # Create final figure and save --------------------------------------------
 
 # 4 panel figure
-fullfig <- ggarrange(bio_fecal, temp_fecal, density_forage, temp_forage, align = c("hv"))
-fullfig
+fecalfig <- ggarrange(bio_fecal, temp_fecal, ncol = 1, nrow = 2, align = c("h"))
+fecalfig
+
+foragefig <- ggarrange(temp_forage, density_forage, ncol = 1, nrow = 2, align = c("h"))
+foragefig
 
 # save
-ggsave("Output/Figures/Full_Figure.jpeg", width = 8, height = 8, unit = "in")
-
+ggsave("Output/Figures/Fecal_Figure.jpeg", fecalfig, width = 5, height = 9, unit = "in")
+ggsave("Output/Figures/Foraging_Figure.jpeg", foragefig, width = 5, height = 9, unit = "in")
 
 
 
