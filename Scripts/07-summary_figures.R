@@ -24,22 +24,6 @@ fecal[m == 1, monthfactor := "Jan"][m == 3, monthfactor := "Mar"]
 
 
 
-# Dependent variables ---------------------------
-
-
-# #fecal protein by year
-# (feces <-
-#     ggplot(fecal)+
-#     geom_abline(intercept = 10, slope = 0, linetype = 2)+
-#     geom_boxplot(aes(x = yearfactor, y = CP_dm, fill = food), alpha = .5, outlier.shape = NA)+
-#     labs(y = "Fecal crude protein (%)", x = "Year")+
-#     scale_fill_manual(values = foodcols, name = "Food treatment")+
-#     themethesisright)
-
-
-
-# Independent variables ------------------------------------------------------
-
 #hare density
 (dweek <- 
    ggplot(dat)+
@@ -103,6 +87,5 @@ sumindfig <- ggarrange(dweek, mweek, tweek, bweek, fweek, cpweek,
 # save -----------------------------------------
 
 ggsave("Output/Figures/vars_weekly.jpeg", sumindfig, width = 8, height = 14, unit = "in")
-#ggsave("Output/Figures/fecal_data.jpeg", feces, width = 5, height = 4, unit = "in")
 
 
