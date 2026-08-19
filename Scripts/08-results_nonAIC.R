@@ -20,7 +20,9 @@ forag <- merge(forag, datW, by = c("week", "year", "yearfactor"), all.x = TRUE)
 #ADD A RANDOM EFFECT FOR THIS MODEL?
 Q1 <- lmer(CP_dm ~ biomass*food + temp*food + haredensity*food + mortrate*food + (1|snowgrid), fecal)
 summary(Q1)
-anova(Q1)
+anova(Q1) #gives f-value. Typically f = 4 is significant. 
+car::Anova(Q1) #gives p-values
+lmerTest::ranova(Q1)
 round(r.squaredGLMM(Q1), 2)[1]
 
 #make predictive table
@@ -46,7 +48,7 @@ setnames(temppred_fecal, "group", "food")
     scale_fill_manual(values = foodcols, name = "Food treatment")+
     labs(x = "Twig biomass (kg/ha)", y = "Fecal protein (%)", subtitle = "A)")+
     themethesisright+
-    theme(legend.position = c(.15, .85),
+    theme(legend.position = c(.18, .88),
           legend.background = element_blank()))
 
 (temp_fecal <- 
@@ -67,9 +69,15 @@ setnames(temppred_fecal, "group", "food")
 Q2 <- lmer(forage ~ haredensity*food + biomass*food + mortrate*food + temp*food + nightlength + (1|id) + (1|snowgrid), forag)
 summary(Q2)
 anova(Q2)
+car::Anova(Q2)
+lmerTest::ranova(Q2)
 round(r.squaredGLMM(Q2), 2)[1]
 
-#show effect of biomass*food
+#get prediction for biomass*food
+biomasspred_forage <- as.data.table(ggpredict(Q2, terms = c("biomass", "food")))
+setnames(biomasspred_forage, "group", "food")
+
+#get prediction for density*food
 densitypred_forage <- as.data.table(ggpredict(Q2, terms = c("haredensity", "food")))
 setnames(densitypred_forage, "group", "food")
 
@@ -77,42 +85,54 @@ setnames(densitypred_forage, "group", "food")
 temppred_forage <- as.data.table(ggpredict(Q2, terms = c("temp", "food")))
 setnames(temppred_forage, "group", "food")
 
-
-(temp_forage <- 
-    ggplot()+
-    geom_point(aes(x = temp, y = forage, color = food), alpha = .2, data = forag)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.4, data = temppred_forage)+
-    geom_line(aes(x = x, y = predicted, color = food), linewidth = 0.7, data = temppred_forage)+
-    scale_color_manual(values = foodcols, name = "Food treatment")+
-    scale_fill_manual(values = foodcols, name = "Food treatment")+
-    labs(x = "Temperature (°C)", y = "Foraging rate (hr/day)", subtitle = "A)")+
-    themethesisright + 
-    theme(legend.position = c(.15, .85),
-                          legend.background = element_blank()))
+# (biomass_forage <- 
+#     ggplot()+
+#     geom_point(aes(x = biomass, y = forage, color = food), alpha = .3, data = forag)+
+#     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.3, data = biomasspred_forage)+
+#     geom_line(aes(x = x, y = predicted, color = food), linewidth = 0.7, data = biomasspred_forage)+
+#     scale_color_manual(values = foodcols, name = "Food treatment")+
+#     scale_fill_manual(values = foodcols, name = "Food treatment")+
+#     labs(x = "Twig biomass (kg/ha)", y = "Foraging rate (hr/day)", subtitle = "A)")+
+#     themethesisright + 
+#     theme(legend.position = c(.18, .85),
+#           legend.background = element_blank()))
 
 (density_forage <- 
     ggplot()+
     geom_point(aes(x = haredensity, y = forage, color = food), alpha = .2, data = forag)+
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.4, data = densitypred_forage)+
     geom_line(aes(x = x, y = predicted, color = food), linewidth = 0.7, data = densitypred_forage)+
+    scale_color_manual(values = foodcols, name = "Food treatment")+
+    scale_fill_manual(values = foodcols, name = "Food treatment")+
+    labs(x = "Hare density (hares/ha)", y = "Foraging rate (hr/day)", subtitle = "A)")+
+    themethesisright +
+    theme(legend.position = c(.18, .88),
+    legend.background = element_blank()))
+
+(temp_forage <- 
+    ggplot()+
+    geom_point(aes(x = temp, y = forage, color = food), alpha = .3, data = forag)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.3, data = temppred_forage)+
+    geom_line(aes(x = x, y = predicted, color = food), linewidth = 0.7, data = temppred_forage)+
     scale_color_manual(values = foodcols, guide = NULL)+
     scale_fill_manual(values = foodcols, guide = NULL)+
-    labs(x = "Hare density (hares/ha)", y = "Foraging rate (hr/day)", subtitle = "B)")+
+    labs(x = "Temperature (°C)", y = "Foraging rate (hr/day)", subtitle = "B)")+
     themethesisright)
+
 
 
 # Create final figure and save --------------------------------------------
 
 # 4 panel figure
-fecalfig <- ggarrange(bio_fecal, temp_fecal, ncol = 1, nrow = 2, align = c("h"))
+fecalfig <- ggarrange(bio_fecal, temp_fecal, ncol = 1, nrow = 2, align = c("hv"))
 fecalfig
 
-foragefig <- ggarrange(temp_forage, density_forage, ncol = 1, nrow = 2, align = c("h"))
+foragefig <- ggarrange(density_forage, temp_forage, ncol = 1, nrow = 2, align = c("hv"))
 foragefig
 
 # save
-ggsave("Output/Figures/Fecal_Figure.jpeg", fecalfig, width = 5, height = 9, unit = "in")
-ggsave("Output/Figures/Foraging_Figure.jpeg", foragefig, width = 5, height = 9, unit = "in")
+ggsave("Output/Figures/Fecal_Figure.jpeg", fecalfig, width = 4, height = 8, unit = "in")
+ggsave("Output/Figures/Foraging_Figure.jpeg", foragefig, width = 4, height = 8, unit = "in")
 
 
 
