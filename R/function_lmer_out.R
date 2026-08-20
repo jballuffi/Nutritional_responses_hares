@@ -1,29 +1,19 @@
 
 lmer_out <- function(model) {
   
-  #collect coef values
-  coef <- round(fixef(model), 2)
-  se <- round(se.fixef(model), 2)
-
-  #start table  
+  coef <- round(fixef(model), 2) #collect coefficients
+  se <- round(se.fixef(model), 2) #collect standard errors
+  
+  #start table of effect names and coef +/- standard error
   modcoef <- data.table(
     Effect = names(fixef(Q1)),
-    Coef = paste0(coef, " ± ", se)
+    Slope = paste0(coef, " ± ", se)
     )
   
-  #remove intercept
-  modcoef <- modcoef[!grep("Inter", Effect)]
+  modcoef <- modcoef[!grep("Inter", Effect)] #remove intercept
+  modcoef[, `F-value` := round(anova(Q1)[4], 2)] #add F value
+  modcoef[, `p-value` := round(Anova(model)[3], 3)] #add p values
   
-  #add in F value
-  modcoef[, `F-value` := anova(Q1)[4]]
-  
-  #add in P value
-  modcoef[, `p-value` := ]
-  
-  return(modcoef)
+  return(modcoef) #return full table
 }
 
-Q1_sum <- lmer_out(Q1)
-
-
-car::Anova(Q1)[3]
