@@ -15,62 +15,6 @@ forag <- merge(forag, datW, by = c("week", "year", "yearfactor"), all.x = TRUE)
 
 
 
-# Fecal Protein Analysis ------------------------------------------------------------
-
-#Build model
-Q1 <- lmer(CP_dm ~ biomass*food + temp*food + haredensity*food + mortrate*food + (1|snowgrid), fecal)
-
-#summarize model
-summary(Q1)
-anova(Q1) #gives f value
-Anova(Q1) #gives p value
-lmerTest::ranova(Q1) #residuals
-
-#get table of results
-Q1_sum <- lmer_out(Q1)
-
-#get R2
-Q1R2 <- round(r.squaredGLMM(Q1), 2)[1]
-
-#make predictive table
-biopred_fecal <- as.data.table(ggpredict(Q1, terms = c("biomass", "food")))
-setnames(biopred_fecal, "group", "food")
-
-temppred_fecal <- as.data.table(ggpredict(Q1, terms = c("temp", "food")))
-setnames(temppred_fecal, "group", "food")
-
-# mortpred <- as.data.table(ggpredict(Q1, terms = c("mortrate", "food")))
-# setnames(mortpred, "group", "food")
-# 
-# denspred <- as.data.table(ggpredict(Q1, terms = c("haredensity", "food")))
-# setnames(denspred, "group", "food")
-
-(bio_fecal <- 
-    ggplot()+
-    geom_abline(intercept = 10, slope = 0, linetype = 2)+
-    geom_point(aes(x = biomass, y = CP_dm, color = food), alpha = .2, data = fecal)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.4, data = biopred_fecal)+
-    geom_line(aes(x = x, y = predicted, color = food), linewidth = 0.7, data = biopred_fecal)+
-    scale_color_manual(values = foodcols, name = "Food treatment")+
-    scale_fill_manual(values = foodcols, name = "Food treatment")+
-    labs(x = "Twig biomass (kg/ha)", y = "Fecal protein (%)", subtitle = "A)")+
-    themethesisright+
-    theme(legend.position = c(.18, .88),
-          legend.background = element_blank()))
-
-(temp_fecal <- 
-    ggplot()+
-    geom_abline(intercept = 10, slope = 0, linetype = 2)+
-    geom_point(aes(x = temp, y = CP_dm, color = food), alpha = .2, data = fecal)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.4, data = temppred_fecal)+
-    geom_line(aes(x = x, y = predicted, color = food), linewidth = 0.7, data = temppred_fecal)+
-    scale_color_manual(values = foodcols, guide = NULL)+
-    scale_fill_manual(values = foodcols, guide = NULL)+
-    labs(x = "Temperature (°C)", y = "Fecal protein (%)", subtitle = "B)")+
-    themethesisright)
-
-
-
 # Foraging Rate Analysis -------------------------------------------------------
 
 #build model
@@ -116,6 +60,57 @@ setnames(temppred_forage, "group", "food")
     scale_color_manual(values = foodcols, guide = NULL)+
     scale_fill_manual(values = foodcols, guide = NULL)+
     labs(x = "Temperature (°C)", y = "Foraging rate (hr/day)", subtitle = "B)")+
+    themethesisright)
+
+
+
+# Fecal Protein Analysis ------------------------------------------------------------
+
+#Build model
+Q1 <- lmer(CP_dm ~ biomass*food + temp*food + haredensity*food + mortrate*food + (1|snowgrid), fecal)
+
+#summarize model
+summary(Q1)
+anova(Q1) #gives f value
+Anova(Q1) #gives p value
+lmerTest::ranova(Q1) #residuals
+
+#get table of results
+Q1_sum <- lmer_out(Q1)
+
+#get R2
+Q1R2 <- round(r.squaredGLMM(Q1), 2)[1]
+
+#make predictive tables
+biopred_fecal <- as.data.table(ggpredict(Q1, terms = c("biomass", "food")))
+setnames(biopred_fecal, "group", "food")
+
+temppred_fecal <- as.data.table(ggpredict(Q1, terms = c("temp", "food")))
+setnames(temppred_fecal, "group", "food")
+
+#figure
+(bio_fecal <- 
+    ggplot()+
+    geom_abline(intercept = 10, slope = 0, linetype = 2)+
+    geom_point(aes(x = biomass, y = CP_dm, color = food), alpha = .2, data = fecal)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.4, data = biopred_fecal)+
+    geom_line(aes(x = x, y = predicted, color = food), linewidth = 0.7, data = biopred_fecal)+
+    scale_color_manual(values = foodcols, name = "Food treatment")+
+    scale_fill_manual(values = foodcols, name = "Food treatment")+
+    labs(x = "Twig biomass (kg/ha)", y = "Fecal protein (%)", subtitle = "A)")+
+    themethesisright+
+    theme(legend.position = c(.18, .88),
+          legend.background = element_blank()))
+
+(temp_fecal <- 
+    ggplot()+
+    geom_abline(intercept = 10, slope = 0, linetype = 2)+
+    geom_point(aes(x = temp, y = CP_dm, color = food), alpha = .2, data = fecal)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.4, data = temppred_fecal)+
+    geom_line(aes(x = x, y = predicted, color = food), linewidth = 0.7, data = temppred_fecal)+
+    scale_color_manual(values = foodcols, guide = NULL)+
+    scale_fill_manual(values = foodcols, guide = NULL)+
+    labs(x = "Temperature (°C)", y = "Fecal protein (%)", subtitle = "B)")+
     themethesisright)
 
 
