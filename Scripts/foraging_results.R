@@ -28,8 +28,8 @@ foragfood <- forag[winter %in% foodyears]
 
 # descriptive results --------------------------------------------------
 
-#effect of food on food add dataset
-suppmod <- lm(forage ~ food, foragfood)
+#effect of food on food add data set
+suppmod <- lm(forage ~ food, forag)
 suppanova <- anova(suppmod)
 suppsum <- summary(suppmod)
 supp_p <- round(suppanova$`Pr(>F)`[1], 3)

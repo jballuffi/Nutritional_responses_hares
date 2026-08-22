@@ -17,6 +17,33 @@ forag <- merge(forag, datW, by = c("week", "year", "yearfactor"), all.x = TRUE)
 
 # Foraging Rate Analysis -------------------------------------------------------
 
+#DESCRIPTIVE RESULTS
+#effect of food on food add data set
+suppmod <- lm(forage ~ food, forag)
+suppanova <- anova(suppmod)
+suppsum <- summary(suppmod)
+supp_p <- round(suppanova$`Pr(>F)`[1], 3)
+supp_t <- round(suppsum$coefficients[, 3][2], 2) #t-value
+supp_df <- suppanova$Df[2]
+rsq(suppmod)
+
+#effect of sex on controls
+sexmod <- anova(lm(forage ~ sex, forag[food == "Control"]))
+psex <- round(sexmod$`Pr(>F)`[1], 3)
+
+#effect of night length on foraging rate
+nightmod <- lm(forage ~ nightlength, forag) #make model
+nightsum <- summary(nightmod) #sum of model
+nightanova <- anova(nightmod) #anova of model
+nightcoef <- round(nightsum$coefficients[, 1][2]*60, 1) #coefficient
+nightse <- round(nightsum$coefficients[, 2][2]*60, 1) #standard error
+pnight <- round(nightanova$`Pr(>F)`[1], 3) #p-value
+tnight <- round(nightsum$coefficients[, 3][2], 2) #t-value
+dfnight <- nightanova$Df[2]
+rsq(nightmod)
+
+
+#MODEL
 #build model
 Q2 <- lmer(forage ~ haredensity*food + biomass*food + mortrate*food + temp*food + nightlength + (1|id) + (1|snowgrid), forag)
 
@@ -32,40 +59,36 @@ Q2_sum <- lmer_out(Q2)
 #get R2
 Q2R2 <- round(r.squaredGLMM(Q2), 2)[1]
 
-#get prediction for density*food
-densitypred_forage <- as.data.table(ggpredict(Q2, terms = c("haredensity", "food")))
-setnames(densitypred_forage, "group", "food")
 
-#show effect of temperature*food
-temppred_forage <- as.data.table(ggpredict(Q2, terms = c("temp", "food")))
-setnames(temppred_forage, "group", "food")
 
-(density_forage <- 
-    ggplot()+
-    geom_point(aes(x = haredensity, y = forage, color = food), alpha = .2, data = forag)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.4, data = densitypred_forage)+
-    geom_line(aes(x = x, y = predicted, color = food), linewidth = 0.7, data = densitypred_forage)+
-    scale_color_manual(values = foodcols, name = "Food treatment")+
-    scale_fill_manual(values = foodcols, name = "Food treatment")+
-    labs(x = "Hare density (hares/ha)", y = "Foraging rate (hr/day)", subtitle = "A)")+
-    themethesisright +
-    theme(legend.position = c(.18, .88),
-    legend.background = element_blank()))
+#get t-values
+foodsb_t = round(coef(summary(foodmod))[,"t value"][2], 2)
+foodt_t = round(coef(summary(foodmod))[,"t value"][4], 2)
+food_t = round(coef(summary(foodmod))[,"t value"][3], 2)
+intsb_t = round(coef(summary(foodmod))[,"t value"][6], 2 )
+intt_t = round(coef(summary(foodmod))[,"t value"][7], 2 )
 
-(temp_forage <- 
-    ggplot()+
-    geom_point(aes(x = temp, y = forage, color = food), alpha = .3, data = forag)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.3, data = temppred_forage)+
-    geom_line(aes(x = x, y = predicted, color = food), linewidth = 0.7, data = temppred_forage)+
-    scale_color_manual(values = foodcols, guide = NULL)+
-    scale_fill_manual(values = foodcols, guide = NULL)+
-    labs(x = "Temperature (°C)", y = "Foraging rate (hr/day)", subtitle = "B)")+
-    themethesisright)
+#get coefficients
+foodt_coef <- round(fixef(foodmod)[4], 3)
+food_coef <- round(fixef(foodmod)[3], 2)
+foodsbf_coef <- round(fixef(foodmod)[6], 2)
+foodtf_coef <- round(fixef(foodmod)[7], 2)
+
+#get standard errorts
+foodt_se <- round(se.fixef(foodmod)[4], 3)
+food_se <- round(se.fixef(foodmod)[3], 2)
+foodsbf_se <- round(se.fixef(foodmod)[6], 2)
+foodtf_se <- round(se.fixef(foodmod)[7], 2)
+
+
+
 
 
 
 # Fecal Protein Analysis ------------------------------------------------------------
 
+
+#MODEL
 #Build model
 Q1 <- lmer(CP_dm ~ biomass*food + temp*food + haredensity*food + mortrate*food + (1|snowgrid), fecal)
 
@@ -81,10 +104,48 @@ Q1_sum <- lmer_out(Q1)
 #get R2
 Q1R2 <- round(r.squaredGLMM(Q1), 2)[1]
 
-#make predictive tables
+
+
+# Figures -----------------------------------------------------------------
+
+#FORAGING
+#get forage prediction for density*food
+densitypred_forage <- as.data.table(ggpredict(Q2, terms = c("haredensity", "food")))
+setnames(densitypred_forage, "group", "food")
+
+#get forage prediction for temperature*food
+temppred_forage <- as.data.table(ggpredict(Q2, terms = c("temp", "food")))
+setnames(temppred_forage, "group", "food")
+
+(density_forage <- 
+    ggplot()+
+    geom_point(aes(x = haredensity, y = forage, color = food), alpha = .2, data = forag)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.4, data = densitypred_forage)+
+    geom_line(aes(x = x, y = predicted, color = food), linewidth = 0.7, data = densitypred_forage)+
+    scale_color_manual(values = foodcols, name = "Food treatment")+
+    scale_fill_manual(values = foodcols, name = "Food treatment")+
+    labs(x = "Hare density (hares/ha)", y = "Foraging rate (hr/day)", subtitle = "A)")+
+    themethesisright +
+    theme(legend.position = c(.18, .88),
+          legend.background = element_blank()))
+
+(temp_forage <- 
+    ggplot()+
+    geom_point(aes(x = temp, y = forage, color = food), alpha = .3, data = forag)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.3, data = temppred_forage)+
+    geom_line(aes(x = x, y = predicted, color = food), linewidth = 0.7, data = temppred_forage)+
+    scale_color_manual(values = foodcols, guide = NULL)+
+    scale_fill_manual(values = foodcols, guide = NULL)+
+    labs(x = "Temperature (°C)", y = "Foraging rate (hr/day)", subtitle = "B)")+
+    themethesisright)
+
+
+#FECAL
+#get fecal prediction for biomass*food
 biopred_fecal <- as.data.table(ggpredict(Q1, terms = c("biomass", "food")))
 setnames(biopred_fecal, "group", "food")
 
+#get fecal prediction for temp*food
 temppred_fecal <- as.data.table(ggpredict(Q1, terms = c("temp", "food")))
 setnames(temppred_fecal, "group", "food")
 
@@ -112,6 +173,10 @@ setnames(temppred_fecal, "group", "food")
     scale_fill_manual(values = foodcols, guide = NULL)+
     labs(x = "Temperature (°C)", y = "Fecal protein (%)", subtitle = "B)")+
     themethesisright)
+
+
+
+
 
 
 
