@@ -60,25 +60,26 @@ Q2_sum <- lmer_out(Q2)
 Q2R2 <- round(r.squaredGLMM(Q2), 2)[1]
 
 
-
 #get t-values
-foodsb_t = round(coef(summary(foodmod))[,"t value"][2], 2)
-foodt_t = round(coef(summary(foodmod))[,"t value"][4], 2)
-food_t = round(coef(summary(foodmod))[,"t value"][3], 2)
-intsb_t = round(coef(summary(foodmod))[,"t value"][6], 2 )
-intt_t = round(coef(summary(foodmod))[,"t value"][7], 2 )
+t_density = round(coef(summary(Q2))[,"t value"][2], 2)
+t_food    = round(coef(summary(Q2))[,"t value"][3], 2)
+t_biomass = round(coef(summary(Q2))[,"t value"][4], 2)
+t_mort = round(coef(summary(Q2))[,"t value"][5], 2)
+t_temp = round(coef(summary(Q2))[,"t value"][6], 2)
+t_densityint = round(coef(summary(Q2))[,"t value"][8], 2 )
+t_tempint = round(coef(summary(Q2))[,"t value"][11], 2 )
 
 #get coefficients
-foodt_coef <- round(fixef(foodmod)[4], 3)
-food_coef <- round(fixef(foodmod)[3], 2)
-foodsbf_coef <- round(fixef(foodmod)[6], 2)
-foodtf_coef <- round(fixef(foodmod)[7], 2)
+b_density <- round(fixef(Q2)[2], 3)
+b_food <- round(fixef(Q2)[3], 2)
+b_temp <- round(fixef(Q2)[6], 3)
+b_densityint <- round(fixef(Q2)[8], 3)
 
 #get standard errorts
-foodt_se <- round(se.fixef(foodmod)[4], 3)
-food_se <- round(se.fixef(foodmod)[3], 2)
-foodsbf_se <- round(se.fixef(foodmod)[6], 2)
-foodtf_se <- round(se.fixef(foodmod)[7], 2)
+se_density <- round(se.fixef(Q2)[2], 3)
+se_food <- round(se.fixef(Q2)[3], 2)
+se_temp <- round(se.fixef(Q2)[6], 2)
+se_densityint <- round(se.fixef(Q2)[8], 2)
 
 
 
