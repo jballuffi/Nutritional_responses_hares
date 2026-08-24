@@ -124,5 +124,5 @@ foragefig
 
 ggsave("Output/Figures/Foraging_Figure.jpeg", foragefig, width = 4, height = 8, unit = "in")
 write.csv(Q2_sum, "Output/Tables/foraging_model_results.csv")
-saveRDS(Q2R2, "Output/Data/foraging_R2.rds")
+#saveRDS(Q2R2, "Output/Data/foraging_R2.rds")
 
