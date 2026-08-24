@@ -52,8 +52,8 @@ lmerTest::ranova(Q2) #residuals
 Q2_sum <- lmer_out(Q2)
 
 #get R2
-Q2R2 <- round(r.squaredGLMM(Q2), 2)[1]
-
+Q2R2m <- round(r.squaredGLMM(Q2), 2)[1]
+Q2R2c <- round(r.squaredGLMM(Q2), 2)[2]
 
 #get t-values
 t_density = round(coef(summary(Q2))[,"t value"][2], 2)
@@ -66,16 +66,18 @@ t_tempint = round(coef(summary(Q2))[,"t value"][11], 2 )
 
 #get coefficients
 b_density <- round(fixef(Q2)[2], 3)
-b_food <- round(fixef(Q2)[3], 2)
+b_food <- round(fixef(Q2)[3], 3)
 b_temp <- round(fixef(Q2)[6], 3)
 b_densityint <- round(fixef(Q2)[8], 3)
 
-#get standard errorts
+#get standard errors
 se_density <- round(se.fixef(Q2)[2], 3)
 se_food <- round(se.fixef(Q2)[3], 2)
 se_temp <- round(se.fixef(Q2)[6], 2)
 se_densityint <- round(se.fixef(Q2)[8], 2)
 
+#confident limits
+round(confint(Q2), 2)
 
 
 
@@ -84,18 +86,18 @@ se_densityint <- round(se.fixef(Q2)[8], 2)
 
 #FORAGING
 #get forage prediction for density*food
-densitypred_forage <- as.data.table(ggpredict(Q2, terms = c("haredensity", "food")))
-setnames(densitypred_forage, "group", "food")
+densitypred <- as.data.table(ggpredict(Q2, terms = c("haredensity", "food")))
+setnames(densitypred, "group", "food")
 
 #get forage prediction for temperature*food
-temppred_forage <- as.data.table(ggpredict(Q2, terms = c("temp", "food")))
-setnames(temppred_forage, "group", "food")
+temppred <- as.data.table(ggpredict(Q2, terms = c("temp", "food")))
+setnames(temppred, "group", "food")
 
 (density_forage <- 
     ggplot()+
     geom_point(aes(x = haredensity, y = forage, color = food), alpha = .2, data = forag)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.4, data = densitypred_forage)+
-    geom_line(aes(x = x, y = predicted, color = food), linewidth = 0.7, data = densitypred_forage)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.4, data = densitypred)+
+    geom_line(aes(x = x, y = predicted, color = food), linewidth = 0.7, data = densitypred)+
     scale_color_manual(values = foodcols, name = "Food treatment")+
     scale_fill_manual(values = foodcols, name = "Food treatment")+
     labs(x = "Hare density (hares/ha)", y = "Foraging rate (hr/day)", subtitle = "A)")+
@@ -106,8 +108,8 @@ setnames(temppred_forage, "group", "food")
 (temp_forage <- 
     ggplot()+
     geom_point(aes(x = temp, y = forage, color = food), alpha = .3, data = forag)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.3, data = temppred_forage)+
-    geom_line(aes(x = x, y = predicted, color = food), linewidth = 0.7, data = temppred_forage)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, fill = food), alpha = 0.3, data = temppred)+
+    geom_line(aes(x = x, y = predicted, color = food), linewidth = 0.7, data = temppred)+
     scale_color_manual(values = foodcols, guide = NULL)+
     scale_fill_manual(values = foodcols, guide = NULL)+
     labs(x = "Temperature (°C)", y = "Foraging rate (hr/day)", subtitle = "B)")+
